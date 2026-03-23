@@ -73,6 +73,7 @@
     </bpmn:task>
     <bpmn:task id="Activity_0yqd3iz" name="Przekierowuje do zwrotu płatności">
       <bpmn:incoming>Flow_0p37ap4</bpmn:incoming>
+      <bpmn:outgoing>Flow_0r9qj2p</bpmn:outgoing>
     </bpmn:task>
     <bpmn:endEvent id="Event_0898qh4">
       <bpmn:incoming>Flow_0n4ch72</bpmn:incoming>
@@ -93,8 +94,10 @@
     </bpmn:exclusiveGateway>
     <bpmn:task id="Activity_1nlsn93" name="Przekierowuje do płatności">
       <bpmn:incoming>Flow_1ljbanh</bpmn:incoming>
+      <bpmn:outgoing>Flow_0c2m8ab</bpmn:outgoing>
     </bpmn:task>
     <bpmn:task id="Activity_03bct8x" name="Otrzymuje potwierdzenie płatności i rezerwacji wizyty">
+      <bpmn:incoming>Flow_0c2m8ab</bpmn:incoming>
       <bpmn:outgoing>Flow_0tchm01</bpmn:outgoing>
     </bpmn:task>
     <bpmn:endEvent id="Event_14mrj4k">
@@ -108,6 +111,7 @@
       <bpmn:incoming>Flow_03945q1</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:task id="Activity_07btw12" name="Otrzymuje potwierdzenie zwrot płatności i anulowania wizyty">
+      <bpmn:incoming>Flow_0r9qj2p</bpmn:incoming>
       <bpmn:outgoing>Flow_1l3670t</bpmn:outgoing>
     </bpmn:task>
     <bpmn:endEvent id="Event_1c4yrro">
@@ -129,6 +133,8 @@
     <bpmn:sequenceFlow id="Flow_1pvdsbq" name="Nie" sourceRef="Gateway_0llps8q" targetRef="Activity_0wem2we" />
     <bpmn:sequenceFlow id="Flow_1d9r2a7" sourceRef="Activity_0wem2we" targetRef="Gateway_0llps8q" />
     <bpmn:sequenceFlow id="Flow_1ljbanh" sourceRef="Gateway_0llps8q" targetRef="Activity_1nlsn93" />
+    <bpmn:sequenceFlow id="Flow_0c2m8ab" sourceRef="Activity_1nlsn93" targetRef="Activity_03bct8x" />
+    <bpmn:sequenceFlow id="Flow_0r9qj2p" sourceRef="Activity_0yqd3iz" targetRef="Activity_07btw12" />
     <bpmn:sequenceFlow id="Flow_0tchm01" sourceRef="Activity_03bct8x" targetRef="Event_14mrj4k" />
     <bpmn:sequenceFlow id="Flow_03945q1" sourceRef="Activity_0aibi8m" targetRef="Event_0x733c6" />
     <bpmn:sequenceFlow id="Flow_1l3670t" sourceRef="Activity_07btw12" targetRef="Event_1c4yrro" />

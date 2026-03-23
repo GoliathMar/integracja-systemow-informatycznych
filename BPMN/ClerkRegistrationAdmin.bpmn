@@ -16,8 +16,6 @@
         <bpmn:flowNodeRef>Task_CreateAccount</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_GenerateCredentials</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_Validate</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Event_0q8fuci</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Event_17oskbu</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
     <bpmn:startEvent id="StartEvent_1" name="Wniosek o nowe konto">
@@ -25,17 +23,16 @@
     </bpmn:startEvent>
     <bpmn:userTask id="Task_EnterData" name="Wprowadź dane pracownika rejestracji">
       <bpmn:incoming>Flow_1</bpmn:incoming>
-      <bpmn:incoming>Flow_1nuxftw</bpmn:incoming>
+      <bpmn:incoming>Flow_1i757ci</bpmn:incoming>
       <bpmn:outgoing>Flow_2</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:userTask id="Task_SelectRole" name="Wybierz rolę i placówkę">
       <bpmn:incoming>Flow_2</bpmn:incoming>
       <bpmn:outgoing>Flow_3</bpmn:outgoing>
-      <bpmn:outgoing>Flow_1mp21xr</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_1" targetRef="Task_EnterData" />
     <bpmn:sequenceFlow id="Flow_2" sourceRef="Task_EnterData" targetRef="Task_SelectRole" />
-    <bpmn:sequenceFlow id="Flow_3" sourceRef="Task_SelectRole" targetRef="Event_0q8fuci" />
+    <bpmn:sequenceFlow id="Flow_3" sourceRef="Task_SelectRole" targetRef="Task_Validate" />
     <bpmn:sequenceFlow id="Flow_4" sourceRef="Task_Validate" targetRef="Gateway_DataValid" />
     <bpmn:exclusiveGateway id="Gateway_DataValid" name="Dane poprawne?">
       <bpmn:incoming>Flow_4</bpmn:incoming>
@@ -53,29 +50,15 @@
     <bpmn:sequenceFlow id="Flow_5" name="tak" sourceRef="Gateway_DataValid" targetRef="Task_CreateAccount" />
     <bpmn:sequenceFlow id="Flow_6" sourceRef="Task_CreateAccount" targetRef="Task_GenerateCredentials" />
     <bpmn:serviceTask id="Task_Validate" name="Zweryfikuj kompletność i duplikaty">
-      <bpmn:incoming>Flow_1dnfzji</bpmn:incoming>
+      <bpmn:incoming>Flow_3</bpmn:incoming>
       <bpmn:outgoing>Flow_4</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:intermediateCatchEvent id="Event_0q8fuci">
-      <bpmn:incoming>Flow_3</bpmn:incoming>
-      <bpmn:outgoing>Flow_1dnfzji</bpmn:outgoing>
-      <bpmn:messageEventDefinition id="MessageEventDefinition_1a2iugv" />
-    </bpmn:intermediateCatchEvent>
-    <bpmn:sequenceFlow id="Flow_1dnfzji" sourceRef="Event_0q8fuci" targetRef="Task_Validate" />
-    <bpmn:sequenceFlow id="Flow_1i757ci" name="nie" sourceRef="Gateway_DataValid" targetRef="Event_17oskbu" />
-    <bpmn:intermediateThrowEvent id="Event_17oskbu">
-      <bpmn:incoming>Flow_1i757ci</bpmn:incoming>
-      <bpmn:outgoing>Flow_1nuxftw</bpmn:outgoing>
-      <bpmn:messageEventDefinition id="MessageEventDefinition_0rsn448" />
-    </bpmn:intermediateThrowEvent>
-    <bpmn:sequenceFlow id="Flow_1nuxftw" sourceRef="Event_17oskbu" targetRef="Task_EnterData" />
+    <bpmn:sequenceFlow id="Flow_1i757ci" name="nie" sourceRef="Gateway_DataValid" targetRef="Task_EnterData" />
     <bpmn:endEvent id="Event_08xcvdv">
       <bpmn:incoming>Flow_1cdzvrs</bpmn:incoming>
-      <bpmn:incoming>Flow_1mp21xr</bpmn:incoming>
       <bpmn:messageEventDefinition id="MessageEventDefinition_1m09cih" />
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_1cdzvrs" sourceRef="Task_GenerateCredentials" targetRef="Event_08xcvdv" />
-    <bpmn:sequenceFlow id="Flow_1mp21xr" sourceRef="Task_SelectRole" targetRef="Event_08xcvdv" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_ClerkRegistrationAdmin">
     <bpmndi:BPMNPlane id="BPMNPlane_ClerkRegistrationAdmin" bpmnElement="Collab_ClerkRegistrationAdmin">
@@ -114,12 +97,6 @@
       <bpmndi:BPMNShape id="S_Task_Validate" bpmnElement="Task_Validate">
         <dc:Bounds x="725" y="290" width="210" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0762yjb_di" bpmnElement="Event_0q8fuci">
-        <dc:Bounds x="612" y="312" width="36" height="36" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1kfyf0u_di" bpmnElement="Event_17oskbu">
-        <dc:Bounds x="372" y="312" width="36" height="36" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1sq8555_di" bpmnElement="Event_08xcvdv">
         <dc:Bounds x="1415" y="132" width="36" height="36" />
       </bpmndi:BPMNShape>
@@ -133,7 +110,8 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="E_Flow_3" bpmnElement="Flow_3">
         <di:waypoint x="630" y="190" />
-        <di:waypoint x="630" y="312" />
+        <di:waypoint x="630" y="330" />
+        <di:waypoint x="725" y="330" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="E_Flow_4" bpmnElement="Flow_4">
         <di:waypoint x="935" y="330" />
@@ -150,30 +128,18 @@
         <di:waypoint x="1283" y="330" />
         <di:waypoint x="1323" y="330" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1dnfzji_di" bpmnElement="Flow_1dnfzji">
-        <di:waypoint x="648" y="330" />
-        <di:waypoint x="725" y="330" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1i757ci_di" bpmnElement="Flow_1i757ci">
         <di:waypoint x="1033" y="355" />
         <di:waypoint x="1033" y="400" />
         <di:waypoint x="390" y="400" />
-        <di:waypoint x="390" y="348" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="704" y="382" width="15" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1nuxftw_di" bpmnElement="Flow_1nuxftw">
-        <di:waypoint x="390" y="312" />
         <di:waypoint x="390" y="190" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="712" y="383" width="15" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1cdzvrs_di" bpmnElement="Flow_1cdzvrs">
         <di:waypoint x="1433" y="290" />
         <di:waypoint x="1433" y="168" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1mp21xr_di" bpmnElement="Flow_1mp21xr">
-        <di:waypoint x="720" y="150" />
-        <di:waypoint x="1415" y="150" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

@@ -20,7 +20,6 @@
         <bpmn:flowNodeRef>Task_ValidateSlot</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_ReserveSlot</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_StartQueueTimer</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Event_0tuvv1s</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_PaymentSuccess</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_AddToDoctorSchedule</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_SendVisitNotification</bpmn:flowNodeRef>
@@ -41,10 +40,10 @@
     <bpmn:userTask id="Task_SelectVisitSlot" name="Wybierz termin wizyty">
       <bpmn:incoming>Flow_2</bpmn:incoming>
       <bpmn:outgoing>Flow_3</bpmn:outgoing>
-      <bpmn:outgoing>Flow_1lh3ykm</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1t5mt4p</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:serviceTask id="Task_ValidateSlot" name="Sprawdź dostępność terminu">
-      <bpmn:incoming>Flow_1er70w5</bpmn:incoming>
+      <bpmn:incoming>Flow_3</bpmn:incoming>
       <bpmn:outgoing>Flow_4</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:serviceTask id="Task_ReserveSlot" name="Tymczasowo zajmij miejsce">
@@ -61,7 +60,7 @@
     </bpmn:userTask>
     <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_1" targetRef="Task_SelectDoctorFacility" />
     <bpmn:sequenceFlow id="Flow_2" sourceRef="Task_SelectDoctorFacility" targetRef="Task_SelectVisitSlot" />
-    <bpmn:sequenceFlow id="Flow_3" sourceRef="Task_SelectVisitSlot" targetRef="Event_0tuvv1s" />
+    <bpmn:sequenceFlow id="Flow_3" sourceRef="Task_SelectVisitSlot" targetRef="Task_ValidateSlot" />
     <bpmn:sequenceFlow id="Flow_4" sourceRef="Task_ValidateSlot" targetRef="Task_ReserveSlot" />
     <bpmn:sequenceFlow id="Flow_5" sourceRef="Task_ReserveSlot" targetRef="Task_StartQueueTimer" />
     <bpmn:sequenceFlow id="Flow_6" sourceRef="Task_StartQueueTimer" targetRef="Event_1dujlkt" />
@@ -74,19 +73,12 @@
         <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">PT10M</bpmn:timeDuration>
       </bpmn:timerEventDefinition>
     </bpmn:boundaryEvent>
-    <bpmn:intermediateCatchEvent id="Event_0tuvv1s">
-      <bpmn:incoming>Flow_3</bpmn:incoming>
-      <bpmn:outgoing>Flow_1er70w5</bpmn:outgoing>
-      <bpmn:messageEventDefinition id="MessageEventDefinition_19og0ej" />
-    </bpmn:intermediateCatchEvent>
-    <bpmn:sequenceFlow id="Flow_1er70w5" sourceRef="Event_0tuvv1s" targetRef="Task_ValidateSlot" />
     <bpmn:intermediateThrowEvent id="Event_1dujlkt">
       <bpmn:incoming>Flow_6</bpmn:incoming>
-      <bpmn:incoming>Flow_1lh3ykm</bpmn:incoming>
+      <bpmn:incoming>Flow_1t5mt4p</bpmn:incoming>
       <bpmn:outgoing>Flow_0yolgv3</bpmn:outgoing>
       <bpmn:messageEventDefinition id="MessageEventDefinition_1txwrqq" />
     </bpmn:intermediateThrowEvent>
-    <bpmn:sequenceFlow id="Flow_1lh3ykm" sourceRef="Task_SelectVisitSlot" targetRef="Event_1dujlkt" />
     <bpmn:sequenceFlow id="Flow_0yolgv3" sourceRef="Event_1dujlkt" targetRef="Task_PayGateway" />
     <bpmn:exclusiveGateway id="Gateway_PaymentSuccess" name="Płatność zakończona sukcesem?">
       <bpmn:incoming>Flow_8</bpmn:incoming>
@@ -145,6 +137,7 @@
       <bpmn:incoming>Flow_16</bpmn:incoming>
       <bpmn:messageEventDefinition id="MessageEventDefinition_1sam817" />
     </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1t5mt4p" sourceRef="Task_SelectVisitSlot" targetRef="Event_1dujlkt" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_VisitRegistrationPatient">
     <bpmndi:BPMNPlane id="BPMNPlane_VisitRegistrationPatient" bpmnElement="Collab_VisitRegistrationPatient">
@@ -177,9 +170,6 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="S_Task_PayGateway" bpmnElement="Task_PayGateway">
         <dc:Bounds x="1600" y="110" width="230" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_17xp0zn_di" bpmnElement="Event_0tuvv1s">
-        <dc:Bounds x="637" y="322" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_173fyb2_di" bpmnElement="Event_1dujlkt">
         <dc:Bounds x="1397" y="132" width="36" height="36" />
@@ -245,7 +235,8 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="E_Flow_3" bpmnElement="Flow_3">
         <di:waypoint x="655" y="190" />
-        <di:waypoint x="655" y="322" />
+        <di:waypoint x="655" y="340" />
+        <di:waypoint x="800" y="340" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="E_Flow_4" bpmnElement="Flow_4">
         <di:waypoint x="990" y="340" />
@@ -272,14 +263,6 @@
         <di:waypoint x="1830" y="208" />
         <di:waypoint x="1830" y="440" />
         <di:waypoint x="2432" y="440" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1er70w5_di" bpmnElement="Flow_1er70w5">
-        <di:waypoint x="673" y="340" />
-        <di:waypoint x="800" y="340" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1lh3ykm_di" bpmnElement="Flow_1lh3ykm">
-        <di:waypoint x="750" y="150" />
-        <di:waypoint x="1397" y="150" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0yolgv3_di" bpmnElement="Flow_0yolgv3">
         <di:waypoint x="1433" y="150" />
@@ -336,6 +319,10 @@
       <bpmndi:BPMNEdge id="Flow_1hfr6cp_di" bpmnElement="Flow_1hfr6cp">
         <di:waypoint x="2018" y="340" />
         <di:waypoint x="2080" y="340" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1t5mt4p_di" bpmnElement="Flow_1t5mt4p">
+        <di:waypoint x="750" y="150" />
+        <di:waypoint x="1397" y="150" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

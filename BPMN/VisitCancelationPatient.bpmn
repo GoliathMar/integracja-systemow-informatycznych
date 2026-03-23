@@ -1,13 +1,188 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn">
-  <bpmn:process id="Process_1" isExecutable="false">
-    <bpmn:startEvent id="StartEvent_1" />
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_VisitCancelationPatient" targetNamespace="http://bpmn.io/schema/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.13.1">
+  <bpmn:collaboration id="Collab_VisitCancelationPatient">
+    <bpmn:participant id="Pool_VisitCancelationPatient" name="Anulowanie wizyty przez pacjenta" processRef="Process_VisitCancelationPatient" />
+  </bpmn:collaboration>
+  <bpmn:process id="Process_VisitCancelationPatient" name="Anulowanie wizyty przez pacjenta" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_VisitCancelationPatient">
+      <bpmn:lane id="Lane_Patient" name="Pacjent">
+        <bpmn:flowNodeRef>StartEvent_1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_RequestCancel</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ReceiveInfo</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_NotifyRefundReception</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_System" name="System">
+        <bpmn:flowNodeRef>Task_CheckPayment</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_PaymentMethod</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_RefundGateway</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_RefundSuccess</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_NotifyRefundProcessed</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="StartEvent_1" name="Pacjent chce anulować wizytę">
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="Task_RequestCancel" name="Zgłoś anulowanie wizyty">
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="Task_CheckPayment" name="Sprawdź status i metodę płatności wizyty">
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+      <bpmn:outgoing>Flow_3</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="Gateway_PaymentMethod" name="Opłacono przez bramkę?">
+      <bpmn:incoming>Flow_3</bpmn:incoming>
+      <bpmn:outgoing>Flow_4</bpmn:outgoing>
+      <bpmn:outgoing>Flow_5</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="Task_RefundGateway" name="Zleć zwrot przez bramkę płatniczą">
+      <bpmn:incoming>Flow_4</bpmn:incoming>
+      <bpmn:outgoing>Flow_6</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="Gateway_RefundSuccess" name="Zwrot przez bramkę udany?">
+      <bpmn:incoming>Flow_6</bpmn:incoming>
+      <bpmn:outgoing>Flow_7</bpmn:outgoing>
+      <bpmn:outgoing>Flow_8</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="Task_NotifyRefundProcessed" name="Poinformuj: zwrot został zlecony i przetworzony">
+      <bpmn:incoming>Flow_7</bpmn:incoming>
+      <bpmn:outgoing>Flow_9</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="EndEvent_1" name="Anulowanie zakończone">
+      <bpmn:incoming>Flow_12</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_1" targetRef="Task_RequestCancel" />
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Task_RequestCancel" targetRef="Task_CheckPayment" />
+    <bpmn:sequenceFlow id="Flow_3" sourceRef="Task_CheckPayment" targetRef="Gateway_PaymentMethod" />
+    <bpmn:sequenceFlow id="Flow_4" name="tak" sourceRef="Gateway_PaymentMethod" targetRef="Task_RefundGateway" />
+    <bpmn:sequenceFlow id="Flow_5" name="nie / opłata w recepcji" sourceRef="Gateway_PaymentMethod" targetRef="Task_NotifyRefundReception" />
+    <bpmn:sequenceFlow id="Flow_6" sourceRef="Task_RefundGateway" targetRef="Gateway_RefundSuccess" />
+    <bpmn:sequenceFlow id="Flow_7" name="tak" sourceRef="Gateway_RefundSuccess" targetRef="Task_NotifyRefundProcessed" />
+    <bpmn:sequenceFlow id="Flow_8" name="nie" sourceRef="Gateway_RefundSuccess" targetRef="Task_NotifyRefundReception" />
+    <bpmn:sequenceFlow id="Flow_9" sourceRef="Task_NotifyRefundProcessed" targetRef="Task_ReceiveInfo" />
+    <bpmn:sequenceFlow id="Flow_10" sourceRef="Task_NotifyRefundReception" targetRef="Task_ReceiveInfo" />
+    <bpmn:sequenceFlow id="Flow_12" sourceRef="Task_ReceiveInfo" targetRef="EndEvent_1" />
+    <bpmn:userTask id="Task_ReceiveInfo" name="Pacjent odbiera informację o zwrocie">
+      <bpmn:incoming>Flow_9</bpmn:incoming>
+      <bpmn:incoming>Flow_10</bpmn:incoming>
+      <bpmn:outgoing>Flow_12</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Task_NotifyRefundReception" name="Poinformuj: zwrot czeka w recepcji">
+      <bpmn:incoming>Flow_5</bpmn:incoming>
+      <bpmn:incoming>Flow_8</bpmn:incoming>
+      <bpmn:outgoing>Flow_10</bpmn:outgoing>
+    </bpmn:userTask>
   </bpmn:process>
-  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
-    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1">
-      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
-        <dc:Bounds x="173" y="102" width="36" height="36" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_VisitCancelationPatient">
+    <bpmndi:BPMNPlane id="BPMNPlane_VisitCancelationPatient" bpmnElement="Collab_VisitCancelationPatient">
+      <bpmndi:BPMNShape id="S_Pool_VisitCancelationPatient" bpmnElement="Pool_VisitCancelationPatient" isHorizontal="true">
+        <dc:Bounds x="120" y="-10" width="1850" height="450" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Lane_System" bpmnElement="Lane_System" isHorizontal="true">
+        <dc:Bounds x="150" y="240" width="1820" height="200" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Lane_Patient" bpmnElement="Lane_Patient" isHorizontal="true">
+        <dc:Bounds x="150" y="-10" width="1820" height="250" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_StartEvent_1" bpmnElement="StartEvent_1">
+        <dc:Bounds x="202" y="132" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Task_RequestCancel" bpmnElement="Task_RequestCancel">
+        <dc:Bounds x="280" y="110" width="200" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Task_CheckPayment" bpmnElement="Task_CheckPayment">
+        <dc:Bounds x="540" y="290" width="240" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Gateway_PaymentMethod" bpmnElement="Gateway_PaymentMethod" isMarkerVisible="true">
+        <dc:Bounds x="859" y="305" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="820" y="358" width="129" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Task_RefundGateway" bpmnElement="Task_RefundGateway">
+        <dc:Bounds x="979" y="290" width="220" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Gateway_RefundSuccess" bpmnElement="Gateway_RefundSuccess" isMarkerVisible="true">
+        <dc:Bounds x="1269" y="305" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1224" y="358" width="141" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Task_NotifyRefundProcessed" bpmnElement="Task_NotifyRefundProcessed">
+        <dc:Bounds x="1389" y="290" width="300" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_EndEvent_1" bpmnElement="EndEvent_1">
+        <dc:Bounds x="1899" y="132" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1868" y="168" width="99" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Task_ReceiveInfo" bpmnElement="Task_ReceiveInfo">
+        <dc:Bounds x="1620" y="110" width="220" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Task_NotifyRefundReception" bpmnElement="Task_NotifyRefundReception">
+        <dc:Bounds x="1184" y="110" width="220" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="E_Flow_1" bpmnElement="Flow_1">
+        <di:waypoint x="238" y="150" />
+        <di:waypoint x="280" y="150" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Flow_2" bpmnElement="Flow_2">
+        <di:waypoint x="480" y="150" />
+        <di:waypoint x="660" y="150" />
+        <di:waypoint x="660" y="290" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Flow_3" bpmnElement="Flow_3">
+        <di:waypoint x="780" y="330" />
+        <di:waypoint x="859" y="330" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Flow_4" bpmnElement="Flow_4">
+        <di:waypoint x="909" y="330" />
+        <di:waypoint x="979" y="330" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="931" y="305" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Flow_5" bpmnElement="Flow_5">
+        <di:waypoint x="884" y="305" />
+        <di:waypoint x="884" y="150" />
+        <di:waypoint x="1184" y="150" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="929" y="213" width="66" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Flow_6" bpmnElement="Flow_6">
+        <di:waypoint x="1199" y="330" />
+        <di:waypoint x="1269" y="330" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Flow_7" bpmnElement="Flow_7">
+        <di:waypoint x="1319" y="330" />
+        <di:waypoint x="1389" y="330" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1338" y="305" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Flow_8" bpmnElement="Flow_8">
+        <di:waypoint x="1294" y="305" />
+        <di:waypoint x="1294" y="190" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1270" y="215" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Flow_9" bpmnElement="Flow_9">
+        <di:waypoint x="1689" y="330" />
+        <di:waypoint x="1730" y="330" />
+        <di:waypoint x="1730" y="190" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Flow_10" bpmnElement="Flow_10">
+        <di:waypoint x="1404" y="150" />
+        <di:waypoint x="1620" y="150" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Flow_12" bpmnElement="Flow_12">
+        <di:waypoint x="1840" y="150" />
+        <di:waypoint x="1899" y="150" />
+      </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 </bpmn:definitions>

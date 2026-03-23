@@ -11,6 +11,9 @@
         <bpmn:flowNodeRef>EndEvent_1</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_ReceiveInfo</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_NotifyRefundReception</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_0hhcws9</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_0q642w8</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_1xmd418</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="Lane_System" name="System">
         <bpmn:flowNodeRef>Task_CheckPayment</bpmn:flowNodeRef>
@@ -18,6 +21,7 @@
         <bpmn:flowNodeRef>Task_RefundGateway</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_RefundSuccess</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_NotifyRefundProcessed</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_14x51qd</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
     <bpmn:startEvent id="StartEvent_1" name="Pacjent chce anulować wizytę">
@@ -25,10 +29,10 @@
     </bpmn:startEvent>
     <bpmn:userTask id="Task_RequestCancel" name="Zgłoś anulowanie wizyty">
       <bpmn:incoming>Flow_1</bpmn:incoming>
-      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0og13pn</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:serviceTask id="Task_CheckPayment" name="Sprawdź status i metodę płatności wizyty">
-      <bpmn:incoming>Flow_2</bpmn:incoming>
+      <bpmn:incoming>Flow_0t93z5w</bpmn:incoming>
       <bpmn:outgoing>Flow_3</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:exclusiveGateway id="Gateway_PaymentMethod" name="Opłacono przez bramkę?">
@@ -47,32 +51,52 @@
     </bpmn:exclusiveGateway>
     <bpmn:serviceTask id="Task_NotifyRefundProcessed" name="Poinformuj: zwrot został zlecony i przetworzony">
       <bpmn:incoming>Flow_7</bpmn:incoming>
-      <bpmn:outgoing>Flow_9</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1qn3elu</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:endEvent id="EndEvent_1" name="Anulowanie zakończone">
+    <bpmn:endEvent id="EndEvent_1" name="Anulowanie zakończone&#10;ze zwrotem">
       <bpmn:incoming>Flow_12</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_1" targetRef="Task_RequestCancel" />
-    <bpmn:sequenceFlow id="Flow_2" sourceRef="Task_RequestCancel" targetRef="Task_CheckPayment" />
     <bpmn:sequenceFlow id="Flow_3" sourceRef="Task_CheckPayment" targetRef="Gateway_PaymentMethod" />
     <bpmn:sequenceFlow id="Flow_4" name="tak" sourceRef="Gateway_PaymentMethod" targetRef="Task_RefundGateway" />
-    <bpmn:sequenceFlow id="Flow_5" name="nie / opłata w recepcji" sourceRef="Gateway_PaymentMethod" targetRef="Task_NotifyRefundReception" />
+    <bpmn:sequenceFlow id="Flow_5" name="nie / opłata w recepcji" sourceRef="Gateway_PaymentMethod" targetRef="Event_0hhcws9" />
     <bpmn:sequenceFlow id="Flow_6" sourceRef="Task_RefundGateway" targetRef="Gateway_RefundSuccess" />
     <bpmn:sequenceFlow id="Flow_7" name="tak" sourceRef="Gateway_RefundSuccess" targetRef="Task_NotifyRefundProcessed" />
     <bpmn:sequenceFlow id="Flow_8" name="nie" sourceRef="Gateway_RefundSuccess" targetRef="Task_NotifyRefundReception" />
-    <bpmn:sequenceFlow id="Flow_9" sourceRef="Task_NotifyRefundProcessed" targetRef="Task_ReceiveInfo" />
-    <bpmn:sequenceFlow id="Flow_10" sourceRef="Task_NotifyRefundReception" targetRef="Task_ReceiveInfo" />
     <bpmn:sequenceFlow id="Flow_12" sourceRef="Task_ReceiveInfo" targetRef="EndEvent_1" />
     <bpmn:userTask id="Task_ReceiveInfo" name="Pacjent odbiera informację o zwrocie">
-      <bpmn:incoming>Flow_9</bpmn:incoming>
-      <bpmn:incoming>Flow_10</bpmn:incoming>
+      <bpmn:incoming>Flow_15rv02n</bpmn:incoming>
       <bpmn:outgoing>Flow_12</bpmn:outgoing>
     </bpmn:userTask>
+    <bpmn:intermediateCatchEvent id="Event_14x51qd">
+      <bpmn:incoming>Flow_0og13pn</bpmn:incoming>
+      <bpmn:outgoing>Flow_0t93z5w</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_02wr59d" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:sequenceFlow id="Flow_0og13pn" sourceRef="Task_RequestCancel" targetRef="Event_14x51qd" />
+    <bpmn:sequenceFlow id="Flow_0t93z5w" sourceRef="Event_14x51qd" targetRef="Task_CheckPayment" />
+    <bpmn:sequenceFlow id="Flow_0g9d77z" sourceRef="Event_0hhcws9" targetRef="Task_NotifyRefundReception" />
     <bpmn:userTask id="Task_NotifyRefundReception" name="Poinformuj: zwrot czeka w recepcji">
-      <bpmn:incoming>Flow_5</bpmn:incoming>
       <bpmn:incoming>Flow_8</bpmn:incoming>
-      <bpmn:outgoing>Flow_10</bpmn:outgoing>
+      <bpmn:incoming>Flow_0g9d77z</bpmn:incoming>
+      <bpmn:outgoing>Flow_1peagk5</bpmn:outgoing>
     </bpmn:userTask>
+    <bpmn:intermediateThrowEvent id="Event_0hhcws9">
+      <bpmn:incoming>Flow_5</bpmn:incoming>
+      <bpmn:outgoing>Flow_0g9d77z</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_0l85ecn" />
+    </bpmn:intermediateThrowEvent>
+    <bpmn:endEvent id="Event_0q642w8" name="Anulowanie zakończone">
+      <bpmn:incoming>Flow_1peagk5</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1peagk5" sourceRef="Task_NotifyRefundReception" targetRef="Event_0q642w8" />
+    <bpmn:intermediateThrowEvent id="Event_1xmd418">
+      <bpmn:incoming>Flow_1qn3elu</bpmn:incoming>
+      <bpmn:outgoing>Flow_15rv02n</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_0z03jh4" />
+    </bpmn:intermediateThrowEvent>
+    <bpmn:sequenceFlow id="Flow_1qn3elu" sourceRef="Task_NotifyRefundProcessed" targetRef="Event_1xmd418" />
+    <bpmn:sequenceFlow id="Flow_15rv02n" sourceRef="Event_1xmd418" targetRef="Task_ReceiveInfo" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_VisitCancelationPatient">
     <bpmndi:BPMNPlane id="BPMNPlane_VisitCancelationPatient" bpmnElement="Collab_VisitCancelationPatient">
@@ -115,23 +139,33 @@
       <bpmndi:BPMNShape id="S_EndEvent_1" bpmnElement="EndEvent_1">
         <dc:Bounds x="1899" y="132" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1868" y="168" width="99" height="14" />
+          <dc:Bounds x="1889" y="168" width="58" height="40" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="S_Task_ReceiveInfo" bpmnElement="Task_ReceiveInfo">
         <dc:Bounds x="1620" y="110" width="220" height="80" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_005l3j2_di" bpmnElement="Event_14x51qd">
+        <dc:Bounds x="362" y="312" width="36" height="36" />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="S_Task_NotifyRefundReception" bpmnElement="Task_NotifyRefundReception">
-        <dc:Bounds x="1184" y="110" width="220" height="80" />
+        <dc:Bounds x="1620" y="10" width="220" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1asfz3p_di" bpmnElement="Event_0hhcws9">
+        <dc:Bounds x="866" y="32" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_1ag5tr7" bpmnElement="Event_0q642w8">
+        <dc:Bounds x="1899" y="32" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1889" y="68" width="58" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0mtdkm8_di" bpmnElement="Event_1xmd418">
+        <dc:Bounds x="1521" y="132" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="E_Flow_1" bpmnElement="Flow_1">
         <di:waypoint x="238" y="150" />
         <di:waypoint x="280" y="150" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="E_Flow_2" bpmnElement="Flow_2">
-        <di:waypoint x="480" y="150" />
-        <di:waypoint x="660" y="150" />
-        <di:waypoint x="660" y="290" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="E_Flow_3" bpmnElement="Flow_3">
         <di:waypoint x="780" y="330" />
@@ -146,10 +180,9 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="E_Flow_5" bpmnElement="Flow_5">
         <di:waypoint x="884" y="305" />
-        <di:waypoint x="884" y="150" />
-        <di:waypoint x="1184" y="150" />
+        <di:waypoint x="884" y="68" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="929" y="213" width="66" height="27" />
+          <dc:Bounds x="929" y="172" width="66" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="E_Flow_6" bpmnElement="Flow_6">
@@ -165,23 +198,39 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="E_Flow_8" bpmnElement="Flow_8">
         <di:waypoint x="1294" y="305" />
-        <di:waypoint x="1294" y="190" />
+        <di:waypoint x="1294" y="50" />
+        <di:waypoint x="1620" y="50" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1270" y="215" width="15" height="14" />
+          <dc:Bounds x="1521" y="27" width="15" height="14" />
         </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="E_Flow_9" bpmnElement="Flow_9">
-        <di:waypoint x="1689" y="330" />
-        <di:waypoint x="1730" y="330" />
-        <di:waypoint x="1730" y="190" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="E_Flow_10" bpmnElement="Flow_10">
-        <di:waypoint x="1404" y="150" />
-        <di:waypoint x="1620" y="150" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="E_Flow_12" bpmnElement="Flow_12">
         <di:waypoint x="1840" y="150" />
         <di:waypoint x="1899" y="150" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0og13pn_di" bpmnElement="Flow_0og13pn">
+        <di:waypoint x="380" y="190" />
+        <di:waypoint x="380" y="312" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0t93z5w_di" bpmnElement="Flow_0t93z5w">
+        <di:waypoint x="398" y="330" />
+        <di:waypoint x="540" y="330" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0g9d77z_di" bpmnElement="Flow_0g9d77z">
+        <di:waypoint x="902" y="50" />
+        <di:waypoint x="1620" y="50" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1peagk5_di" bpmnElement="Flow_1peagk5">
+        <di:waypoint x="1840" y="50" />
+        <di:waypoint x="1899" y="50" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1qn3elu_di" bpmnElement="Flow_1qn3elu">
+        <di:waypoint x="1539" y="290" />
+        <di:waypoint x="1539" y="168" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_15rv02n_di" bpmnElement="Flow_15rv02n">
+        <di:waypoint x="1557" y="150" />
+        <di:waypoint x="1620" y="150" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

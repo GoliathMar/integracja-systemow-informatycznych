@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_P3" targetNamespace="http://bpmn.io/schema/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.13.1">
+  <bpmn:message id="Msg_ZlecenieDoDnia" name="Zlecenie na dzień" />
+  <bpmn:collaboration id="Collab_P3">
+    <bpmn:participant id="Pool_P3_Firma" name="XYZ Transport (Biuro)" processRef="Proc_P3_Firma" />
+    <bpmn:participant id="Pool_P3_Kierowca" name="Kierowca / Transport" processRef="Proc_P3_Kierowca" />
+    <bpmn:messageFlow id="MF_P3_ZlecenieDo" name="Zlecenie na następny dzień" sourceRef="SubProc_P3_Powiadom" targetRef="Start_P3_Kierowca" />
+    <bpmn:textAnnotation id="Annot_SubP3_BrakPotw">
+      <bpmn:text>⚠ Problem AS-IS: Brak jednolitego systemu potwierdzenia odbioru zlecenia przez kierowcę</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="Assoc_SubP3" sourceRef="GW_P3_Merge" targetRef="Annot_SubP3_BrakPotw" />
+    <bpmn:textAnnotation id="Annot_P3_PlanReczny">
+      <bpmn:text>⚠ Problem AS-IS: Plan dnia tworzony ręcznie każdego wieczoru na podstawie analizy wielu arkuszy</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="Assoc_P3_PlanReczny" sourceRef="Task_P3_UtworzPlanDnia" targetRef="Annot_P3_PlanReczny" />
+  </bpmn:collaboration>
+  <bpmn:process id="Proc_P3_Firma" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_P3">
+      <bpmn:lane id="Lane_P3_Biuro" name="Biuro (Koordynator)">
+        <bpmn:flowNodeRef>DO_P3_PlanDnia</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Annot_P3_DwaKanaly</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Annot_P3_PlanReczny</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Start_P3_Timer</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_P3_AnalizujExcele</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_P3_UtworzPlanDnia</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_P3_Firma</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>SubProc_P3_Powiadom</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="Start_P3_Timer" name="Plan na dany dzień potrzebny (cyklicznie)">
+      <bpmn:outgoing>SF_P3_1</bpmn:outgoing>
+      <bpmn:timerEventDefinition id="TED_P3">
+        <bpmn:timeCycle xsi:type="bpmn:tFormalExpression">R/P1D</bpmn:timeCycle>
+      </bpmn:timerEventDefinition>
+    </bpmn:startEvent>
+    <bpmn:task id="Task_P3_AnalizujExcele" name="Analizuj arkusze Excel z planami">
+      <bpmn:incoming>SF_P3_1</bpmn:incoming>
+      <bpmn:outgoing>SF_P3_2</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_P3_UtworzPlanDnia" name="Utwórz plan na kolejny dzień">
+      <bpmn:incoming>SF_P3_2</bpmn:incoming>
+      <bpmn:outgoing>SF_P3_3</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:subProcess id="SubProc_P3_Powiadom" name="Poinformuj kierowców">
+      <bpmn:incoming>SF_P3_3</bpmn:incoming>
+      <bpmn:outgoing>SF_P3_4</bpmn:outgoing>
+      <bpmn:startEvent id="Start_SubP3" name="Dla każdego kierowcy">
+        <bpmn:outgoing>SF_SP3_1</bpmn:outgoing>
+      </bpmn:startEvent>
+      <bpmn:exclusiveGateway id="GW_P3_ChatCzyTel" name="Kanał komunikacji?">
+        <bpmn:incoming>SF_SP3_1</bpmn:incoming>
+        <bpmn:outgoing>SF_SP3_Chat</bpmn:outgoing>
+        <bpmn:outgoing>SF_SP3_Tel</bpmn:outgoing>
+      </bpmn:exclusiveGateway>
+      <bpmn:task id="Task_P3_WyslijChat" name="Wyślij zlecenie przez chat (komunikator)">
+        <bpmn:incoming>SF_SP3_Chat</bpmn:incoming>
+        <bpmn:outgoing>SF_SP3_ChatMerge</bpmn:outgoing>
+      </bpmn:task>
+      <bpmn:task id="Task_P3_Zadzwon" name="Zadzwoń do kierowcy">
+        <bpmn:incoming>SF_SP3_Tel</bpmn:incoming>
+        <bpmn:outgoing>SF_SP3_TelMerge</bpmn:outgoing>
+      </bpmn:task>
+      <bpmn:exclusiveGateway id="GW_P3_Merge" name="">
+        <bpmn:incoming>SF_SP3_ChatMerge</bpmn:incoming>
+        <bpmn:incoming>SF_SP3_TelMerge</bpmn:incoming>
+      </bpmn:exclusiveGateway>
+      <bpmn:sequenceFlow id="SF_SP3_1" sourceRef="Start_SubP3" targetRef="GW_P3_ChatCzyTel" />
+      <bpmn:sequenceFlow id="SF_SP3_Chat" name="chat (standardowo)" sourceRef="GW_P3_ChatCzyTel" targetRef="Task_P3_WyslijChat" />
+      <bpmn:sequenceFlow id="SF_SP3_Tel" name="telefonicznie" sourceRef="GW_P3_ChatCzyTel" targetRef="Task_P3_Zadzwon" />
+      <bpmn:sequenceFlow id="SF_SP3_ChatMerge" sourceRef="Task_P3_WyslijChat" targetRef="GW_P3_Merge" />
+      <bpmn:sequenceFlow id="SF_SP3_TelMerge" sourceRef="Task_P3_Zadzwon" targetRef="GW_P3_Merge" />
+    </bpmn:subProcess>
+    <bpmn:dataObjectReference id="DO_P3_PlanDnia" name="Plan dnia (Excel)" dataObjectRef="DataObj_P3_Plan" />
+    <bpmn:dataObject id="DataObj_P3_Plan" />
+    <bpmn:sequenceFlow id="SF_P3_1" sourceRef="Start_P3_Timer" targetRef="Task_P3_AnalizujExcele" />
+    <bpmn:sequenceFlow id="SF_P3_2" sourceRef="Task_P3_AnalizujExcele" targetRef="Task_P3_UtworzPlanDnia" />
+    <bpmn:sequenceFlow id="SF_P3_3" sourceRef="Task_P3_UtworzPlanDnia" targetRef="SubProc_P3_Powiadom" />
+    <bpmn:sequenceFlow id="SF_P3_4" sourceRef="SubProc_P3_Powiadom" targetRef="End_P3_Firma" />
+    <bpmn:endEvent id="End_P3_Firma" name="Wszyscy kierowcy poinformowani">
+      <bpmn:incoming>SF_P3_4</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:textAnnotation id="Annot_P3_DwaKanaly">
+      <bpmn:text>⚠ Problem AS-IS: Powiadamianie dwoma kanałami bez jednolitego systemu potwierdzenia (US-08)</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="Assoc_P3_DwaKanaly" sourceRef="SubProc_P3_Powiadom" targetRef="Annot_P3_DwaKanaly" />
+  </bpmn:process>
+  <bpmn:process id="Proc_P3_Kierowca" isExecutable="false">
+    <bpmn:startEvent id="Start_P3_Kierowca" name="Zlecenie otrzymane">
+      <bpmn:outgoing>SF_K3_1</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MED_K3" messageRef="Msg_ZlecenieDoDnia" />
+    </bpmn:startEvent>
+    <bpmn:task id="Task_P3_PrzeczytajZlecenie" name="Przeczytaj zlecenie">
+      <bpmn:incoming>SF_K3_1</bpmn:incoming>
+      <bpmn:outgoing>SF_K3_2</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_P3_RealizujTransport" name="Realizacja transportu">
+      <bpmn:incoming>SF_K3_2</bpmn:incoming>
+      <bpmn:outgoing>SF_K3_3</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="End_P3_Kierowca" name="Transport zrealizowany">
+      <bpmn:incoming>SF_K3_3</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="SF_K3_1" sourceRef="Start_P3_Kierowca" targetRef="Task_P3_PrzeczytajZlecenie" />
+    <bpmn:sequenceFlow id="SF_K3_2" sourceRef="Task_P3_PrzeczytajZlecenie" targetRef="Task_P3_RealizujTransport" />
+    <bpmn:sequenceFlow id="SF_K3_3" sourceRef="Task_P3_RealizujTransport" targetRef="End_P3_Kierowca" />
+    <bpmn:textAnnotation id="Annot_K3_BrakWeryfikacji">
+      <bpmn:text>⚠ Problem AS-IS: Brak weryfikacji tożsamości pasażerów na etapie realizacji transportu (US-09)</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="Assoc_K3_Wer" sourceRef="Task_P3_RealizujTransport" targetRef="Annot_K3_BrakWeryfikacji" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_P3">
+    <bpmndi:BPMNPlane id="BPMNPlane_P3" bpmnElement="Collab_P3">
+      <bpmndi:BPMNShape id="S_Pool_P3_Firma" bpmnElement="Pool_P3_Firma" isHorizontal="true">
+        <dc:Bounds x="120" y="40" width="1200" height="380" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Lane_P3_Biuro" bpmnElement="Lane_P3_Biuro" isHorizontal="true">
+        <dc:Bounds x="150" y="40" width="1170" height="380" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Start_P3_Timer" bpmnElement="Start_P3_Timer">
+        <dc:Bounds x="192" y="202" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="162" y="245" width="97" height="53" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Task_P3_Anal" bpmnElement="Task_P3_AnalizujExcele">
+        <dc:Bounds x="290" y="180" width="160" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Task_P3_Plan" bpmnElement="Task_P3_UtworzPlanDnia">
+        <dc:Bounds x="520" y="180" width="160" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_SubProc_P3_Powiadom" bpmnElement="SubProc_P3_Powiadom" isExpanded="true">
+        <dc:Bounds x="750" y="80" width="440" height="260" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Start_SubP3" bpmnElement="Start_SubP3">
+        <dc:Bounds x="782" y="190" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="763" y="233" width="74" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Task_P3_Tel" bpmnElement="Task_P3_Zadzwon">
+        <dc:Bounds x="950" y="248" width="140" height="60" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Task_P3_Chat" bpmnElement="Task_P3_WyslijChat">
+        <dc:Bounds x="960" y="108" width="140" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_GW_P3_ChatCzyTel" bpmnElement="GW_P3_ChatCzyTel" isMarkerVisible="true">
+        <dc:Bounds x="855" y="183" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="915" y="194" width="64" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_GW_P3_Merge" bpmnElement="GW_P3_Merge" isMarkerVisible="true">
+        <dc:Bounds x="1115" y="183" width="50" height="50" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="E_SF_SP3_1" bpmnElement="SF_SP3_1">
+        <di:waypoint x="818" y="208" />
+        <di:waypoint x="855" y="208" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_SP3_Chat" bpmnElement="SF_SP3_Chat">
+        <di:waypoint x="880" y="183" />
+        <di:waypoint x="880" y="148" />
+        <di:waypoint x="960" y="148" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="887" y="153" width="71" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_SP3_Tel" bpmnElement="SF_SP3_Tel">
+        <di:waypoint x="880" y="233" />
+        <di:waypoint x="880" y="278" />
+        <di:waypoint x="950" y="278" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="885" y="278" width="62" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_SP3_ChatMerge" bpmnElement="SF_SP3_ChatMerge">
+        <di:waypoint x="1100" y="148" />
+        <di:waypoint x="1140" y="148" />
+        <di:waypoint x="1140" y="183" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_SP3_TelMerge" bpmnElement="SF_SP3_TelMerge">
+        <di:waypoint x="1090" y="278" />
+        <di:waypoint x="1140" y="278" />
+        <di:waypoint x="1140" y="233" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="S_End_P3_Firma" bpmnElement="End_P3_Firma">
+        <dc:Bounds x="1240" y="202" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1213" y="245" width="90" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_DO_P3_PlanDnia" bpmnElement="DO_P3_PlanDnia">
+        <dc:Bounds x="555" y="290" width="36" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="535" y="345" width="78" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Annot_P3_DwaKanaly" bpmnElement="Annot_P3_DwaKanaly">
+        <dc:Bounds x="750" y="356" width="340" height="56" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="E_SF_P3_1" bpmnElement="SF_P3_1">
+        <di:waypoint x="228" y="220" />
+        <di:waypoint x="290" y="220" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_P3_2" bpmnElement="SF_P3_2">
+        <di:waypoint x="450" y="220" />
+        <di:waypoint x="520" y="220" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_P3_3" bpmnElement="SF_P3_3">
+        <di:waypoint x="680" y="220" />
+        <di:waypoint x="750" y="220" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_P3_4" bpmnElement="SF_P3_4">
+        <di:waypoint x="1190" y="220" />
+        <di:waypoint x="1240" y="220" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Assoc_P3_DwaKanaly" bpmnElement="Assoc_P3_DwaKanaly">
+        <di:waypoint x="970" y="340" />
+        <di:waypoint x="920" y="356" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="S_Pool_P3_Kier" bpmnElement="Pool_P3_Kierowca" isHorizontal="true">
+        <dc:Bounds x="120" y="450" width="1200" height="240" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Start_P3_Kier" bpmnElement="Start_P3_Kierowca">
+        <dc:Bounds x="192" y="552" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="175" y="595" width="70" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Task_P3_Przeczytaj" bpmnElement="Task_P3_PrzeczytajZlecenie">
+        <dc:Bounds x="290" y="530" width="160" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Task_P3_Realizuj" bpmnElement="Task_P3_RealizujTransport">
+        <dc:Bounds x="520" y="530" width="160" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_End_P3_Kier" bpmnElement="End_P3_Kierowca">
+        <dc:Bounds x="752" y="552" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="728" y="595" width="84" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Annot_K3_BrakWer" bpmnElement="Annot_K3_BrakWeryfikacji">
+        <dc:Bounds x="520" y="630" width="300" height="50" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="E_SF_K3_1" bpmnElement="SF_K3_1">
+        <di:waypoint x="228" y="570" />
+        <di:waypoint x="290" y="570" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_K3_2" bpmnElement="SF_K3_2">
+        <di:waypoint x="450" y="570" />
+        <di:waypoint x="520" y="570" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_K3_3" bpmnElement="SF_K3_3">
+        <di:waypoint x="680" y="570" />
+        <di:waypoint x="752" y="570" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Assoc_K3_Wer" bpmnElement="Assoc_K3_Wer">
+        <di:waypoint x="600" y="610" />
+        <di:waypoint x="600" y="630" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Assoc_SubP3" bpmnElement="Assoc_SubP3">
+        <di:waypoint x="1152" y="221" />
+        <di:waypoint x="1401" y="136" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Assoc_P3_PlanReczny" bpmnElement="Assoc_P3_PlanReczny">
+        <di:waypoint x="600" y="260" />
+        <di:waypoint x="390" y="310" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_MF_P3_ZlecDo" bpmnElement="MF_P3_ZlecenieDo">
+        <di:waypoint x="970" y="340" />
+        <di:waypoint x="970" y="490" />
+        <di:waypoint x="210" y="490" />
+        <di:waypoint x="210" y="552" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="548" y="473" width="74" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="S_Annot_SubP3_BrakPotw" bpmnElement="Annot_SubP3_BrakPotw">
+        <dc:Bounds x="1230" y="80" width="280" height="56" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Annot_P3_PlanReczny" bpmnElement="Annot_P3_PlanReczny">
+        <dc:Bounds x="250" y="310" width="280" height="56" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

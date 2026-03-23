@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_P1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.13.1">
+  <bpmn:message id="Msg_Zapytanie" name="Zapytanie o transport" />
+  <bpmn:collaboration id="Collab_P1">
+    <bpmn:participant id="Pool_Kontrahent" name="Kontrahent" processRef="Proc_Kontrahent" />
+    <bpmn:participant id="Pool_FirmaTransp" name="XYZ Transport (Biuro)" processRef="Proc_FirmaTransp" />
+    <bpmn:participant id="Pool_Transport" name="Kierowca / Transport" processRef="Proc_Transport" />
+    <bpmn:messageFlow id="MF_ZapytanieDoFirmy" name="Zgłoszenie zapytania" sourceRef="Task_ZlozZapytanie" targetRef="Start_ZapytanieWplywa" />
+  </bpmn:collaboration>
+  <bpmn:process id="Proc_Kontrahent" isExecutable="false">
+    <bpmn:startEvent id="Start_Kontrahent" name="Potrzeba transportu">
+      <bpmn:outgoing>SF_K1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="Task_ZlozZapytanie" name="Złóż zapytanie o transport">
+      <bpmn:incoming>SF_K1</bpmn:incoming>
+      <bpmn:outgoing>SF_K2</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="End_KontrahentOtrzymalOdp" name="Odpowiedź otrzymana">
+      <bpmn:incoming>SF_K2</bpmn:incoming>
+      <bpmn:messageEventDefinition id="MED_K_End" messageRef="Msg_Zapytanie" />
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="SF_K1" sourceRef="Start_Kontrahent" targetRef="Task_ZlozZapytanie" />
+    <bpmn:sequenceFlow id="SF_K2" sourceRef="Task_ZlozZapytanie" targetRef="End_KontrahentOtrzymalOdp" />
+  </bpmn:process>
+  <bpmn:process id="Proc_FirmaTransp" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_Biuro">
+      <bpmn:lane id="Lane_Biuro" name="Biuro (Koordynator)">
+        <bpmn:flowNodeRef>Start_ZapytanieWplywa</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_NatychmiastowyCzyPlan</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_SprawdzDostepnosc</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_KontaktOdmowa</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_Odmowa</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_Merge_P1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_AktualizujExcel</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_Zaplanowany</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>SubProc_Planowanie</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="Start_ZapytanieWplywa" name="Zapytanie wpłynęło">
+      <bpmn:outgoing>SF_F1</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MED_Start" messageRef="Msg_Zapytanie" />
+    </bpmn:startEvent>
+    <bpmn:exclusiveGateway id="GW_NatychmiastowyCzyPlan" name="Natychmiastowy?">
+      <bpmn:incoming>SF_F1</bpmn:incoming>
+      <bpmn:outgoing>SF_F2_Natychmiastowy</bpmn:outgoing>
+      <bpmn:outgoing>SF_F3_Plan</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="Task_SprawdzDostepnosc" name="Sprawdź dostępność kierowcy i pojazdu (Excel)">
+      <bpmn:incoming>SF_F2_Natychmiastowy</bpmn:incoming>
+      <bpmn:outgoing>SF_F4</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_KontaktOdmowa" name="Skontaktuj się z klientem — odmowa">
+      <bpmn:incoming>SF_F5_PlanNie</bpmn:incoming>
+      <bpmn:outgoing>SF_F8</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="End_Odmowa" name="Transport odmówiony">
+      <bpmn:incoming>SF_F8</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:subProcess id="SubProc_Planowanie" name="Planowanie transportu">
+      <bpmn:incoming>SF_F3_Plan</bpmn:incoming>
+      <bpmn:outgoing>SF_F5_PlanOK</bpmn:outgoing>
+      <bpmn:outgoing>SF_F5_PlanNie</bpmn:outgoing>
+      <bpmn:startEvent id="Start_SubPlan" name="Planowanie rozpoczęte">
+        <bpmn:outgoing>SF_SP1</bpmn:outgoing>
+      </bpmn:startEvent>
+      <bpmn:task id="Task_AnalizujDostepnosc" name="Analizuj arkusz dostępności">
+        <bpmn:incoming>SF_SP1</bpmn:incoming>
+        <bpmn:outgoing>SF_SP2</bpmn:outgoing>
+      </bpmn:task>
+      <bpmn:exclusiveGateway id="GW_CzyMozliwy" name="Transport możliwy?">
+        <bpmn:incoming>SF_SP2</bpmn:incoming>
+        <bpmn:outgoing>SF_SP3_Tak</bpmn:outgoing>
+        <bpmn:outgoing>SF_SP3_Nie</bpmn:outgoing>
+      </bpmn:exclusiveGateway>
+      <bpmn:endEvent id="End_SubPlanOK" name="Transport zaplanowany">
+        <bpmn:incoming>SF_SP3_Tak</bpmn:incoming>
+      </bpmn:endEvent>
+      <bpmn:endEvent id="End_SubPlanNie" name="Zaplanowanie niemożliwe">
+        <bpmn:incoming>SF_SP3_Nie</bpmn:incoming>
+      </bpmn:endEvent>
+      <bpmn:sequenceFlow id="SF_SP1" sourceRef="Start_SubPlan" targetRef="Task_AnalizujDostepnosc" />
+      <bpmn:sequenceFlow id="SF_SP2" sourceRef="Task_AnalizujDostepnosc" targetRef="GW_CzyMozliwy" />
+      <bpmn:sequenceFlow id="SF_SP3_Tak" name="tak" sourceRef="GW_CzyMozliwy" targetRef="End_SubPlanOK" />
+      <bpmn:sequenceFlow id="SF_SP3_Nie" name="nie" sourceRef="GW_CzyMozliwy" targetRef="End_SubPlanNie" />
+    </bpmn:subProcess>
+    <bpmn:exclusiveGateway id="GW_Merge_P1" name="">
+      <bpmn:incoming>SF_F4</bpmn:incoming>
+      <bpmn:incoming>SF_F5_PlanOK</bpmn:incoming>
+      <bpmn:outgoing>SF_F6</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="Task_AktualizujExcel" name="Aktualizuj arkusz transportów">
+      <bpmn:incoming>SF_F6</bpmn:incoming>
+      <bpmn:outgoing>SF_F7</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="End_Zaplanowany" name="Transport zaplanowany / przydzielony">
+      <bpmn:incoming>SF_F7</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="SF_F1" sourceRef="Start_ZapytanieWplywa" targetRef="GW_NatychmiastowyCzyPlan" />
+    <bpmn:sequenceFlow id="SF_F2_Natychmiastowy" name="natychmiastowy" sourceRef="GW_NatychmiastowyCzyPlan" targetRef="Task_SprawdzDostepnosc" />
+    <bpmn:sequenceFlow id="SF_F3_Plan" name="do zaplanowania" sourceRef="GW_NatychmiastowyCzyPlan" targetRef="SubProc_Planowanie" />
+    <bpmn:sequenceFlow id="SF_F4" sourceRef="Task_SprawdzDostepnosc" targetRef="GW_Merge_P1" />
+    <bpmn:sequenceFlow id="SF_F5_PlanNie" name="niemożliwy" sourceRef="SubProc_Planowanie" targetRef="Task_KontaktOdmowa" />
+    <bpmn:sequenceFlow id="SF_F8" sourceRef="Task_KontaktOdmowa" targetRef="End_Odmowa" />
+    <bpmn:sequenceFlow id="SF_F5_PlanOK" name="zaplanowany" sourceRef="SubProc_Planowanie" targetRef="GW_Merge_P1" />
+    <bpmn:sequenceFlow id="SF_F6" sourceRef="GW_Merge_P1" targetRef="Task_AktualizujExcel" />
+    <bpmn:sequenceFlow id="SF_F7" sourceRef="Task_AktualizujExcel" targetRef="End_Zaplanowany" />
+  </bpmn:process>
+  <bpmn:process id="Proc_Transport" isExecutable="false">
+    <bpmn:startEvent id="Start_KierowcaOtrzymalZlecenie" name="Zlecenie otrzymane">
+      <bpmn:outgoing>SF_T1</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MED_T_Start" />
+    </bpmn:startEvent>
+    <bpmn:task id="Task_RealizacjaTransportu" name="Realizacja transportu">
+      <bpmn:incoming>SF_T1</bpmn:incoming>
+      <bpmn:outgoing>SF_T2</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="End_TransportZrealizowany" name="Transport zrealizowany">
+      <bpmn:incoming>SF_T2</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="SF_T1" sourceRef="Start_KierowcaOtrzymalZlecenie" targetRef="Task_RealizacjaTransportu" />
+    <bpmn:sequenceFlow id="SF_T2" sourceRef="Task_RealizacjaTransportu" targetRef="End_TransportZrealizowany" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_P1">
+    <bpmndi:BPMNPlane id="BPMNPlane_P1" bpmnElement="Collab_P1">
+      <bpmndi:BPMNShape id="S_Pool_Kontrahent" bpmnElement="Pool_Kontrahent" isHorizontal="true">
+        <dc:Bounds x="120" y="90" width="1168" height="100" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Start_Kontrahent" bpmnElement="Start_Kontrahent">
+        <dc:Bounds x="192" y="122" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="186" y="165" width="50" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Task_ZlozZapytanie" bpmnElement="Task_ZlozZapytanie">
+        <dc:Bounds x="280" y="100" width="160" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_End_KontrahentOtrzymalOdp" bpmnElement="End_KontrahentOtrzymalOdp">
+        <dc:Bounds x="1122" y="122" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1112" y="84.5" width="56" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="E_SF_K1" bpmnElement="SF_K1">
+        <di:waypoint x="228" y="140" />
+        <di:waypoint x="280" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_K2" bpmnElement="SF_K2">
+        <di:waypoint x="440" y="140" />
+        <di:waypoint x="1122" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="S_Pool_FirmaTransp" bpmnElement="Pool_FirmaTransp" isHorizontal="true">
+        <dc:Bounds x="120" y="210" width="1168" height="280" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Lane_Biuro" bpmnElement="Lane_Biuro" isHorizontal="true">
+        <dc:Bounds x="150" y="210" width="1138" height="280" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Start_ZapWplywa" bpmnElement="Start_ZapytanieWplywa">
+        <dc:Bounds x="202" y="332" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="197" y="375" width="49" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_GW_NatCzyPlan" bpmnElement="GW_NatychmiastowyCzyPlan" isMarkerVisible="true">
+        <dc:Bounds x="295" y="325" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="277" y="382" width="87" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Task_SprawdzDost" bpmnElement="Task_SprawdzDostepnosc">
+        <dc:Bounds x="410" y="420" width="160" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Task_KontaktOdmowa" bpmnElement="Task_KontaktOdmowa">
+        <dc:Bounds x="960" y="400" width="160" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_End_Odmowa" bpmnElement="End_Odmowa">
+        <dc:Bounds x="1152" y="422" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1142" y="465" width="57" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_SubProc_Plan" bpmnElement="SubProc_Planowanie" isExpanded="true">
+        <dc:Bounds x="410" y="230" width="380" height="160" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Start_SubPlan" bpmnElement="Start_SubPlan">
+        <dc:Bounds x="442" y="292" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="433" y="335" width="57" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Task_AnalizujDost" bpmnElement="Task_AnalizujDostepnosc">
+        <dc:Bounds x="510" y="270" width="120" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_GW_CzyMozliwy" bpmnElement="GW_CzyMozliwy" isMarkerVisible="true">
+        <dc:Bounds x="655" y="285" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="656" y="344.5" width="48" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_End_SubPlanOK" bpmnElement="End_SubPlanOK">
+        <dc:Bounds x="732" y="252" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="718" y="295" width="65" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_End_SubPlanNie" bpmnElement="End_SubPlanNie">
+        <dc:Bounds x="732" y="320" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="717" y="363" width="69" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="E_SF_SP1" bpmnElement="SF_SP1">
+        <di:waypoint x="478" y="310" />
+        <di:waypoint x="510" y="310" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_SP2" bpmnElement="SF_SP2">
+        <di:waypoint x="630" y="310" />
+        <di:waypoint x="655" y="310" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_SP3_Tak" bpmnElement="SF_SP3_Tak">
+        <di:waypoint x="680" y="285" />
+        <di:waypoint x="680" y="270" />
+        <di:waypoint x="732" y="270" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="694" y="274" width="16" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_SP3_Nie" bpmnElement="SF_SP3_Nie">
+        <di:waypoint x="705" y="310" />
+        <di:waypoint x="719" y="310" />
+        <di:waypoint x="719" y="338" />
+        <di:waypoint x="732" y="338" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="710" y="316" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="S_GW_Merge_P1" bpmnElement="GW_Merge_P1" isMarkerVisible="true">
+        <dc:Bounds x="855" y="325" width="50" height="50" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Task_AktualizujExcel" bpmnElement="Task_AktualizujExcel">
+        <dc:Bounds x="960" y="310" width="160" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_End_Zaplanowany" bpmnElement="End_Zaplanowany">
+        <dc:Bounds x="1142" y="332" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1125" y="375" width="71" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="E_SF_F1" bpmnElement="SF_F1">
+        <di:waypoint x="238" y="350" />
+        <di:waypoint x="295" y="350" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_F2" bpmnElement="SF_F2_Natychmiastowy">
+        <di:waypoint x="320" y="375" />
+        <di:waypoint x="320" y="460" />
+        <di:waypoint x="410" y="460" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="325" y="440" width="79" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_F3" bpmnElement="SF_F3_Plan">
+        <di:waypoint x="320" y="325" />
+        <di:waypoint x="320" y="310" />
+        <di:waypoint x="410" y="310" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="329" y="294" width="83" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_F4" bpmnElement="SF_F4">
+        <di:waypoint x="570" y="460" />
+        <di:waypoint x="840" y="460" />
+        <di:waypoint x="840" y="350" />
+        <di:waypoint x="855" y="350" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_F5_OK" bpmnElement="SF_F5_PlanOK">
+        <di:waypoint x="790" y="310" />
+        <di:waypoint x="880" y="310" />
+        <di:waypoint x="880" y="325" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="822" y="294" width="65" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_F5_Nie" bpmnElement="SF_F5_PlanNie">
+        <di:waypoint x="790" y="338" />
+        <di:waypoint x="830" y="338" />
+        <di:waypoint x="830" y="420" />
+        <di:waypoint x="960" y="457" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="776" y="390" width="55" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_F6" bpmnElement="SF_F6">
+        <di:waypoint x="905" y="350" />
+        <di:waypoint x="960" y="350" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_F7" bpmnElement="SF_F7">
+        <di:waypoint x="1120" y="350" />
+        <di:waypoint x="1142" y="350" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_F8" bpmnElement="SF_F8">
+        <di:waypoint x="1120" y="440" />
+        <di:waypoint x="1152" y="440" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="S_Pool_Transport" bpmnElement="Pool_Transport" isHorizontal="true">
+        <dc:Bounds x="120" y="510" width="1168" height="160" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Start_KierZlec" bpmnElement="Start_KierowcaOtrzymalZlecenie">
+        <dc:Bounds x="202" y="572" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="194" y="615" width="52" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Task_Realizacja" bpmnElement="Task_RealizacjaTransportu">
+        <dc:Bounds x="290" y="550" width="160" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_End_TranspZreal" bpmnElement="End_TransportZrealizowany">
+        <dc:Bounds x="502" y="572" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="488" y="615" width="65" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="E_SF_T1" bpmnElement="SF_T1">
+        <di:waypoint x="238" y="590" />
+        <di:waypoint x="290" y="590" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_T2" bpmnElement="SF_T2">
+        <di:waypoint x="450" y="590" />
+        <di:waypoint x="502" y="590" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_MF_ZapDo" bpmnElement="MF_ZapytanieDoFirmy">
+        <di:waypoint x="360" y="180" />
+        <di:waypoint x="360" y="230" />
+        <di:waypoint x="220" y="230" />
+        <di:waypoint x="220" y="332" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="288" y="214" width="54" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

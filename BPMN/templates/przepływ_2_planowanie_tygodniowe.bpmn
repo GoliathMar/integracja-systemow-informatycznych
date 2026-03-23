@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_P2" targetNamespace="http://bpmn.io/schema/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.13.1">
+  <bpmn:collaboration id="Collab_P2">
+    <bpmn:participant id="Pool_P2_Biuro" name="XYZ Transport (Biuro)" processRef="Proc_P2_Biuro" />
+  </bpmn:collaboration>
+  <bpmn:process id="Proc_P2_Biuro" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_P2">
+      <bpmn:lane id="Lane_P2_Biuro" name="Biuro (Koordynator)">
+        <bpmn:flowNodeRef>DO_P2_ArkuszTygodniowy</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>DO_P2_ArkuszZlecen</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Annot_P2_Reczne</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Start_P2_Timer</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_P2_CzyExcel</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_P2_UtworzExcel</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_P2_AnalizujZlecenia</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_P2_Merge</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_P2_PlanowanieNowegaTygodnia</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_P2</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="Start_P2_Timer" name="Plan na nowy tydzień potrzebny (cyklicznie)">
+      <bpmn:outgoing>SF_P2_1</bpmn:outgoing>
+      <bpmn:timerEventDefinition id="TED_P2">
+        <bpmn:timeCycle xsi:type="bpmn:tFormalExpression">R/P1W</bpmn:timeCycle>
+      </bpmn:timerEventDefinition>
+    </bpmn:startEvent>
+    <bpmn:exclusiveGateway id="GW_P2_CzyExcel" name="Arkusz tygodniowy istnieje?">
+      <bpmn:incoming>SF_P2_1</bpmn:incoming>
+      <bpmn:outgoing>SF_P2_NieIstnieje</bpmn:outgoing>
+      <bpmn:outgoing>SF_P2_Istnieje</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="Task_P2_UtworzExcel" name="Utwórz arkusz na nowy tydzień">
+      <bpmn:incoming>SF_P2_NieIstnieje</bpmn:incoming>
+      <bpmn:outgoing>SF_P2_PoUtworzeniu</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_P2_AnalizujZlecenia" name="Analizuj arkusz zleceń cyklicznych">
+      <bpmn:incoming>SF_P2_Istnieje</bpmn:incoming>
+      <bpmn:outgoing>SF_P2_PoAnalizie</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="GW_P2_Merge" name="">
+      <bpmn:incoming>SF_P2_PoUtworzeniu</bpmn:incoming>
+      <bpmn:incoming>SF_P2_PoAnalizie</bpmn:incoming>
+      <bpmn:outgoing>SF_P2_DoPlanu</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="Task_P2_PlanowanieNowegaTygodnia" name="Planowanie transportów na nowy tydzień (uzupełnij arkusz tygodniowy)">
+      <bpmn:incoming>SF_P2_DoPlanu</bpmn:incoming>
+      <bpmn:outgoing>SF_P2_End</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="End_P2" name="Plan tygodniowy gotowy">
+      <bpmn:incoming>SF_P2_End</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="SF_P2_1" sourceRef="Start_P2_Timer" targetRef="GW_P2_CzyExcel" />
+    <bpmn:sequenceFlow id="SF_P2_NieIstnieje" name="nie istnieje" sourceRef="GW_P2_CzyExcel" targetRef="Task_P2_UtworzExcel" />
+    <bpmn:sequenceFlow id="SF_P2_Istnieje" name="istnieje" sourceRef="GW_P2_CzyExcel" targetRef="Task_P2_AnalizujZlecenia" />
+    <bpmn:sequenceFlow id="SF_P2_PoUtworzeniu" sourceRef="Task_P2_UtworzExcel" targetRef="GW_P2_Merge" />
+    <bpmn:sequenceFlow id="SF_P2_PoAnalizie" sourceRef="Task_P2_AnalizujZlecenia" targetRef="GW_P2_Merge" />
+    <bpmn:sequenceFlow id="SF_P2_DoPlanu" sourceRef="GW_P2_Merge" targetRef="Task_P2_PlanowanieNowegaTygodnia" />
+    <bpmn:sequenceFlow id="SF_P2_End" sourceRef="Task_P2_PlanowanieNowegaTygodnia" targetRef="End_P2" />
+    <bpmn:dataObjectReference id="DO_P2_ArkuszZlecen" name="Arkusz zleceń cyklicznych (Excel)" dataObjectRef="DataObj_P2_Zlec" />
+    <bpmn:dataObject id="DataObj_P2_Zlec" />
+    <bpmn:dataObjectReference id="DO_P2_ArkuszTygodniowy" name="Arkusz tygodniowy (Excel)" dataObjectRef="DataObj_P2_Tyg" />
+    <bpmn:dataObject id="DataObj_P2_Tyg" />
+    <bpmn:textAnnotation id="Annot_P2_Reczne">
+      <bpmn:text>⚠ Problem AS-IS: Zlecenia cykliczne przepisywane ręcznie z arkusza zleceń do arkusza tygodniowego — podatne na błędy i czasochłonne (US-06)</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="Assoc_P2_Annot" sourceRef="Task_P2_PlanowanieNowegaTygodnia" targetRef="Annot_P2_Reczne" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_P2">
+    <bpmndi:BPMNPlane id="BPMNPlane_P2" bpmnElement="Collab_P2">
+      <bpmndi:BPMNShape id="S_Pool_P2_Biuro" bpmnElement="Pool_P2_Biuro" isHorizontal="true">
+        <dc:Bounds x="120" y="40" width="1080" height="390" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Lane_P2_Biuro" bpmnElement="Lane_P2_Biuro" isHorizontal="true">
+        <dc:Bounds x="150" y="40" width="1050" height="390" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Start_P2_Timer" bpmnElement="Start_P2_Timer">
+        <dc:Bounds x="192" y="162" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="162" y="205" width="97" height="53" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_GW_P2_CzyExcel" bpmnElement="GW_P2_CzyExcel" isMarkerVisible="true">
+        <dc:Bounds x="295" y="155" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="270" y="212" width="100" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Task_P2_UtworzExcel" bpmnElement="Task_P2_UtworzExcel">
+        <dc:Bounds x="420" y="68" width="160" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Task_P2_AnalizujZlec" bpmnElement="Task_P2_AnalizujZlecenia">
+        <dc:Bounds x="420" y="212" width="160" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_GW_P2_Merge" bpmnElement="GW_P2_Merge" isMarkerVisible="true">
+        <dc:Bounds x="655" y="155" width="50" height="50" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Task_P2_Plan" bpmnElement="Task_P2_PlanowanieNowegaTygodnia">
+        <dc:Bounds x="770" y="140" width="200" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_End_P2" bpmnElement="End_P2">
+        <dc:Bounds x="1042" y="162" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1018" y="205" width="84" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_DO_P2_Zlec" bpmnElement="DO_P2_ArkuszZlecen" isHorizontal="false">
+        <dc:Bounds x="482" y="310" width="36" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="467" y="365" width="68" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_DO_P2_Tyg" bpmnElement="DO_P2_ArkuszTygodniowy" isHorizontal="false">
+        <dc:Bounds x="852" y="45" width="36" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="842" y="100" width="56" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Annot_P2_Reczne" bpmnElement="Annot_P2_Reczne">
+        <dc:Bounds x="770" y="250" width="320" height="60" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="E_SF_P2_1" bpmnElement="SF_P2_1">
+        <di:waypoint x="228" y="180" />
+        <di:waypoint x="295" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_P2_NieIstnieje" bpmnElement="SF_P2_NieIstnieje">
+        <di:waypoint x="320" y="155" />
+        <di:waypoint x="320" y="108" />
+        <di:waypoint x="420" y="108" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="330" y="118" width="60" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_P2_Istnieje" bpmnElement="SF_P2_Istnieje">
+        <di:waypoint x="320" y="205" />
+        <di:waypoint x="320" y="252" />
+        <di:waypoint x="420" y="252" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="330" y="256" width="48" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_P2_PoUtworzeniu" bpmnElement="SF_P2_PoUtworzeniu">
+        <di:waypoint x="580" y="108" />
+        <di:waypoint x="680" y="108" />
+        <di:waypoint x="680" y="155" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_P2_PoAnalizie" bpmnElement="SF_P2_PoAnalizie">
+        <di:waypoint x="580" y="252" />
+        <di:waypoint x="680" y="252" />
+        <di:waypoint x="680" y="205" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_P2_DoPlanu" bpmnElement="SF_P2_DoPlanu">
+        <di:waypoint x="705" y="180" />
+        <di:waypoint x="770" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_P2_End" bpmnElement="SF_P2_End">
+        <di:waypoint x="970" y="180" />
+        <di:waypoint x="1042" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Assoc_P2" bpmnElement="Assoc_P2_Annot">
+        <di:waypoint x="870" y="220" />
+        <di:waypoint x="870" y="250" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

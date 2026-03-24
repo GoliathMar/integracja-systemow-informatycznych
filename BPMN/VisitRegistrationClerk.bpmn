@@ -1,13 +1,189 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn">
-  <bpmn:process id="Process_1" isExecutable="false">
-    <bpmn:startEvent id="StartEvent_1" />
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_VisitRegistrationClerk" targetNamespace="http://bpmn.io/schema/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.13.1">
+  <bpmn:collaboration id="Collab_VisitRegistrationClerk">
+    <bpmn:participant id="Pool_VisitRegistrationClerk" name="Rejestracja wizyty przez recepcjonistę" processRef="Process_VisitRegistrationClerk" />
+  </bpmn:collaboration>
+  <bpmn:process id="Process_VisitRegistrationClerk" name="Rejestracja wizyty przez recepcjonistę" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_VisitRegistrationClerk">
+      <bpmn:lane id="Lane_Clerk" name="Recepcjonista">
+        <bpmn:flowNodeRef>StartEvent_1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_CollectPatientData</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_SelectPreferredSlot</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ProposeAlternativeSlot</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_PatientAcceptsAlternative</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_AssignDoctor</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_Registered</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_Cancelled</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_System" name="System">
+        <bpmn:flowNodeRef>Task_ValidateSlotAvailability</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_SlotAvailable</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_AddVisitToDoctorSchedule</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_SendRegistrationConfirmation</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="StartEvent_1" name="Pacjent zgłasza chęć rejestracji w recepcji">
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="Task_CollectPatientData" name="Wprowadź dane pacjenta i cel wizyty">
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Task_SelectPreferredSlot" name="Wybierz preferowany termin wizyty">
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+      <bpmn:outgoing>Flow_3</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="Task_ValidateSlotAvailability" name="Sprawdź dostępność terminu">
+      <bpmn:incoming>Flow_3</bpmn:incoming>
+      <bpmn:outgoing>Flow_4</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="Gateway_SlotAvailable" name="Czy termin jest dostępny?" default="Flow_5">
+      <bpmn:incoming>Flow_4</bpmn:incoming>
+      <bpmn:outgoing>Flow_5</bpmn:outgoing>
+      <bpmn:outgoing>Flow_6</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="Task_ProposeAlternativeSlot" name="Zaproponuj alternatywny termin">
+      <bpmn:incoming>Flow_6</bpmn:incoming>
+      <bpmn:outgoing>Flow_7</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_PatientAcceptsAlternative" name="Pacjent akceptuje nowy termin?" default="Flow_8">
+      <bpmn:incoming>Flow_7</bpmn:incoming>
+      <bpmn:outgoing>Flow_8</bpmn:outgoing>
+      <bpmn:outgoing>Flow_9</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="Task_AssignDoctor" name="Przypisz lekarza do wizyty">
+      <bpmn:incoming>Flow_5</bpmn:incoming>
+      <bpmn:incoming>Flow_8</bpmn:incoming>
+      <bpmn:outgoing>Flow_10</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="Task_AddVisitToDoctorSchedule" name="Dodaj wizytę do grafiku lekarza">
+      <bpmn:incoming>Flow_10</bpmn:incoming>
+      <bpmn:outgoing>Flow_11</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Task_SendRegistrationConfirmation" name="Wygeneruj i wyślij potwierdzenie wizyty">
+      <bpmn:incoming>Flow_11</bpmn:incoming>
+      <bpmn:outgoing>Flow_12</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="EndEvent_Registered" name="Wizyta zarejestrowana">
+      <bpmn:incoming>Flow_12</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:endEvent id="EndEvent_Cancelled" name="Rejestracja przerwana">
+      <bpmn:incoming>Flow_9</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_1" targetRef="Task_CollectPatientData" />
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Task_CollectPatientData" targetRef="Task_SelectPreferredSlot" />
+    <bpmn:sequenceFlow id="Flow_3" sourceRef="Task_SelectPreferredSlot" targetRef="Task_ValidateSlotAvailability" />
+    <bpmn:sequenceFlow id="Flow_4" sourceRef="Task_ValidateSlotAvailability" targetRef="Gateway_SlotAvailable" />
+    <bpmn:sequenceFlow id="Flow_5" name="tak" sourceRef="Gateway_SlotAvailable" targetRef="Task_AssignDoctor" />
+    <bpmn:sequenceFlow id="Flow_6" name="nie" sourceRef="Gateway_SlotAvailable" targetRef="Task_ProposeAlternativeSlot" />
+    <bpmn:sequenceFlow id="Flow_7" sourceRef="Task_ProposeAlternativeSlot" targetRef="Gateway_PatientAcceptsAlternative" />
+    <bpmn:sequenceFlow id="Flow_8" name="tak" sourceRef="Gateway_PatientAcceptsAlternative" targetRef="Task_AssignDoctor" />
+    <bpmn:sequenceFlow id="Flow_9" name="nie" sourceRef="Gateway_PatientAcceptsAlternative" targetRef="EndEvent_Cancelled" />
+    <bpmn:sequenceFlow id="Flow_10" sourceRef="Task_AssignDoctor" targetRef="Task_AddVisitToDoctorSchedule" />
+    <bpmn:sequenceFlow id="Flow_11" sourceRef="Task_AddVisitToDoctorSchedule" targetRef="Task_SendRegistrationConfirmation" />
+    <bpmn:sequenceFlow id="Flow_12" sourceRef="Task_SendRegistrationConfirmation" targetRef="EndEvent_Registered" />
   </bpmn:process>
-  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
-    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1">
-      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
-        <dc:Bounds x="173" y="102" width="36" height="36" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_VisitRegistrationClerk">
+    <bpmndi:BPMNPlane id="BPMNPlane_VisitRegistrationClerk" bpmnElement="Collab_VisitRegistrationClerk">
+      <bpmndi:BPMNShape id="S_Pool_VisitRegistrationClerk" bpmnElement="Pool_VisitRegistrationClerk" isHorizontal="true">
+        <dc:Bounds x="120" y="50" width="2360" height="500" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Lane_Clerk" bpmnElement="Lane_Clerk" isHorizontal="true">
+        <dc:Bounds x="150" y="50" width="2330" height="220" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Lane_System" bpmnElement="Lane_System" isHorizontal="true">
+        <dc:Bounds x="150" y="270" width="2330" height="280" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_StartEvent_1" bpmnElement="StartEvent_1">
+        <dc:Bounds x="202" y="142" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Task_CollectPatientData" bpmnElement="Task_CollectPatientData">
+        <dc:Bounds x="280" y="120" width="230" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Task_SelectPreferredSlot" bpmnElement="Task_SelectPreferredSlot">
+        <dc:Bounds x="560" y="120" width="220" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Task_ValidateSlotAvailability" bpmnElement="Task_ValidateSlotAvailability">
+        <dc:Bounds x="840" y="360" width="210" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Gateway_SlotAvailable" bpmnElement="Gateway_SlotAvailable" isMarkerVisible="true">
+        <dc:Bounds x="1120" y="375" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Task_ProposeAlternativeSlot" bpmnElement="Task_ProposeAlternativeSlot">
+        <dc:Bounds x="1250" y="120" width="220" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Gateway_PatientAcceptsAlternative" bpmnElement="Gateway_PatientAcceptsAlternative" isMarkerVisible="true">
+        <dc:Bounds x="1540" y="135" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Task_AssignDoctor" bpmnElement="Task_AssignDoctor">
+        <dc:Bounds x="1660" y="120" width="200" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Task_AddVisitToDoctorSchedule" bpmnElement="Task_AddVisitToDoctorSchedule">
+        <dc:Bounds x="1930" y="360" width="220" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Task_SendRegistrationConfirmation" bpmnElement="Task_SendRegistrationConfirmation">
+        <dc:Bounds x="2210" y="360" width="220" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_EndEvent_Registered" bpmnElement="EndEvent_Registered">
+        <dc:Bounds x="2382" y="142" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_EndEvent_Cancelled" bpmnElement="EndEvent_Cancelled">
+        <dc:Bounds x="1667" y="52" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="E_Flow_1" bpmnElement="Flow_1">
+        <di:waypoint x="238" y="160" />
+        <di:waypoint x="280" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Flow_2" bpmnElement="Flow_2">
+        <di:waypoint x="510" y="160" />
+        <di:waypoint x="560" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Flow_3" bpmnElement="Flow_3">
+        <di:waypoint x="670" y="200" />
+        <di:waypoint x="670" y="400" />
+        <di:waypoint x="840" y="400" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Flow_4" bpmnElement="Flow_4">
+        <di:waypoint x="1050" y="400" />
+        <di:waypoint x="1120" y="400" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Flow_5" bpmnElement="Flow_5">
+        <di:waypoint x="1145" y="375" />
+        <di:waypoint x="1145" y="240" />
+        <di:waypoint x="1760" y="240" />
+        <di:waypoint x="1760" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Flow_6" bpmnElement="Flow_6">
+        <di:waypoint x="1170" y="400" />
+        <di:waypoint x="1250" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Flow_7" bpmnElement="Flow_7">
+        <di:waypoint x="1470" y="160" />
+        <di:waypoint x="1540" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Flow_8" bpmnElement="Flow_8">
+        <di:waypoint x="1590" y="160" />
+        <di:waypoint x="1660" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Flow_9" bpmnElement="Flow_9">
+        <di:waypoint x="1565" y="135" />
+        <di:waypoint x="1565" y="70" />
+        <di:waypoint x="1667" y="70" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Flow_10" bpmnElement="Flow_10">
+        <di:waypoint x="1760" y="200" />
+        <di:waypoint x="1760" y="400" />
+        <di:waypoint x="1930" y="400" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Flow_11" bpmnElement="Flow_11">
+        <di:waypoint x="2150" y="400" />
+        <di:waypoint x="2210" y="400" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Flow_12" bpmnElement="Flow_12">
+        <di:waypoint x="2320" y="360" />
+        <di:waypoint x="2320" y="160" />
+        <di:waypoint x="2382" y="160" />
+      </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 </bpmn:definitions>

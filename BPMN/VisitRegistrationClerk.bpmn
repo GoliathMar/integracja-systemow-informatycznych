@@ -6,7 +6,6 @@
   <bpmn:process id="Process_VisitRegistrationClerk" name="Rejestracja wizyty przez recepcjonistę" isExecutable="false">
     <bpmn:laneSet id="LaneSet_VisitRegistrationClerk">
       <bpmn:lane id="Lane_Clerk" name="Recepcjonista">
-        <bpmn:flowNodeRef>StartEvent_1</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_CollectPatientData</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_SelectPreferredSlot</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_ProposeAlternativeSlot</bpmn:flowNodeRef>
@@ -14,6 +13,7 @@
         <bpmn:flowNodeRef>Task_AssignDoctor</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>EndEvent_Registered</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>EndEvent_Cancelled</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>StartEvent_1</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="Lane_System" name="System">
         <bpmn:flowNodeRef>Task_ValidateSlotAvailability</bpmn:flowNodeRef>
@@ -22,9 +22,6 @@
         <bpmn:flowNodeRef>Task_SendRegistrationConfirmation</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
-    <bpmn:startEvent id="StartEvent_1" name="Pacjent zgłasza chęć rejestracji w recepcji">
-      <bpmn:outgoing>Flow_1</bpmn:outgoing>
-    </bpmn:startEvent>
     <bpmn:userTask id="Task_CollectPatientData" name="Wprowadź dane pacjenta i cel wizyty">
       <bpmn:incoming>Flow_1</bpmn:incoming>
       <bpmn:outgoing>Flow_2</bpmn:outgoing>
@@ -82,20 +79,21 @@
     <bpmn:sequenceFlow id="Flow_10" sourceRef="Task_AssignDoctor" targetRef="Task_AddVisitToDoctorSchedule" />
     <bpmn:sequenceFlow id="Flow_11" sourceRef="Task_AddVisitToDoctorSchedule" targetRef="Task_SendRegistrationConfirmation" />
     <bpmn:sequenceFlow id="Flow_12" sourceRef="Task_SendRegistrationConfirmation" targetRef="EndEvent_Registered" />
+    <bpmn:startEvent id="StartEvent_1" name="Pacjent zgłasza chęć rejestracji w recepcji">
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_04wv2j0" />
+    </bpmn:startEvent>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_VisitRegistrationClerk">
     <bpmndi:BPMNPlane id="BPMNPlane_VisitRegistrationClerk" bpmnElement="Collab_VisitRegistrationClerk">
       <bpmndi:BPMNShape id="S_Pool_VisitRegistrationClerk" bpmnElement="Pool_VisitRegistrationClerk" isHorizontal="true">
         <dc:Bounds x="120" y="50" width="2360" height="500" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="S_Lane_Clerk" bpmnElement="Lane_Clerk" isHorizontal="true">
-        <dc:Bounds x="150" y="50" width="2330" height="220" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="S_Lane_System" bpmnElement="Lane_System" isHorizontal="true">
         <dc:Bounds x="150" y="270" width="2330" height="280" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="S_StartEvent_1" bpmnElement="StartEvent_1">
-        <dc:Bounds x="202" y="142" width="36" height="36" />
+      <bpmndi:BPMNShape id="S_Lane_Clerk" bpmnElement="Lane_Clerk" isHorizontal="true">
+        <dc:Bounds x="150" y="50" width="2330" height="220" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="S_Task_CollectPatientData" bpmnElement="Task_CollectPatientData">
         <dc:Bounds x="280" y="120" width="230" height="80" />
@@ -129,6 +127,12 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="S_EndEvent_Cancelled" bpmnElement="EndEvent_Cancelled">
         <dc:Bounds x="1667" y="52" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0xnl0mq_di" bpmnElement="StartEvent_1">
+        <dc:Bounds x="202" y="142" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="177" y="178" width="86" height="40" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="E_Flow_1" bpmnElement="Flow_1">
         <di:waypoint x="238" y="160" />

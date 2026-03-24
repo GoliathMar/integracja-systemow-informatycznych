@@ -40,7 +40,6 @@
     <bpmn:userTask id="Task_SelectVisitSlot" name="Wybierz termin wizyty">
       <bpmn:incoming>Flow_2</bpmn:incoming>
       <bpmn:outgoing>Flow_3</bpmn:outgoing>
-      <bpmn:outgoing>Flow_1t5mt4p</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:serviceTask id="Task_ValidateSlot" name="Sprawdź dostępność terminu">
       <bpmn:incoming>Flow_3</bpmn:incoming>
@@ -75,7 +74,6 @@
     </bpmn:boundaryEvent>
     <bpmn:intermediateThrowEvent id="Event_1dujlkt">
       <bpmn:incoming>Flow_6</bpmn:incoming>
-      <bpmn:incoming>Flow_1t5mt4p</bpmn:incoming>
       <bpmn:outgoing>Flow_0yolgv3</bpmn:outgoing>
       <bpmn:messageEventDefinition id="MessageEventDefinition_1txwrqq" />
     </bpmn:intermediateThrowEvent>
@@ -137,7 +135,6 @@
       <bpmn:incoming>Flow_16</bpmn:incoming>
       <bpmn:messageEventDefinition id="MessageEventDefinition_1sam817" />
     </bpmn:endEvent>
-    <bpmn:sequenceFlow id="Flow_1t5mt4p" sourceRef="Task_SelectVisitSlot" targetRef="Event_1dujlkt" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_VisitRegistrationPatient">
     <bpmndi:BPMNPlane id="BPMNPlane_VisitRegistrationPatient" bpmnElement="Collab_VisitRegistrationPatient">
@@ -319,10 +316,6 @@
       <bpmndi:BPMNEdge id="Flow_1hfr6cp_di" bpmnElement="Flow_1hfr6cp">
         <di:waypoint x="2018" y="340" />
         <di:waypoint x="2080" y="340" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1t5mt4p_di" bpmnElement="Flow_1t5mt4p">
-        <di:waypoint x="750" y="150" />
-        <di:waypoint x="1397" y="150" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

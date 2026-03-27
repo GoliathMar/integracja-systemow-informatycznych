@@ -1,4 +1,4 @@
-# Information Systems Integration
+# Medical System (Lux Med inspired)
 
 An academic project presenting the design assumptions for a distributed system that supports end-to-end medical service workflows: appointment booking, payment handling, notifications, and medical history management.
 

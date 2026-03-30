@@ -2,15 +2,16 @@
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_ClerkRegistrationAdmin" targetNamespace="http://bpmn.io/schema/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.13.1">
   <bpmn:collaboration id="Collab_ClerkRegistrationAdmin">
     <bpmn:participant id="Pool_Registration" name="Rejestracja pracownika" processRef="Process_ClerkRegistrationAdmin" />
-    <bpmn:participant id="Participant_1ahnl3u" name="Rejestracja" processRef="Process_0j9o8yo" />
+    <bpmn:participant id="Participant_1ahnl3u" name="Rejestracja" />
     <bpmn:messageFlow id="Flow_070mk1z" sourceRef="Event_08xcvdv" targetRef="Participant_1ahnl3u" />
+    <bpmn:messageFlow id="Flow_1hf9k57" sourceRef="Participant_1ahnl3u" targetRef="StartEvent_1" />
   </bpmn:collaboration>
   <bpmn:process id="Process_ClerkRegistrationAdmin" name="Zakładanie konta rejestracji przez admina" isExecutable="false">
     <bpmn:laneSet id="LaneSet_Registration">
       <bpmn:lane id="Lane_Admin" name="Administrator">
-        <bpmn:flowNodeRef>StartEvent_1</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_EnterData</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_SelectRole</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>StartEvent_1</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="Lane_System" name="System">
         <bpmn:flowNodeRef>Gateway_DataValid</bpmn:flowNodeRef>
@@ -20,9 +21,6 @@
         <bpmn:flowNodeRef>Event_08xcvdv</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
-    <bpmn:startEvent id="StartEvent_1" name="Wniosek o nowe konto">
-      <bpmn:outgoing>Flow_1</bpmn:outgoing>
-    </bpmn:startEvent>
     <bpmn:userTask id="Task_EnterData" name="Wprowadź dane pracownika rejestracji">
       <bpmn:incoming>Flow_1</bpmn:incoming>
       <bpmn:incoming>Flow_1i757ci</bpmn:incoming>
@@ -61,21 +59,22 @@
       <bpmn:incoming>Flow_1cdzvrs</bpmn:incoming>
       <bpmn:messageEventDefinition id="MessageEventDefinition_1m09cih" />
     </bpmn:endEvent>
+    <bpmn:startEvent id="StartEvent_1" name="Wniosek o nowe konto">
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_0iig2ax" />
+    </bpmn:startEvent>
   </bpmn:process>
-  <bpmn:process id="Process_0j9o8yo" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_ClerkRegistrationAdmin">
     <bpmndi:BPMNPlane id="BPMNPlane_ClerkRegistrationAdmin" bpmnElement="Collab_ClerkRegistrationAdmin">
       <bpmndi:BPMNShape id="S_Pool_Registration" bpmnElement="Pool_Registration" isHorizontal="true">
         <dc:Bounds x="120" y="50" width="1586" height="370" />
+        <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="S_Lane_System" bpmnElement="Lane_System" isHorizontal="true">
         <dc:Bounds x="150" y="240" width="1556" height="180" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="S_Lane_Admin" bpmnElement="Lane_Admin" isHorizontal="true">
         <dc:Bounds x="150" y="50" width="1556" height="190" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="S_StartEvent_1" bpmnElement="StartEvent_1">
-        <dc:Bounds x="202" y="132" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="S_Task_EnterData" bpmnElement="Task_EnterData">
         <dc:Bounds x="280" y="110" width="220" height="80" />
@@ -102,6 +101,12 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1sq8555_di" bpmnElement="Event_08xcvdv">
         <dc:Bounds x="1612" y="312" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1r2lw73_di" bpmnElement="StartEvent_1">
+        <dc:Bounds x="202" y="132" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="180" y="168" width="80" height="27" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="E_Flow_1" bpmnElement="Flow_1">
         <di:waypoint x="238" y="150" />
@@ -144,13 +149,16 @@
         <di:waypoint x="1543" y="330" />
         <di:waypoint x="1612" y="330" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="Participant_1ahnl3u_di" bpmnElement="Participant_1ahnl3u" isHorizontal="true">
-        <dc:Bounds x="120" y="-240" width="1586" height="250" />
-        <bpmndi:BPMNLabel />
+      <bpmndi:BPMNShape id="Participant_0a1ce90_di" bpmnElement="Participant_1ahnl3u" isHorizontal="true">
+        <dc:Bounds x="120" y="-70" width="1586" height="60" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_070mk1z_di" bpmnElement="Flow_070mk1z">
         <di:waypoint x="1630" y="312" />
-        <di:waypoint x="1630" y="10" />
+        <di:waypoint x="1630" y="-10" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1hf9k57_di" bpmnElement="Flow_1hf9k57">
+        <di:waypoint x="220" y="-10" />
+        <di:waypoint x="220" y="132" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

@@ -1,0 +1,441 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0nrag53" targetNamespace="http://bpmn.io/schema/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.13.2">
+  <bpmn:collaboration id="Collaboration_1">
+    <bpmn:participant id="Participant_Biznes" name="Zarząd" processRef="Process_Biznes" />
+    <bpmn:participant id="Participant_Admin" name="Administracja" processRef="Process_Admin" />
+    <bpmn:participant id="Participant_Sys" name="System" processRef="Process_Sys" />
+    <bpmn:messageFlow id="Msg_BizToAdmin" name="Zlecenie dodania placówki" sourceRef="Throw_ReqToAdmin" targetRef="Start_Admin_Req" />
+    <bpmn:messageFlow id="Msg_AdminToBiz" name="Raport o sukcesie" sourceRef="End_Admin_Success" targetRef="Catch_SuccessFromAdmin" />
+    <bpmn:messageFlow id="MsgFlow_1" name="Żądanie formularza" sourceRef="Throw_ReqForm" targetRef="Start_Sys_Req" />
+    <bpmn:messageFlow id="MsgFlow_2" name="Gotowy formularz" sourceRef="Throw_Sys_Form" targetRef="Catch_Form" />
+    <bpmn:messageFlow id="MsgFlow_3" sourceRef="Throw_Data" targetRef="Catch_Sys_Data" />
+    <bpmn:messageFlow id="MsgFlow_4" name="Błąd walidacji" sourceRef="Throw_Sys_Err" targetRef="Catch_Result" />
+    <bpmn:messageFlow id="MsgFlow_5" name="Potwierdzenie dodania" sourceRef="End_Sys" targetRef="Catch_Result" />
+  </bpmn:collaboration>
+  <bpmn:process id="Process_Biznes" isExecutable="false">
+    <bpmn:startEvent id="Start_Biznes" name="Decyzja o dodaniu nowej placówki">
+      <bpmn:outgoing>Flow_Biz1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="Task_Biznes1" name="Sformułowanie żądania">
+      <bpmn:incoming>Flow_Biz1</bpmn:incoming>
+      <bpmn:outgoing>Flow_Biz2</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:intermediateThrowEvent id="Throw_ReqToAdmin" name="Wysłanie zlecenia do administracji">
+      <bpmn:incoming>Flow_Biz2</bpmn:incoming>
+      <bpmn:outgoing>Flow_Biz3</bpmn:outgoing>
+      <bpmn:messageEventDefinition />
+    </bpmn:intermediateThrowEvent>
+    <bpmn:intermediateCatchEvent id="Catch_SuccessFromAdmin" name="Odbiór potwierdzenia sukcesu">
+      <bpmn:incoming>Flow_Biz3</bpmn:incoming>
+      <bpmn:outgoing>Flow_Biz4</bpmn:outgoing>
+      <bpmn:messageEventDefinition />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:endEvent id="End_Biznes" name="Placówka oficjalnie otwarta">
+      <bpmn:incoming>Flow_Biz4</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_Biz1" sourceRef="Start_Biznes" targetRef="Task_Biznes1" />
+    <bpmn:sequenceFlow id="Flow_Biz2" sourceRef="Task_Biznes1" targetRef="Throw_ReqToAdmin" />
+    <bpmn:sequenceFlow id="Flow_Biz3" sourceRef="Throw_ReqToAdmin" targetRef="Catch_SuccessFromAdmin" />
+    <bpmn:sequenceFlow id="Flow_Biz4" sourceRef="Catch_SuccessFromAdmin" targetRef="End_Biznes" />
+  </bpmn:process>
+  <bpmn:process id="Process_Admin" isExecutable="false">
+    <bpmn:startEvent id="Start_Admin_Req" name="Otrzymanie zlecenia">
+      <bpmn:outgoing>Flow_Adm1</bpmn:outgoing>
+      <bpmn:messageEventDefinition />
+    </bpmn:startEvent>
+    <bpmn:task id="Task_Admin1" name="Analiza zlecenia">
+      <bpmn:incoming>Flow_Adm1</bpmn:incoming>
+      <bpmn:outgoing>Flow_Adm2</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:intermediateThrowEvent id="Throw_ReqForm" name="Prośba o formularz">
+      <bpmn:incoming>Flow_Adm2</bpmn:incoming>
+      <bpmn:outgoing>Flow_Adm3</bpmn:outgoing>
+      <bpmn:messageEventDefinition />
+    </bpmn:intermediateThrowEvent>
+    <bpmn:intermediateCatchEvent id="Catch_Form" name="Odbiór formularza">
+      <bpmn:incoming>Flow_Adm3</bpmn:incoming>
+      <bpmn:outgoing>Flow_Adm4</bpmn:outgoing>
+      <bpmn:messageEventDefinition />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:task id="Task_Admin2" name="Wypełnienie formularza danymi">
+      <bpmn:incoming>Flow_Adm4</bpmn:incoming>
+      <bpmn:incoming>Flow_Adm_Nie</bpmn:incoming>
+      <bpmn:outgoing>Flow_Adm5</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:intermediateThrowEvent id="Throw_Data" name="Wysłanie danych do weryfikacji">
+      <bpmn:incoming>Flow_Adm5</bpmn:incoming>
+      <bpmn:outgoing>Flow_Adm6</bpmn:outgoing>
+      <bpmn:messageEventDefinition />
+    </bpmn:intermediateThrowEvent>
+    <bpmn:intermediateCatchEvent id="Catch_Result" name="Oczekiwanie na wynik">
+      <bpmn:incoming>Flow_Adm6</bpmn:incoming>
+      <bpmn:outgoing>Flow_Adm7</bpmn:outgoing>
+      <bpmn:messageEventDefinition />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:exclusiveGateway id="Gateway_Admin" name="Czy dodano pomyślnie?">
+      <bpmn:incoming>Flow_Adm7</bpmn:incoming>
+      <bpmn:outgoing>Flow_Adm_Tak</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Adm_Nie</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="Task_Admin3" name="Przygotowanie informacji zwrotnej">
+      <bpmn:incoming>Flow_Adm_Tak</bpmn:incoming>
+      <bpmn:outgoing>Flow_Adm8</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="End_Admin_Success" name="Wysłanie raportu">
+      <bpmn:incoming>Flow_Adm8</bpmn:incoming>
+      <bpmn:messageEventDefinition />
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_Adm1" sourceRef="Start_Admin_Req" targetRef="Task_Admin1" />
+    <bpmn:sequenceFlow id="Flow_Adm2" sourceRef="Task_Admin1" targetRef="Throw_ReqForm" />
+    <bpmn:sequenceFlow id="Flow_Adm3" sourceRef="Throw_ReqForm" targetRef="Catch_Form" />
+    <bpmn:sequenceFlow id="Flow_Adm4" sourceRef="Catch_Form" targetRef="Task_Admin2" />
+    <bpmn:sequenceFlow id="Flow_Adm5" sourceRef="Task_Admin2" targetRef="Throw_Data" />
+    <bpmn:sequenceFlow id="Flow_Adm6" sourceRef="Throw_Data" targetRef="Catch_Result" />
+    <bpmn:sequenceFlow id="Flow_Adm7" sourceRef="Catch_Result" targetRef="Gateway_Admin" />
+    <bpmn:sequenceFlow id="Flow_Adm_Nie" name="Nie" sourceRef="Gateway_Admin" targetRef="Task_Admin2" />
+    <bpmn:sequenceFlow id="Flow_Adm_Tak" name="Tak" sourceRef="Gateway_Admin" targetRef="Task_Admin3" />
+    <bpmn:sequenceFlow id="Flow_Adm8" sourceRef="Task_Admin3" targetRef="End_Admin_Success" />
+  </bpmn:process>
+  <bpmn:process id="Process_Sys" isExecutable="false">
+    <bpmn:startEvent id="Start_Sys_Req" name="Otrzymanie prośby o formularz">
+      <bpmn:outgoing>Flow_Sys1</bpmn:outgoing>
+      <bpmn:messageEventDefinition />
+    </bpmn:startEvent>
+    <bpmn:task id="Task_Sys1" name="Wygenerowanie formularza">
+      <bpmn:incoming>Flow_Sys1</bpmn:incoming>
+      <bpmn:outgoing>Flow_Sys2</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:intermediateThrowEvent id="Throw_Sys_Form" name="Wysłanie formularza">
+      <bpmn:incoming>Flow_Sys2</bpmn:incoming>
+      <bpmn:outgoing>Flow_Sys3</bpmn:outgoing>
+      <bpmn:messageEventDefinition />
+    </bpmn:intermediateThrowEvent>
+    <bpmn:intermediateCatchEvent id="Catch_Sys_Data" name="Odbiór danych z formularza">
+      <bpmn:incoming>Flow_Sys3</bpmn:incoming>
+      <bpmn:incoming>Flow_Sys_Loop</bpmn:incoming>
+      <bpmn:outgoing>Flow_Sys4</bpmn:outgoing>
+      <bpmn:messageEventDefinition />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:exclusiveGateway id="Gateway_Sys" name="Czy dane poprawne?">
+      <bpmn:incoming>Flow_Sys4</bpmn:incoming>
+      <bpmn:outgoing>Flow_Sys_Nie</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Sys_Tak</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:intermediateThrowEvent id="Throw_Sys_Err" name="Zwrócenie błędu walidacji">
+      <bpmn:incoming>Flow_Sys_Nie</bpmn:incoming>
+      <bpmn:outgoing>Flow_Sys_Loop</bpmn:outgoing>
+      <bpmn:messageEventDefinition />
+    </bpmn:intermediateThrowEvent>
+    <bpmn:task id="Task_Sys2" name="Dodanie placówki do bazy">
+      <bpmn:incoming>Flow_Sys_Tak</bpmn:incoming>
+      <bpmn:outgoing>Flow_Sys5</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="End_Sys" name="Wysłanie potwierdzenia">
+      <bpmn:incoming>Flow_Sys5</bpmn:incoming>
+      <bpmn:messageEventDefinition />
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_Sys1" sourceRef="Start_Sys_Req" targetRef="Task_Sys1" />
+    <bpmn:sequenceFlow id="Flow_Sys2" sourceRef="Task_Sys1" targetRef="Throw_Sys_Form" />
+    <bpmn:sequenceFlow id="Flow_Sys3" sourceRef="Throw_Sys_Form" targetRef="Catch_Sys_Data" />
+    <bpmn:sequenceFlow id="Flow_Sys4" sourceRef="Catch_Sys_Data" targetRef="Gateway_Sys" />
+    <bpmn:sequenceFlow id="Flow_Sys_Nie" name="Nie" sourceRef="Gateway_Sys" targetRef="Throw_Sys_Err" />
+    <bpmn:sequenceFlow id="Flow_Sys_Loop" sourceRef="Throw_Sys_Err" targetRef="Catch_Sys_Data" />
+    <bpmn:sequenceFlow id="Flow_Sys_Tak" name="Tak" sourceRef="Gateway_Sys" targetRef="Task_Sys2" />
+    <bpmn:sequenceFlow id="Flow_Sys5" sourceRef="Task_Sys2" targetRef="End_Sys" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1">
+      <bpmndi:BPMNShape id="Participant_Biznes_di" bpmnElement="Participant_Biznes" isHorizontal="true">
+        <dc:Bounds x="150" y="60" width="1320" height="150" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Start_Biznes_di" bpmnElement="Start_Biznes">
+        <dc:Bounds x="220" y="112" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="199" y="155" width="79" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Biznes1_di" bpmnElement="Task_Biznes1">
+        <dc:Bounds x="300" y="90" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Throw_ReqToAdmin_di" bpmnElement="Throw_ReqToAdmin">
+        <dc:Bounds x="450" y="112" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="430" y="75" width="76" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Catch_SuccessFromAdmin_di" bpmnElement="Catch_SuccessFromAdmin">
+        <dc:Bounds x="1330" y="112" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1310" y="75" width="76" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_Biznes_di" bpmnElement="End_Biznes">
+        <dc:Bounds x="1410" y="112" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1395" y="155" width="67" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_Biz1_di" bpmnElement="Flow_Biz1">
+        <di:waypoint x="256" y="130" />
+        <di:waypoint x="300" y="130" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Biz2_di" bpmnElement="Flow_Biz2">
+        <di:waypoint x="400" y="130" />
+        <di:waypoint x="450" y="130" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Biz3_di" bpmnElement="Flow_Biz3">
+        <di:waypoint x="486" y="130" />
+        <di:waypoint x="1330" y="130" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Biz4_di" bpmnElement="Flow_Biz4">
+        <di:waypoint x="1366" y="130" />
+        <di:waypoint x="1410" y="130" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Participant_Admin_di" bpmnElement="Participant_Admin" isHorizontal="true">
+        <dc:Bounds x="150" y="250" width="1320" height="160" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Start_Admin_Req_di" bpmnElement="Start_Admin_Req">
+        <dc:Bounds x="450" y="302" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="439" y="345" width="60" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Admin1_di" bpmnElement="Task_Admin1">
+        <dc:Bounds x="520" y="280" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Throw_ReqForm_di" bpmnElement="Throw_ReqForm">
+        <dc:Bounds x="650" y="302" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="645" y="265" width="48" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Catch_Form_di" bpmnElement="Catch_Form">
+        <dc:Bounds x="750" y="302" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="740" y="265" width="56" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Admin2_di" bpmnElement="Task_Admin2">
+        <dc:Bounds x="820" y="280" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Throw_Data_di" bpmnElement="Throw_Data">
+        <dc:Bounds x="950" y="302" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="926" y="265" width="85" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Catch_Result_di" bpmnElement="Catch_Result">
+        <dc:Bounds x="1030" y="302" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1020" y="265" width="81" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_Admin_di" bpmnElement="Gateway_Admin" isMarkerVisible="true">
+        <dc:Bounds x="1100" y="295" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1096" y="352" width="59" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Admin3_di" bpmnElement="Task_Admin3">
+        <dc:Bounds x="1190" y="280" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_Admin_Success_di" bpmnElement="End_Admin_Success">
+        <dc:Bounds x="1330" y="302" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1308" y="345" width="83" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_Adm1_di" bpmnElement="Flow_Adm1">
+        <di:waypoint x="486" y="320" />
+        <di:waypoint x="520" y="320" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Adm2_di" bpmnElement="Flow_Adm2">
+        <di:waypoint x="620" y="320" />
+        <di:waypoint x="650" y="320" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Adm3_di" bpmnElement="Flow_Adm3">
+        <di:waypoint x="686" y="320" />
+        <di:waypoint x="750" y="320" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Adm4_di" bpmnElement="Flow_Adm4">
+        <di:waypoint x="786" y="320" />
+        <di:waypoint x="820" y="320" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Adm5_di" bpmnElement="Flow_Adm5">
+        <di:waypoint x="920" y="320" />
+        <di:waypoint x="950" y="320" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Adm6_di" bpmnElement="Flow_Adm6">
+        <di:waypoint x="986" y="320" />
+        <di:waypoint x="1030" y="320" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Adm7_di" bpmnElement="Flow_Adm7">
+        <di:waypoint x="1066" y="320" />
+        <di:waypoint x="1100" y="320" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Adm_Nie_di" bpmnElement="Flow_Adm_Nie">
+        <di:waypoint x="1125" y="295" />
+        <di:waypoint x="1125" y="260" />
+        <di:waypoint x="870" y="260" />
+        <di:waypoint x="870" y="280" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1145" y="265" width="17" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Adm_Tak_di" bpmnElement="Flow_Adm_Tak">
+        <di:waypoint x="1150" y="320" />
+        <di:waypoint x="1190" y="320" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1160" y="302" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Adm8_di" bpmnElement="Flow_Adm8">
+        <di:waypoint x="1290" y="320" />
+        <di:waypoint x="1330" y="320" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Participant_Sys_di" bpmnElement="Participant_Sys" isHorizontal="true">
+        <dc:Bounds x="150" y="450" width="1320" height="220" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Start_Sys_Req_di" bpmnElement="Start_Sys_Req">
+        <dc:Bounds x="650" y="522" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="624" y="565" width="88" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Sys1_di" bpmnElement="Task_Sys1">
+        <dc:Bounds x="730" y="500" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Throw_Sys_Form_di" bpmnElement="Throw_Sys_Form">
+        <dc:Bounds x="870" y="522" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="860" y="565" width="56" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Catch_Sys_Data_di" bpmnElement="Catch_Sys_Data">
+        <dc:Bounds x="950" y="522" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="927" y="476" width="84" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_Sys_di" bpmnElement="Gateway_Sys" isMarkerVisible="true">
+        <dc:Bounds x="1035" y="515" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1030" y="478" width="59" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Throw_Sys_Err_di" bpmnElement="Throw_Sys_Err">
+        <dc:Bounds x="1042" y="602" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="818" y="636" width="84" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Sys2_di" bpmnElement="Task_Sys2">
+        <dc:Bounds x="1140" y="500" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_Sys_di" bpmnElement="End_Sys">
+        <dc:Bounds x="1280" y="522" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1262" y="565" width="73" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_Sys1_di" bpmnElement="Flow_Sys1">
+        <di:waypoint x="686" y="540" />
+        <di:waypoint x="730" y="540" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Sys2_di" bpmnElement="Flow_Sys2">
+        <di:waypoint x="830" y="540" />
+        <di:waypoint x="870" y="540" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Sys3_di" bpmnElement="Flow_Sys3">
+        <di:waypoint x="906" y="540" />
+        <di:waypoint x="950" y="540" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Sys4_di" bpmnElement="Flow_Sys4">
+        <di:waypoint x="986" y="540" />
+        <di:waypoint x="1035" y="540" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Sys_Nie_di" bpmnElement="Flow_Sys_Nie">
+        <di:waypoint x="1060" y="565" />
+        <di:waypoint x="1060" y="602" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1065" y="575" width="17" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Sys_Loop_di" bpmnElement="Flow_Sys_Loop">
+        <di:waypoint x="1042" y="620" />
+        <di:waypoint x="968" y="620" />
+        <di:waypoint x="968" y="558" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Sys_Tak_di" bpmnElement="Flow_Sys_Tak">
+        <di:waypoint x="1085" y="540" />
+        <di:waypoint x="1140" y="540" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1100" y="522" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Sys5_di" bpmnElement="Flow_Sys5">
+        <di:waypoint x="1240" y="540" />
+        <di:waypoint x="1280" y="540" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Msg_BizToAdmin_di" bpmnElement="Msg_BizToAdmin">
+        <di:waypoint x="468" y="148" />
+        <di:waypoint x="468" y="302" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="380" y="210" width="85" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Msg_AdminToBiz_di" bpmnElement="Msg_AdminToBiz">
+        <di:waypoint x="1348" y="302" />
+        <di:waypoint x="1348" y="148" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1355" y="210" width="85" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MsgFlow_1_di" bpmnElement="MsgFlow_1">
+        <di:waypoint x="668" y="338" />
+        <di:waypoint x="668" y="522" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="590" y="420" width="70" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MsgFlow_2_di" bpmnElement="MsgFlow_2">
+        <di:waypoint x="888" y="522" />
+        <di:waypoint x="888" y="420" />
+        <di:waypoint x="768" y="420" />
+        <di:waypoint x="768" y="338" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="780" y="430" width="87" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MsgFlow_3_di" bpmnElement="MsgFlow_3">
+        <di:waypoint x="968" y="338" />
+        <di:waypoint x="968" y="522" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="877" y="383" width="85" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MsgFlow_4_di" bpmnElement="MsgFlow_4">
+        <di:waypoint x="1060" y="638" />
+        <di:waypoint x="1060" y="680" />
+        <di:waypoint x="590" y="680" />
+        <di:waypoint x="590" y="430" />
+        <di:waypoint x="1048" y="430" />
+        <di:waypoint x="1048" y="338" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1009" y="442" width="67" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MsgFlow_5_di" bpmnElement="MsgFlow_5">
+        <di:waypoint x="1298" y="522" />
+        <di:waypoint x="1298" y="420" />
+        <di:waypoint x="1048" y="420" />
+        <di:waypoint x="1048" y="338" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1223" y="420" width="73" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

@@ -149,6 +149,25 @@
   <bpmn:error id="Error_SendCancelNotification" name="Błąd wysyłki powiadomienia o anulowaniu" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_VisitCancelationClerk">
     <bpmndi:BPMNPlane id="BPMNPlane_VisitCancelationClerk" bpmnElement="Collab_VisitCancelationClerk">
+      <!-- Pool Pacjenta nad głównym poolem -->
+      <bpmndi:BPMNShape id="S_Pool_Patient_Cancel" bpmnElement="Pool_VisitCancelationClerk_Patient" isHorizontal="true">
+        <dc:Bounds x="120" y="-120" width="2200" height="150" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Lane_Patient_Cancel" bpmnElement="Lane_Patient" isHorizontal="true">
+        <dc:Bounds x="150" y="-120" width="2170" height="150" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_StartEvent_PatientInitCancel" bpmnElement="StartEvent_PatientInitCancel">
+        <dc:Bounds x="202" y="-62" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Task_PatientWaitsCancel" bpmnElement="Task_PatientWaitsForCancelConfirmation">
+        <dc:Bounds x="1680" y="-80" width="220" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_EndEvent_PatientCancelledConfirmed" bpmnElement="EndEvent_PatientVisitCancelledConfirmed">
+        <dc:Bounds x="1932" y="-62" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_EndEvent_PatientCancelRejectedInformed" bpmnElement="EndEvent_PatientCancelRejectedInformed">
+        <dc:Bounds x="2132" y="-62" width="36" height="36" />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="S_Pool_VisitCancelationClerk" bpmnElement="Pool_VisitCancelationClerk" isHorizontal="true">
         <dc:Bounds x="120" y="50" width="2200" height="470" />
       </bpmndi:BPMNShape>
@@ -233,6 +252,33 @@
       <bpmndi:BPMNEdge id="E_Flow_10" bpmnElement="Flow_10">
         <di:waypoint x="1300" y="150" />
         <di:waypoint x="1352" y="150" />
+      </bpmndi:BPMNEdge>
+      <!-- Strzałki w poolu Pacjenta -->
+      <bpmndi:BPMNEdge id="E_Flow_PatientCancel_1" bpmnElement="Flow_PatientCancel_1">
+        <di:waypoint x="238" y="-44" />
+        <di:waypoint x="1680" y="-44" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Flow_PatientCancel_2" bpmnElement="Flow_PatientCancel_2">
+        <di:waypoint x="1900" y="-44" />
+        <di:waypoint x="1932" y="-44" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Flow_PatientCancel_3" bpmnElement="Flow_PatientCancel_3">
+        <di:waypoint x="2110" y="150" />
+        <di:waypoint x="2110" y="-44" />
+        <di:waypoint x="2132" y="-44" />
+      </bpmndi:BPMNEdge>
+      <!-- Message flows między poolami -->
+      <bpmndi:BPMNEdge id="E_MF_Cancel_PatientToClerk" bpmnElement="Flow_VisitCancel_PatientToClerk">
+        <di:waypoint x="220" y="-26" />
+        <di:waypoint x="220" y="142" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_MF_Cancel_SystemToPatient" bpmnElement="Flow_VisitCancel_SystemToPatient">
+        <di:waypoint x="2110" y="168" />
+        <di:waypoint x="2110" y="-26" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_MF_Cancel_RejectedToPatient" bpmnElement="Flow_VisitCancel_RejectedToPatient">
+        <di:waypoint x="1370" y="150" />
+        <di:waypoint x="2132" y="-26" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

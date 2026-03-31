@@ -153,6 +153,22 @@
   <bpmn:error id="Error_SendRegistrationConfirmation" name="Błąd wysyłki potwierdzenia do pacjenta" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_VisitRegistrationClerk">
     <bpmndi:BPMNPlane id="BPMNPlane_VisitRegistrationClerk" bpmnElement="Collab_VisitRegistrationClerk">
+      <!-- Pool Pacjenta nad głównym poolem -->
+      <bpmndi:BPMNShape id="S_Pool_Patient_Reg" bpmnElement="Pool_VisitRegistrationClerk_Patient" isHorizontal="true">
+        <dc:Bounds x="120" y="-120" width="2360" height="150" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Lane_Patient_Reg" bpmnElement="Lane_Patient" isHorizontal="true">
+        <dc:Bounds x="150" y="-120" width="2330" height="150" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_StartEvent_PatientInit" bpmnElement="StartEvent_PatientInit">
+        <dc:Bounds x="202" y="-62" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Task_PatientWaits" bpmnElement="Task_PatientWaitsForConfirmation">
+        <dc:Bounds x="2100" y="-80" width="200" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_EndEvent_PatientConfirmed" bpmnElement="EndEvent_PatientVisitConfirmed">
+        <dc:Bounds x="2362" y="-62" width="36" height="36" />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="S_Pool_VisitRegistrationClerk" bpmnElement="Pool_VisitRegistrationClerk" isHorizontal="true">
         <dc:Bounds x="120" y="50" width="2360" height="500" />
       </bpmndi:BPMNShape>
@@ -254,6 +270,24 @@
         <di:waypoint x="2320" y="360" />
         <di:waypoint x="2320" y="160" />
         <di:waypoint x="2382" y="160" />
+      </bpmndi:BPMNEdge>
+      <!-- Strzałki w poolu Pacjenta -->
+      <bpmndi:BPMNEdge id="E_Flow_Patient_1" bpmnElement="Flow_Patient_1">
+        <di:waypoint x="238" y="-44" />
+        <di:waypoint x="2100" y="-44" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Flow_Patient_2" bpmnElement="Flow_Patient_2">
+        <di:waypoint x="2300" y="-44" />
+        <di:waypoint x="2362" y="-44" />
+      </bpmndi:BPMNEdge>
+      <!-- Message flows między poolami -->
+      <bpmndi:BPMNEdge id="E_MF_PatientToClerk" bpmnElement="Flow_VisitReg_PatientToClerk">
+        <di:waypoint x="220" y="-26" />
+        <di:waypoint x="220" y="142" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_MF_SystemToPatient" bpmnElement="Flow_VisitReg_SystemToPatient">
+        <di:waypoint x="2400" y="160" />
+        <di:waypoint x="2400" y="-26" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

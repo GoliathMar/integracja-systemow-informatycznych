@@ -1,429 +1,952 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.13.1">
-  <bpmn:collaboration id="Collaboration_0xsyri0">
-    <bpmn:participant id="Participant_1yyhqhl" name="System medyczny" processRef="Process_1" />
-    <bpmn:participant id="Participant_1xrkpl9" name="System płatniczy" processRef="Process_0kica78" />
-    <bpmn:messageFlow id="Flow_0yislj1" sourceRef="Activity_0yqd3iz" targetRef="Event_04yc2by" />
-    <bpmn:messageFlow id="Flow_1g93f59" sourceRef="Event_0v4pijt" targetRef="Activity_07btw12" />
-    <bpmn:messageFlow id="Flow_0kplgs2" sourceRef="Activity_1nlsn93" targetRef="Event_1apb3wo" />
-    <bpmn:messageFlow id="Flow_0wavsvd" sourceRef="Event_1oot0nz" targetRef="Activity_03bct8x" />
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_PatientPortal" targetNamespace="http://bpmn.io/schema/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.13.2">
+  <bpmn:message id="Msg_DaneLogowania" name="Dane logowania" />
+  <bpmn:message id="Msg_WyborAkcji" name="Wybór akcji przez pacjenta" />
+  <bpmn:message id="Msg_ZlecenieUmowienia" name="Zlecenie umówienia wizyty" />
+  <bpmn:message id="Msg_ZlecenieAnulowania" name="Zlecenie anulowania wizyty" />
+  <bpmn:message id="Msg_ZlecenieWylogowania" name="Zlecenie wylogowania" />
+  <bpmn:message id="Msg_BladLogowania" name="Błąd logowania" />
+  <bpmn:message id="Msg_PotwierdzenieLogowania" name="Potwierdzenie logowania" />
+  <bpmn:message id="Msg_PrzekierowanieDoZwrotu" name="Przekierowanie do zwrotu płatności" />
+  <bpmn:message id="Msg_StatusZwrotu" name="Status zwrotu płatności" />
+  <bpmn:message id="Msg_PrzekierowanieDoPlatnosci" name="Przekierowanie do płatności" />
+  <bpmn:message id="Msg_StatusPlatnosci" name="Status płatności" />
+  <bpmn:message id="Msg_PowiadomieniePacjentaAnulowanie" name="Potwierdzenie anulowania wizyty" />
+  <bpmn:message id="Msg_PowiadomieniePacjentaRezerwacja" name="Potwierdzenie rezerwacji i płatności" />
+  <bpmn:message id="Msg_PowiadomieniePacjentaZwrot" name="Potwierdzenie zwrotu płatności" />
+  <bpmn:message id="Msg_WylogowanieOK" name="Wylogowanie potwierdzone" />
+  <bpmn:collaboration id="Collab_PatientPortal">
+    <bpmn:participant id="Pool_Pacjent" name="Pacjent" processRef="Proc_Pacjent" />
+    <bpmn:participant id="Pool_System" name="System Medyczny" processRef="Proc_System" />
+    <bpmn:participant id="Pool_SysPlatniczy" name="System Płatniczy" processRef="Proc_SysPlatniczy" />
+    <bpmn:messageFlow id="MF_DaneLogowania" name="Dane logowania" sourceRef="Task_WprowadzDane" targetRef="Start_SystemOtrzymujeDane" />
+    <bpmn:messageFlow id="MF_BladLogowania" name="Błąd logowania" sourceRef="Task_WyslijBladLogowania" targetRef="Catch_PacjentBladLogowania" />
+    <bpmn:messageFlow id="MF_PotwierdzenieLogowania" name="Potwierdzenie logowania" sourceRef="Task_WyslijPotwierdzenieLogowania" targetRef="Catch_PacjentZalogowany" />
+    <bpmn:messageFlow id="MF_WyborAkcji" name="Wybór akcji" sourceRef="Task_WybierzAkcje" targetRef="Catch_SystemWyborAkcji" />
+    <bpmn:messageFlow id="MF_ZlecenieUmowienia" name="Zlecenie umówienia wizyty" sourceRef="End_PacjentZlecaUmowienie" targetRef="Catch_SystemUmawianie" />
+    <bpmn:messageFlow id="MF_ZlecenieAnulowania" name="Zlecenie anulowania wizyty" sourceRef="End_PacjentZlecaAnulowanie" targetRef="Catch_SystemAnulowanie" />
+    <bpmn:messageFlow id="MF_ZlecenieWylogowania" name="Zlecenie wylogowania" sourceRef="End_PacjentWylogowuje" targetRef="Catch_SystemWylogowanie" />
+    <bpmn:messageFlow id="MF_PotwierdzenieRezerwacji" name="Potwierdzenie rezerwacji i płatności" sourceRef="Task_WyslijPotwierdzenieRezerwacji" targetRef="Catch_PacjentPotwierdzRezerwacji" />
+    <bpmn:messageFlow id="MF_PotwierdzenieAnulowania" name="Potwierdzenie anulowania wizyty" sourceRef="Task_WyslijPotwierdzenieAnulowania" targetRef="Catch_PacjentPotwierdzAnulowania" />
+    <bpmn:messageFlow id="MF_PotwierdzenieZwrotu" name="Potwierdzenie zwrotu płatności" sourceRef="Task_WyslijPotwierdzenieZwrotu" targetRef="Catch_PacjentPotwierdzZwrotu" />
+    <bpmn:messageFlow id="MF_PotwierdzenieWylogowania" name="Potwierdzenie wylogowania" sourceRef="End_SystemWylogowanie" targetRef="Catch_PacjentWylogowany" />
+    <bpmn:messageFlow id="MF_PrzekierowanieDoZwrotu" name="Zlecenie zwrotu płatności" sourceRef="Task_PrzekierujDoZwrotu" targetRef="Start_SysZwrot" />
+    <bpmn:messageFlow id="MF_StatusZwrotu" name="Status zwrotu" sourceRef="End_SysZwrotOK" targetRef="Catch_SystemStatusZwrotu" />
+    <bpmn:messageFlow id="MF_PrzekerowanieDoPlatnosci" name="Zlecenie płatności" sourceRef="Task_PrzekierujDoPlatnosci" targetRef="Start_SysPlatnosc" />
+    <bpmn:messageFlow id="MF_StatusPlatnosci" name="Status płatności" sourceRef="End_SysPlatnoscOK" targetRef="Catch_SystemStatusPlatnosci" />
   </bpmn:collaboration>
-  <bpmn:process id="Process_1" isExecutable="false">
-    <bpmn:laneSet id="LaneSet_0gil5bb">
-      <bpmn:lane id="Lane_1m3ttje" name="Pacjent">
-        <bpmn:flowNodeRef>StartEvent_1</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Activity_0q2o3ps</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Gateway_1ho061d</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Gateway_0wlsgrz</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Activity_1yqxyjl</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Activity_0nkzx5o</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Activity_03bct8x</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Event_14mrj4k</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Activity_0aibi8m</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Event_0x733c6</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Activity_07btw12</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Event_1c4yrro</bpmn:flowNodeRef>
-      </bpmn:lane>
-      <bpmn:lane id="Lane_19syyjb" name="System">
-        <bpmn:flowNodeRef>Activity_0oz2cst</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Gateway_1hxqqi9</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Activity_1xmbe59</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Activity_0yqd3iz</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Event_0898qh4</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Activity_0wem2we</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Gateway_0llps8q</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Activity_1nlsn93</bpmn:flowNodeRef>
-      </bpmn:lane>
-    </bpmn:laneSet>
-    <bpmn:startEvent id="StartEvent_1">
-      <bpmn:outgoing>Flow_0m30xnr</bpmn:outgoing>
+  <bpmn:process id="Proc_Pacjent" isExecutable="false">
+    <bpmn:startEvent id="Start_Pacjent" name="Otwiera portal medyczny">
+      <bpmn:outgoing>SF_PA_01</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:task id="Activity_0q2o3ps" name="Wprowadza login i hasło">
-      <bpmn:incoming>Flow_0m30xnr</bpmn:incoming>
-      <bpmn:incoming>Flow_1n11qmp</bpmn:incoming>
-      <bpmn:outgoing>Flow_0x6u7jl</bpmn:outgoing>
+    <bpmn:task id="Task_WprowadzDane" name="Wprowadza login i hasło">
+      <bpmn:incoming>SF_PA_01</bpmn:incoming>
+      <bpmn:incoming>SF_PA_Retry</bpmn:incoming>
+      <bpmn:outgoing>SF_PA_02</bpmn:outgoing>
     </bpmn:task>
-    <bpmn:exclusiveGateway id="Gateway_1ho061d" name="Czy dane ok?">
-      <bpmn:incoming>Flow_0x6u7jl</bpmn:incoming>
-      <bpmn:outgoing>Flow_1n11qmp</bpmn:outgoing>
-      <bpmn:outgoing>Flow_0o6ydak</bpmn:outgoing>
-    </bpmn:exclusiveGateway>
-    <bpmn:eventBasedGateway id="Gateway_0wlsgrz">
-      <bpmn:incoming>Flow_0o6ydak</bpmn:incoming>
-      <bpmn:outgoing>Flow_1tvbw8p</bpmn:outgoing>
-      <bpmn:outgoing>Flow_1g7dosa</bpmn:outgoing>
-      <bpmn:outgoing>Flow_000ci9n</bpmn:outgoing>
+    <bpmn:eventBasedGateway id="GW_PA_OdpLogowania" name="Oczekiwanie na odpowiedź systemu">
+      <bpmn:incoming>SF_PA_02</bpmn:incoming>
+      <bpmn:outgoing>SF_PA_Blad</bpmn:outgoing>
+      <bpmn:outgoing>SF_PA_OK</bpmn:outgoing>
     </bpmn:eventBasedGateway>
-    <bpmn:receiveTask id="Activity_1yqxyjl" name="Wybiera wizytę do anulowania">
-      <bpmn:incoming>Flow_1tvbw8p</bpmn:incoming>
-      <bpmn:outgoing>Flow_11yded2</bpmn:outgoing>
-    </bpmn:receiveTask>
-    <bpmn:task id="Activity_0oz2cst" name="Anuluje rezerwację w systemie">
-      <bpmn:incoming>Flow_11yded2</bpmn:incoming>
-      <bpmn:outgoing>Flow_1wny16p</bpmn:outgoing>
+    <bpmn:intermediateCatchEvent id="Catch_PacjentBladLogowania" name="Otrzymuje informację o błędzie logowania">
+      <bpmn:incoming>SF_PA_Blad</bpmn:incoming>
+      <bpmn:outgoing>SF_PA_Retry</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MED_PA_Blad" messageRef="Msg_BladLogowania" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:task id="Task_WybierzAkcje" name="Wybiera akcję w portalu">
+      <bpmn:incoming>Flow_1kdgs1a</bpmn:incoming>
+      <bpmn:outgoing>SF_PA_04</bpmn:outgoing>
     </bpmn:task>
-    <bpmn:exclusiveGateway id="Gateway_1hxqqi9" name="Czy wizyta opłacona?">
-      <bpmn:incoming>Flow_1wny16p</bpmn:incoming>
-      <bpmn:outgoing>Flow_1jmfwpy</bpmn:outgoing>
-      <bpmn:outgoing>Flow_0p37ap4</bpmn:outgoing>
-    </bpmn:exclusiveGateway>
-    <bpmn:task id="Activity_1xmbe59" name="Wysyła powiadomienie o anulowaniu">
-      <bpmn:incoming>Flow_1jmfwpy</bpmn:incoming>
-      <bpmn:outgoing>Flow_0n4ch72</bpmn:outgoing>
-    </bpmn:task>
-    <bpmn:task id="Activity_0yqd3iz" name="Przekierowuje do zwrotu płatności">
-      <bpmn:incoming>Flow_0p37ap4</bpmn:incoming>
-      <bpmn:outgoing>Flow_0r9qj2p</bpmn:outgoing>
-    </bpmn:task>
-    <bpmn:endEvent id="Event_0898qh4">
-      <bpmn:incoming>Flow_0n4ch72</bpmn:incoming>
-    </bpmn:endEvent>
-    <bpmn:receiveTask id="Activity_0nkzx5o" name="Wybiera termin i lekarza">
-      <bpmn:incoming>Flow_000ci9n</bpmn:incoming>
-      <bpmn:outgoing>Flow_0ripte5</bpmn:outgoing>
-    </bpmn:receiveTask>
-    <bpmn:task id="Activity_0wem2we" name="Sprawdza wolny termin">
-      <bpmn:incoming>Flow_0ripte5</bpmn:incoming>
-      <bpmn:incoming>Flow_1pvdsbq</bpmn:incoming>
-      <bpmn:outgoing>Flow_1d9r2a7</bpmn:outgoing>
-    </bpmn:task>
-    <bpmn:exclusiveGateway id="Gateway_0llps8q">
-      <bpmn:incoming>Flow_1d9r2a7</bpmn:incoming>
-      <bpmn:outgoing>Flow_1pvdsbq</bpmn:outgoing>
-      <bpmn:outgoing>Flow_1ljbanh</bpmn:outgoing>
-    </bpmn:exclusiveGateway>
-    <bpmn:task id="Activity_1nlsn93" name="Przekierowuje do płatności">
-      <bpmn:incoming>Flow_1ljbanh</bpmn:incoming>
-      <bpmn:outgoing>Flow_0c2m8ab</bpmn:outgoing>
-    </bpmn:task>
-    <bpmn:task id="Activity_03bct8x" name="Otrzymuje potwierdzenie płatności i rezerwacji wizyty">
-      <bpmn:incoming>Flow_0c2m8ab</bpmn:incoming>
-      <bpmn:outgoing>Flow_0tchm01</bpmn:outgoing>
-    </bpmn:task>
-    <bpmn:endEvent id="Event_14mrj4k">
-      <bpmn:incoming>Flow_0tchm01</bpmn:incoming>
-    </bpmn:endEvent>
-    <bpmn:receiveTask id="Activity_0aibi8m" name="Wylogowuje się z konta">
-      <bpmn:incoming>Flow_1g7dosa</bpmn:incoming>
-      <bpmn:outgoing>Flow_03945q1</bpmn:outgoing>
-    </bpmn:receiveTask>
-    <bpmn:endEvent id="Event_0x733c6">
-      <bpmn:incoming>Flow_03945q1</bpmn:incoming>
-    </bpmn:endEvent>
-    <bpmn:task id="Activity_07btw12" name="Otrzymuje potwierdzenie zwrot płatności i anulowania wizyty">
-      <bpmn:incoming>Flow_0r9qj2p</bpmn:incoming>
-      <bpmn:outgoing>Flow_1l3670t</bpmn:outgoing>
-    </bpmn:task>
-    <bpmn:endEvent id="Event_1c4yrro">
-      <bpmn:incoming>Flow_1l3670t</bpmn:incoming>
-    </bpmn:endEvent>
-    <bpmn:sequenceFlow id="Flow_0m30xnr" sourceRef="StartEvent_1" targetRef="Activity_0q2o3ps" />
-    <bpmn:sequenceFlow id="Flow_1n11qmp" name="Nie" sourceRef="Gateway_1ho061d" targetRef="Activity_0q2o3ps" />
-    <bpmn:sequenceFlow id="Flow_0x6u7jl" sourceRef="Activity_0q2o3ps" targetRef="Gateway_1ho061d" />
-    <bpmn:sequenceFlow id="Flow_0o6ydak" name="Tak" sourceRef="Gateway_1ho061d" targetRef="Gateway_0wlsgrz" />
-    <bpmn:sequenceFlow id="Flow_1tvbw8p" name="anuluj wizytę" sourceRef="Gateway_0wlsgrz" targetRef="Activity_1yqxyjl" />
-    <bpmn:sequenceFlow id="Flow_1g7dosa" name="wyloguj" sourceRef="Gateway_0wlsgrz" targetRef="Activity_0aibi8m" />
-    <bpmn:sequenceFlow id="Flow_000ci9n" name="umów wizytę" sourceRef="Gateway_0wlsgrz" targetRef="Activity_0nkzx5o" />
-    <bpmn:sequenceFlow id="Flow_11yded2" sourceRef="Activity_1yqxyjl" targetRef="Activity_0oz2cst" />
-    <bpmn:sequenceFlow id="Flow_1wny16p" sourceRef="Activity_0oz2cst" targetRef="Gateway_1hxqqi9" />
-    <bpmn:sequenceFlow id="Flow_1jmfwpy" name="Nie" sourceRef="Gateway_1hxqqi9" targetRef="Activity_1xmbe59" />
-    <bpmn:sequenceFlow id="Flow_0p37ap4" name="Tak" sourceRef="Gateway_1hxqqi9" targetRef="Activity_0yqd3iz" />
-    <bpmn:sequenceFlow id="Flow_0n4ch72" sourceRef="Activity_1xmbe59" targetRef="Event_0898qh4" />
-    <bpmn:sequenceFlow id="Flow_0ripte5" sourceRef="Activity_0nkzx5o" targetRef="Activity_0wem2we" />
-    <bpmn:sequenceFlow id="Flow_1pvdsbq" name="Nie" sourceRef="Gateway_0llps8q" targetRef="Activity_0wem2we" />
-    <bpmn:sequenceFlow id="Flow_1d9r2a7" sourceRef="Activity_0wem2we" targetRef="Gateway_0llps8q" />
-    <bpmn:sequenceFlow id="Flow_1ljbanh" sourceRef="Gateway_0llps8q" targetRef="Activity_1nlsn93" />
-    <bpmn:sequenceFlow id="Flow_0c2m8ab" sourceRef="Activity_1nlsn93" targetRef="Activity_03bct8x" />
-    <bpmn:sequenceFlow id="Flow_0r9qj2p" sourceRef="Activity_0yqd3iz" targetRef="Activity_07btw12" />
-    <bpmn:sequenceFlow id="Flow_0tchm01" sourceRef="Activity_03bct8x" targetRef="Event_14mrj4k" />
-    <bpmn:sequenceFlow id="Flow_03945q1" sourceRef="Activity_0aibi8m" targetRef="Event_0x733c6" />
-    <bpmn:sequenceFlow id="Flow_1l3670t" sourceRef="Activity_07btw12" targetRef="Event_1c4yrro" />
-  </bpmn:process>
-  <bpmn:process id="Process_0kica78">
-    <bpmn:startEvent id="Event_04yc2by">
-      <bpmn:outgoing>Flow_14a543n</bpmn:outgoing>
-      <bpmn:messageEventDefinition id="MessageEventDefinition_0eco1ai" />
+    <bpmn:intermediateCatchEvent id="Catch_PacjentZalogowany" name="Otrzymuje potwierdzenie zalogowania">
+      <bpmn:incoming>SF_PA_OK</bpmn:incoming>
+      <bpmn:outgoing>Flow_1kdgs1a</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MED_PA_OK" messageRef="Msg_PotwierdzenieLogowania" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:startEvent id="Catch_PacjentPotwierdzAnulowania" name="Otrzymuje potwierdzenie anulowania wizyty">
+      <bpmn:outgoing>SF_PA_EndAnulBezZwrotu</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MED_PA_PotAnul" messageRef="Msg_PowiadomieniePacjentaAnulowanie" />
     </bpmn:startEvent>
-    <bpmn:task id="Activity_1lone6j" name="Wykonuje zwrot płatności">
-      <bpmn:incoming>Flow_14a543n</bpmn:incoming>
-      <bpmn:outgoing>Flow_0x3et5n</bpmn:outgoing>
-    </bpmn:task>
-    <bpmn:startEvent id="Event_1apb3wo">
-      <bpmn:outgoing>Flow_1gm8zdn</bpmn:outgoing>
-      <bpmn:messageEventDefinition id="MessageEventDefinition_1ky59ap" />
+    <bpmn:endEvent id="End_PacjentZwrot" name="Wizyta anulowana, płatność zwrócona">
+      <bpmn:incoming>SF_PA_EndAnulZeZwrotem</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:exclusiveGateway id="GW_PA_WyborAkcji" name="Jaka akcja?">
+      <bpmn:incoming>SF_PA_04</bpmn:incoming>
+      <bpmn:outgoing>SF_PA_Umow</bpmn:outgoing>
+      <bpmn:outgoing>SF_PA_Anuluj</bpmn:outgoing>
+      <bpmn:outgoing>SF_PA_Wyloguj</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="End_PacjentZlecaUmowienie" name="Zleca umówienie wizyty">
+      <bpmn:incoming>SF_PA_Umow</bpmn:incoming>
+      <bpmn:messageEventDefinition id="MED_PA_ZlecUmow" messageRef="Msg_ZlecenieUmowienia" />
+    </bpmn:endEvent>
+    <bpmn:endEvent id="End_PacjentWylogowuje" name="Zleca wylogowanie">
+      <bpmn:incoming>SF_PA_Wyloguj</bpmn:incoming>
+      <bpmn:messageEventDefinition id="MED_PA_Wyloguj" messageRef="Msg_ZlecenieWylogowania" />
+    </bpmn:endEvent>
+    <bpmn:endEvent id="End_PacjentZlecaAnulowanie" name="Zleca anulowanie wizyty">
+      <bpmn:incoming>SF_PA_Anuluj</bpmn:incoming>
+      <bpmn:messageEventDefinition id="MED_PA_ZlecAnul" messageRef="Msg_ZlecenieAnulowania" />
+    </bpmn:endEvent>
+    <bpmn:startEvent id="Catch_PacjentWylogowany" name="Otrzymuje potwierdzenie wylogowania">
+      <bpmn:outgoing>SF_PA_EndWyloguj</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MED_PA_WylogOK" messageRef="Msg_WylogowanieOK" />
     </bpmn:startEvent>
-    <bpmn:task id="Activity_0p3ws55" name="Wykonuje operacje płatniczą">
-      <bpmn:incoming>Flow_1gm8zdn</bpmn:incoming>
-      <bpmn:outgoing>Flow_15xjze3</bpmn:outgoing>
-    </bpmn:task>
-    <bpmn:intermediateThrowEvent id="Event_0v4pijt">
-      <bpmn:incoming>Flow_0x3et5n</bpmn:incoming>
-      <bpmn:messageEventDefinition id="MessageEventDefinition_1mk0lux" />
-    </bpmn:intermediateThrowEvent>
-    <bpmn:intermediateThrowEvent id="Event_1oot0nz">
-      <bpmn:incoming>Flow_15xjze3</bpmn:incoming>
-      <bpmn:messageEventDefinition id="MessageEventDefinition_1j7sg7e" />
-    </bpmn:intermediateThrowEvent>
-    <bpmn:sequenceFlow id="Flow_14a543n" sourceRef="Event_04yc2by" targetRef="Activity_1lone6j" />
-    <bpmn:sequenceFlow id="Flow_0x3et5n" sourceRef="Activity_1lone6j" targetRef="Event_0v4pijt" />
-    <bpmn:sequenceFlow id="Flow_1gm8zdn" sourceRef="Event_1apb3wo" targetRef="Activity_0p3ws55" />
-    <bpmn:sequenceFlow id="Flow_15xjze3" sourceRef="Activity_0p3ws55" targetRef="Event_1oot0nz" />
+    <bpmn:endEvent id="End_PacjentWylogowany" name="Wylogowany z portalu">
+      <bpmn:incoming>SF_PA_EndWyloguj</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:startEvent id="Catch_PacjentPotwierdzZwrotu" name="Otrzymuje potwierdzenie zwrotu płatności">
+      <bpmn:outgoing>SF_PA_EndAnulZeZwrotem</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MED_PA_PotZwrot" messageRef="Msg_PowiadomieniePacjentaZwrot" />
+    </bpmn:startEvent>
+    <bpmn:endEvent id="End_PacjentAnulowanie" name="Wizyta anulowana">
+      <bpmn:incoming>SF_PA_EndAnulBezZwrotu</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:startEvent id="Catch_PacjentPotwierdzRezerwacji" name="Otrzymuje potwierdzenie rezerwacji i płatności">
+      <bpmn:outgoing>SF_PA_EndUmow</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MED_PA_PotRez" messageRef="Msg_PowiadomieniePacjentaRezerwacja" />
+    </bpmn:startEvent>
+    <bpmn:endEvent id="End_PacjentRezerwacja" name="Wizyta umówiona i opłacona">
+      <bpmn:incoming>SF_PA_EndUmow</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="SF_PA_01" sourceRef="Start_Pacjent" targetRef="Task_WprowadzDane" />
+    <bpmn:sequenceFlow id="SF_PA_Retry" sourceRef="Catch_PacjentBladLogowania" targetRef="Task_WprowadzDane" />
+    <bpmn:sequenceFlow id="SF_PA_02" sourceRef="Task_WprowadzDane" targetRef="GW_PA_OdpLogowania" />
+    <bpmn:sequenceFlow id="SF_PA_Blad" sourceRef="GW_PA_OdpLogowania" targetRef="Catch_PacjentBladLogowania" />
+    <bpmn:sequenceFlow id="SF_PA_OK" sourceRef="GW_PA_OdpLogowania" targetRef="Catch_PacjentZalogowany" />
+    <bpmn:sequenceFlow id="Flow_1kdgs1a" sourceRef="Catch_PacjentZalogowany" targetRef="Task_WybierzAkcje" />
+    <bpmn:sequenceFlow id="SF_PA_04" sourceRef="Task_WybierzAkcje" targetRef="GW_PA_WyborAkcji" />
+    <bpmn:sequenceFlow id="SF_PA_EndAnulBezZwrotu" sourceRef="Catch_PacjentPotwierdzAnulowania" targetRef="End_PacjentAnulowanie" />
+    <bpmn:sequenceFlow id="SF_PA_EndAnulZeZwrotem" sourceRef="Catch_PacjentPotwierdzZwrotu" targetRef="End_PacjentZwrot" />
+    <bpmn:sequenceFlow id="SF_PA_Umow" name="Umów wizytę" sourceRef="GW_PA_WyborAkcji" targetRef="End_PacjentZlecaUmowienie" />
+    <bpmn:sequenceFlow id="SF_PA_Anuluj" name="Anuluj wizytę" sourceRef="GW_PA_WyborAkcji" targetRef="End_PacjentZlecaAnulowanie" />
+    <bpmn:sequenceFlow id="SF_PA_Wyloguj" name="Wyloguj" sourceRef="GW_PA_WyborAkcji" targetRef="End_PacjentWylogowuje" />
+    <bpmn:sequenceFlow id="SF_PA_EndWyloguj" sourceRef="Catch_PacjentWylogowany" targetRef="End_PacjentWylogowany" />
+    <bpmn:sequenceFlow id="SF_PA_EndUmow" sourceRef="Catch_PacjentPotwierdzRezerwacji" targetRef="End_PacjentRezerwacja" />
   </bpmn:process>
-  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
-    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_0xsyri0">
-      <bpmndi:BPMNShape id="Participant_1yyhqhl_di" bpmnElement="Participant_1yyhqhl" isHorizontal="true">
-        <dc:Bounds x="123" y="80" width="2687" height="820" />
+  <bpmn:process id="Proc_System" isExecutable="false">
+    <bpmn:endEvent id="End_SystemBladLogowania" name="Sesja nieudana">
+      <bpmn:incoming>SF_SY_EndBlad</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:task id="Task_WyslijBladLogowania" name="Wysyła komunikat o błędzie logowania">
+      <bpmn:incoming>SF_SY_Blad</bpmn:incoming>
+      <bpmn:outgoing>SF_SY_EndBlad</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:startEvent id="Start_SystemOtrzymujeDane" name="Otrzymuje dane logowania">
+      <bpmn:outgoing>SF_SY_01</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MED_SY_Start" messageRef="Msg_DaneLogowania" />
+    </bpmn:startEvent>
+    <bpmn:exclusiveGateway id="GW_SY_DaneOK" name="Czy dane poprawne?">
+      <bpmn:incoming>SF_SY_01</bpmn:incoming>
+      <bpmn:outgoing>SF_SY_Blad</bpmn:outgoing>
+      <bpmn:outgoing>SF_SY_Zalogowany</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="Task_WyslijPotwierdzenieLogowania" name="Wysyła potwierdzenie zalogowania">
+      <bpmn:incoming>SF_SY_Zalogowany</bpmn:incoming>
+      <bpmn:outgoing>SF_SY_02</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:intermediateCatchEvent id="Catch_SystemWyborAkcji" name="Odbiera wybór akcji">
+      <bpmn:incoming>SF_SY_02</bpmn:incoming>
+      <bpmn:outgoing>SF_SY_03</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MED_SY_WyborAkcji" messageRef="Msg_WyborAkcji" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:exclusiveGateway id="GW_SY_AkcjaRozgalezienie" name="Jaka akcja?">
+      <bpmn:incoming>SF_SY_03</bpmn:incoming>
+      <bpmn:outgoing>SF_SY_Umow</bpmn:outgoing>
+      <bpmn:outgoing>SF_SY_Anuluj</bpmn:outgoing>
+      <bpmn:outgoing>SF_SY_Wyloguj</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:intermediateCatchEvent id="Catch_SystemAnulowanie" name="Odbiera zlecenie anulowania wizyty">
+      <bpmn:incoming>SF_SY_Anuluj</bpmn:incoming>
+      <bpmn:outgoing>SF_SY_A1</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MED_SY_Anul" messageRef="Msg_ZlecenieAnulowania" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:intermediateCatchEvent id="Catch_SystemWylogowanie" name="Odbiera zlecenie wylogowania">
+      <bpmn:incoming>SF_SY_Wyloguj</bpmn:incoming>
+      <bpmn:outgoing>SF_SY_W1</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MED_SY_Wyloguj" messageRef="Msg_ZlecenieWylogowania" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:intermediateCatchEvent id="Catch_SystemUmawianie" name="Odbiera zlecenie umówienia wizyty">
+      <bpmn:incoming>SF_SY_Umow</bpmn:incoming>
+      <bpmn:outgoing>SF_SY_U1</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MED_SY_Umow" messageRef="Msg_ZlecenieUmowienia" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:endEvent id="End_SystemWylogowanie" name="Sesja zakończona — wylogowanie potwierdzone">
+      <bpmn:incoming>SF_SY_W1</bpmn:incoming>
+      <bpmn:messageEventDefinition id="MED_SY_WylogEnd" messageRef="Msg_WylogowanieOK" />
+    </bpmn:endEvent>
+    <bpmn:task id="Task_PrzekierujDoZwrotu" name="Przekierowuje zlecenie zwrotu do Systemu Płatniczego">
+      <bpmn:incoming>SF_SY_A_Tak</bpmn:incoming>
+      <bpmn:outgoing>SF_SY_A3</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:intermediateCatchEvent id="Catch_SystemStatusZwrotu" name="Odbiera status zwrotu płatności">
+      <bpmn:incoming>SF_SY_A3</bpmn:incoming>
+      <bpmn:outgoing>SF_SY_A4</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MED_SY_StatZwrot" messageRef="Msg_StatusZwrotu" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:task id="Task_SprawdzWolnyTermin" name="Sprawdza dostępny termin i lekarza">
+      <bpmn:incoming>SF_SY_U1</bpmn:incoming>
+      <bpmn:outgoing>SF_SY_U2</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="GW_SY_TerminDostepny" name="Czy termin dostępny?">
+      <bpmn:incoming>SF_SY_U2</bpmn:incoming>
+      <bpmn:outgoing>SF_SY_U_Tak</bpmn:outgoing>
+      <bpmn:outgoing>SF_SY_U_Nie</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="Task_PrzekierujDoPlatnosci" name="Przekierowuje do płatności">
+      <bpmn:incoming>SF_SY_U_Tak</bpmn:incoming>
+      <bpmn:outgoing>SF_SY_U3</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:intermediateCatchEvent id="Catch_SystemStatusPlatnosci" name="Odbiera status płatności">
+      <bpmn:incoming>SF_SY_U3</bpmn:incoming>
+      <bpmn:outgoing>SF_SY_U4</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MED_SY_StatPl" messageRef="Msg_StatusPlatnosci" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:task id="Task_ZarezerwujWizyte" name="Tworzy rezerwację wizyty w systemie">
+      <bpmn:incoming>SF_SY_U4</bpmn:incoming>
+      <bpmn:outgoing>SF_SY_U5</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_WyslijPotwierdzenieRezerwacji" name="Wysyła potwierdzenie rezerwacji i płatności do Pacjenta">
+      <bpmn:incoming>SF_SY_U5</bpmn:incoming>
+      <bpmn:outgoing>SF_SY_U6</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="End_SystemRezerwacja" name="Wizyta zarezerwowana">
+      <bpmn:incoming>SF_SY_U6</bpmn:incoming>
+      <bpmn:incoming>SF_SY_U_Nie</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:exclusiveGateway id="GW_SY_CzyPlatnosc" name="Czy wizyta była opłacona?">
+      <bpmn:incoming>SF_SY_A2</bpmn:incoming>
+      <bpmn:outgoing>SF_SY_A_Tak</bpmn:outgoing>
+      <bpmn:outgoing>SF_SY_A_Nie</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="Task_AnulujRezerwacje" name="Anuluje rezerwację w systemie">
+      <bpmn:incoming>SF_SY_A1</bpmn:incoming>
+      <bpmn:outgoing>SF_SY_A2</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_WyslijPotwierdzenieZwrotu" name="Wysyła potwierdzenie zwrotu płatności do Pacjenta">
+      <bpmn:incoming>SF_SY_A4</bpmn:incoming>
+      <bpmn:outgoing>SF_SY_A5</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_WyslijPotwierdzenieAnulowania" name="Wysyła potwierdzenie anulowania do Pacjenta">
+      <bpmn:incoming>SF_SY_A_Nie</bpmn:incoming>
+      <bpmn:outgoing>SF_SY_A6</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="End_SystemAnulowanieBezZwrotu" name="Wizyta anulowana bez zwrotu">
+      <bpmn:incoming>SF_SY_A6</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:endEvent id="End_SystemAnulowanieZeZwrotem" name="Wizyta anulowana ze zwrotem">
+      <bpmn:incoming>SF_SY_A5</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="SF_SY_EndBlad" sourceRef="Task_WyslijBladLogowania" targetRef="End_SystemBladLogowania" />
+    <bpmn:sequenceFlow id="SF_SY_Blad" name="Nie" sourceRef="GW_SY_DaneOK" targetRef="Task_WyslijBladLogowania" />
+    <bpmn:sequenceFlow id="SF_SY_01" sourceRef="Start_SystemOtrzymujeDane" targetRef="GW_SY_DaneOK" />
+    <bpmn:sequenceFlow id="SF_SY_Zalogowany" name="Tak" sourceRef="GW_SY_DaneOK" targetRef="Task_WyslijPotwierdzenieLogowania" />
+    <bpmn:sequenceFlow id="SF_SY_02" sourceRef="Task_WyslijPotwierdzenieLogowania" targetRef="Catch_SystemWyborAkcji" />
+    <bpmn:sequenceFlow id="SF_SY_03" sourceRef="Catch_SystemWyborAkcji" targetRef="GW_SY_AkcjaRozgalezienie" />
+    <bpmn:sequenceFlow id="SF_SY_Umow" name="Umów wizytę" sourceRef="GW_SY_AkcjaRozgalezienie" targetRef="Catch_SystemUmawianie" />
+    <bpmn:sequenceFlow id="SF_SY_Anuluj" name="Anuluj wizytę" sourceRef="GW_SY_AkcjaRozgalezienie" targetRef="Catch_SystemAnulowanie" />
+    <bpmn:sequenceFlow id="SF_SY_Wyloguj" name="Wyloguj" sourceRef="GW_SY_AkcjaRozgalezienie" targetRef="Catch_SystemWylogowanie" />
+    <bpmn:sequenceFlow id="SF_SY_A1" sourceRef="Catch_SystemAnulowanie" targetRef="Task_AnulujRezerwacje" />
+    <bpmn:sequenceFlow id="SF_SY_W1" sourceRef="Catch_SystemWylogowanie" targetRef="End_SystemWylogowanie" />
+    <bpmn:sequenceFlow id="SF_SY_U1" sourceRef="Catch_SystemUmawianie" targetRef="Task_SprawdzWolnyTermin" />
+    <bpmn:sequenceFlow id="SF_SY_A_Tak" name="Tak" sourceRef="GW_SY_CzyPlatnosc" targetRef="Task_PrzekierujDoZwrotu" />
+    <bpmn:sequenceFlow id="SF_SY_A3" sourceRef="Task_PrzekierujDoZwrotu" targetRef="Catch_SystemStatusZwrotu" />
+    <bpmn:sequenceFlow id="SF_SY_A4" sourceRef="Catch_SystemStatusZwrotu" targetRef="Task_WyslijPotwierdzenieZwrotu" />
+    <bpmn:sequenceFlow id="SF_SY_U2" sourceRef="Task_SprawdzWolnyTermin" targetRef="GW_SY_TerminDostepny" />
+    <bpmn:sequenceFlow id="SF_SY_U_Tak" name="Tak" sourceRef="GW_SY_TerminDostepny" targetRef="Task_PrzekierujDoPlatnosci" />
+    <bpmn:sequenceFlow id="SF_SY_U_Nie" name="Nie" sourceRef="GW_SY_TerminDostepny" targetRef="End_SystemRezerwacja" />
+    <bpmn:sequenceFlow id="SF_SY_U3" sourceRef="Task_PrzekierujDoPlatnosci" targetRef="Catch_SystemStatusPlatnosci" />
+    <bpmn:sequenceFlow id="SF_SY_U4" sourceRef="Catch_SystemStatusPlatnosci" targetRef="Task_ZarezerwujWizyte" />
+    <bpmn:sequenceFlow id="SF_SY_U5" sourceRef="Task_ZarezerwujWizyte" targetRef="Task_WyslijPotwierdzenieRezerwacji" />
+    <bpmn:sequenceFlow id="SF_SY_U6" sourceRef="Task_WyslijPotwierdzenieRezerwacji" targetRef="End_SystemRezerwacja" />
+    <bpmn:sequenceFlow id="SF_SY_A2" sourceRef="Task_AnulujRezerwacje" targetRef="GW_SY_CzyPlatnosc" />
+    <bpmn:sequenceFlow id="SF_SY_A_Nie" name="Nie" sourceRef="GW_SY_CzyPlatnosc" targetRef="Task_WyslijPotwierdzenieAnulowania" />
+    <bpmn:sequenceFlow id="SF_SY_A5" sourceRef="Task_WyslijPotwierdzenieZwrotu" targetRef="End_SystemAnulowanieZeZwrotem" />
+    <bpmn:sequenceFlow id="SF_SY_A6" sourceRef="Task_WyslijPotwierdzenieAnulowania" targetRef="End_SystemAnulowanieBezZwrotu" />
+  </bpmn:process>
+  <bpmn:process id="Proc_SysPlatniczy" isExecutable="false">
+    <bpmn:startEvent id="Start_SysZwrot" name="Zlecenie zwrotu otrzymane">
+      <bpmn:outgoing>SF_SP_Z1</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MED_SP_Zwrot" messageRef="Msg_PrzekierowanieDoZwrotu" />
+    </bpmn:startEvent>
+    <bpmn:task id="Task_WykonajZwrot" name="Wykonuje zwrot płatności">
+      <bpmn:incoming>SF_SP_Z1</bpmn:incoming>
+      <bpmn:outgoing>SF_SP_Z2</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="End_SysZwrotOK" name="Informuje o statusie zwrotu">
+      <bpmn:incoming>SF_SP_Z2</bpmn:incoming>
+      <bpmn:messageEventDefinition id="MED_SP_ZwrotEnd" messageRef="Msg_StatusZwrotu" />
+    </bpmn:endEvent>
+    <bpmn:startEvent id="Start_SysPlatnosc" name="Zlecenie płatności otrzymane">
+      <bpmn:outgoing>SF_SP_P1</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MED_SP_Platnosc" />
+    </bpmn:startEvent>
+    <bpmn:task id="Task_WykonajPlatnosc" name="Wykonuje operację płatniczą">
+      <bpmn:incoming>SF_SP_P1</bpmn:incoming>
+      <bpmn:outgoing>SF_SP_P2</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="End_SysPlatnoscOK" name="Informuje o statusie płatności">
+      <bpmn:incoming>SF_SP_P2</bpmn:incoming>
+      <bpmn:messageEventDefinition id="MED_SP_PlatnoscEnd" messageRef="Msg_StatusPlatnosci" />
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="SF_SP_Z1" sourceRef="Start_SysZwrot" targetRef="Task_WykonajZwrot" />
+    <bpmn:sequenceFlow id="SF_SP_Z2" sourceRef="Task_WykonajZwrot" targetRef="End_SysZwrotOK" />
+    <bpmn:sequenceFlow id="SF_SP_P1" sourceRef="Start_SysPlatnosc" targetRef="Task_WykonajPlatnosc" />
+    <bpmn:sequenceFlow id="SF_SP_P2" sourceRef="Task_WykonajPlatnosc" targetRef="End_SysPlatnoscOK" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_PatientPortal">
+    <bpmndi:BPMNPlane id="BPMNPlane_PatientPortal" bpmnElement="Collab_PatientPortal">
+      <bpmndi:BPMNShape id="S_Pool_Pacjent" bpmnElement="Pool_Pacjent" isHorizontal="true">
+        <dc:Bounds x="120" y="80" width="3530" height="870" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Lane_1m3ttje_di" bpmnElement="Lane_1m3ttje" isHorizontal="true">
-        <dc:Bounds x="153" y="80" width="2657" height="440" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Lane_19syyjb_di" bpmnElement="Lane_19syyjb" isHorizontal="true">
-        <dc:Bounds x="153" y="520" width="2657" height="380" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
-        <dc:Bounds x="222" y="272" width="36" height="36" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0q2o3ps_di" bpmnElement="Activity_0q2o3ps">
-        <dc:Bounds x="310" y="250" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_1ho061d_di" bpmnElement="Gateway_1ho061d" isMarkerVisible="true">
-        <dc:Bounds x="485" y="265" width="50" height="50" />
+      <bpmndi:BPMNShape id="S_Start_Pacjent" bpmnElement="Start_Pacjent">
+        <dc:Bounds x="222" y="489" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="476" y="325" width="68" height="14" />
+          <dc:Bounds x="205" y="532" width="72" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_0wlsgrz_di" bpmnElement="Gateway_0wlsgrz">
-        <dc:Bounds x="655" y="265" width="50" height="50" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1yqxyjl_di" bpmnElement="Activity_1yqxyjl">
-        <dc:Bounds x="830" y="360" width="100" height="80" />
+      <bpmndi:BPMNShape id="S_Task_WprowadzDane" bpmnElement="Task_WprowadzDane">
+        <dc:Bounds x="320" y="467" width="140" height="80" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0oz2cst_di" bpmnElement="Activity_0oz2cst">
-        <dc:Bounds x="830" y="610" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_1hxqqi9_di" bpmnElement="Gateway_1hxqqi9" isMarkerVisible="true">
-        <dc:Bounds x="995" y="625" width="50" height="50" />
+      <bpmndi:BPMNShape id="S_GW_PA_OdpLogowania" bpmnElement="GW_PA_OdpLogowania">
+        <dc:Bounds x="525" y="482" width="50" height="50" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="992" y="587.5" width="56" height="27" />
+          <dc:Bounds x="510" y="539" width="81" height="40" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1xmbe59_di" bpmnElement="Activity_1xmbe59">
-        <dc:Bounds x="1110" y="610" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0yqd3iz_di" bpmnElement="Activity_0yqd3iz">
-        <dc:Bounds x="1110" y="720" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0898qh4_di" bpmnElement="Event_0898qh4">
-        <dc:Bounds x="1282" y="632" width="36" height="36" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0nkzx5o_di" bpmnElement="Activity_0nkzx5o">
-        <dc:Bounds x="1450" y="250" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0wem2we_di" bpmnElement="Activity_0wem2we">
-        <dc:Bounds x="1450" y="610" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_0llps8q_di" bpmnElement="Gateway_0llps8q" isMarkerVisible="true">
-        <dc:Bounds x="1475" y="735" width="50" height="50" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1nlsn93_di" bpmnElement="Activity_1nlsn93">
-        <dc:Bounds x="1600" y="720" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_1ncf0j1" bpmnElement="Activity_03bct8x">
-        <dc:Bounds x="1860" y="250" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_0t2ns3q" bpmnElement="Event_14mrj4k">
-        <dc:Bounds x="2032" y="272" width="36" height="36" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0aibi8m_di" bpmnElement="Activity_0aibi8m">
-        <dc:Bounds x="2530" y="250" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0x733c6_di" bpmnElement="Event_0x733c6">
-        <dc:Bounds x="2682" y="272" width="36" height="36" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_07btw12_di" bpmnElement="Activity_07btw12">
-        <dc:Bounds x="2220" y="250" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1c4yrro_di" bpmnElement="Event_1c4yrro">
-        <dc:Bounds x="2392" y="272" width="36" height="36" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="Flow_0m30xnr_di" bpmnElement="Flow_0m30xnr">
-        <di:waypoint x="258" y="290" />
-        <di:waypoint x="310" y="290" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0x6u7jl_di" bpmnElement="Flow_0x6u7jl">
-        <di:waypoint x="410" y="290" />
-        <di:waypoint x="485" y="290" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1n11qmp_di" bpmnElement="Flow_1n11qmp">
-        <di:waypoint x="510" y="265" />
-        <di:waypoint x="510" y="180" />
-        <di:waypoint x="360" y="180" />
-        <di:waypoint x="360" y="250" />
+      <bpmndi:BPMNShape id="S_Catch_PacjentBladLogowania" bpmnElement="Catch_PacjentBladLogowania">
+        <dc:Bounds x="527" y="302" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="521" y="243" width="17" height="14" />
+          <dc:Bounds x="507" y="260" width="88" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Task_WybierzAkcje" bpmnElement="Task_WybierzAkcje">
+        <dc:Bounds x="750" y="467" width="140" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Catch_PacjentZalogowany" bpmnElement="Catch_PacjentZalogowany">
+        <dc:Bounds x="647" y="489" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="629" y="439" width="71" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Catch_PacjentPotwierdzAnulowania" bpmnElement="Catch_PacjentPotwierdzAnulowania">
+        <dc:Bounds x="2112" y="422" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2085" y="372" width="89" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_End_PacjentZwrot" bpmnElement="End_PacjentZwrot">
+        <dc:Bounds x="2312" y="572" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2300" y="615" width="60" height="53" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_GW_PA_WyborAkcji" bpmnElement="GW_PA_WyborAkcji" isMarkerVisible="true">
+        <dc:Bounds x="1045" y="482" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="991.5" y="472" width="59" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_End_PacjentZlecaUmowienie" bpmnElement="End_PacjentZlecaUmowienie">
+        <dc:Bounds x="1197" y="325" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1172" y="292" width="86" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_End_PacjentWylogowuje" bpmnElement="End_PacjentWylogowuje">
+        <dc:Bounds x="1197" y="639" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1183" y="601.5" width="63" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_End_PacjentZlecaAnulowanie" bpmnElement="End_PacjentZlecaAnulowanie">
+        <dc:Bounds x="1197" y="489" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1170" y="451.5" width="89" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Catch_PacjentWylogowany" bpmnElement="Catch_PacjentWylogowany">
+        <dc:Bounds x="2042" y="712" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2024" y="760" width="71" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_End_PacjentWylogowany" bpmnElement="End_PacjentWylogowany">
+        <dc:Bounds x="2312" y="712" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2293" y="755" width="74" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Catch_PacjentPotwierdzZwrotu" bpmnElement="Catch_PacjentPotwierdzZwrotu">
+        <dc:Bounds x="2042" y="572" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2020" y="522" width="79" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_End_PacjentAnulowanie" bpmnElement="End_PacjentAnulowanie">
+        <dc:Bounds x="2312" y="422" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2285" y="465" width="90" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Catch_PacjentPotwierdzRezerwacji" bpmnElement="Catch_PacjentPotwierdzRezerwacji">
+        <dc:Bounds x="2112" y="242" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2094" y="183" width="71" height="53" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_End_PacjentRezerwacja" bpmnElement="End_PacjentRezerwacja">
+        <dc:Bounds x="2312" y="242" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2285" y="209" width="90" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="E_SF_PA_01" bpmnElement="SF_PA_01">
+        <di:waypoint x="258" y="507" />
+        <di:waypoint x="320" y="507" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_PA_Retry" bpmnElement="SF_PA_Retry">
+        <di:waypoint x="527" y="320" />
+        <di:waypoint x="390" y="320" />
+        <di:waypoint x="390" y="467" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_PA_02" bpmnElement="SF_PA_02">
+        <di:waypoint x="460" y="507" />
+        <di:waypoint x="525" y="507" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_PA_Blad" bpmnElement="SF_PA_Blad">
+        <di:waypoint x="550" y="482" />
+        <di:waypoint x="550" y="337" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="527" y="298" width="52" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0o6ydak_di" bpmnElement="Flow_0o6ydak">
-        <di:waypoint x="535" y="290" />
-        <di:waypoint x="655" y="290" />
+      <bpmndi:BPMNEdge id="E_SF_PA_OK" bpmnElement="SF_PA_OK">
+        <di:waypoint x="575" y="507" />
+        <di:waypoint x="611" y="507" />
+        <di:waypoint x="611" y="505" />
+        <di:waypoint x="647" y="505" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="551" y="272" width="18" height="14" />
+          <dc:Bounds x="566" y="341" width="46" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1tvbw8p_di" bpmnElement="Flow_1tvbw8p">
-        <di:waypoint x="680" y="315" />
-        <di:waypoint x="680" y="400" />
-        <di:waypoint x="830" y="400" />
+      <bpmndi:BPMNEdge id="Flow_1kdgs1a_di" bpmnElement="Flow_1kdgs1a">
+        <di:waypoint x="683" y="507" />
+        <di:waypoint x="750" y="507" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_PA_04" bpmnElement="SF_PA_04">
+        <di:waypoint x="890" y="507" />
+        <di:waypoint x="1045" y="507" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_PA_EndAnulBezZwrotu" bpmnElement="SF_PA_EndAnulBezZwrotu">
+        <di:waypoint x="2148" y="440" />
+        <di:waypoint x="2312" y="440" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_PA_EndAnulZeZwrotem" bpmnElement="SF_PA_EndAnulZeZwrotem">
+        <di:waypoint x="2078" y="590" />
+        <di:waypoint x="2312" y="590" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_PA_Umow" bpmnElement="SF_PA_Umow">
+        <di:waypoint x="1070" y="482" />
+        <di:waypoint x="1070" y="343" />
+        <di:waypoint x="1197" y="343" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="738" y="382" width="63" height="14" />
+          <dc:Bounds x="1068" y="323" width="65" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1g7dosa_di" bpmnElement="Flow_1g7dosa">
-        <di:waypoint x="680" y="265" />
-        <di:waypoint x="680" y="180" />
-        <di:waypoint x="2580" y="180" />
-        <di:waypoint x="2580" y="250" />
+      <bpmndi:BPMNEdge id="E_SF_PA_Anuluj" bpmnElement="SF_PA_Anuluj">
+        <di:waypoint x="1095" y="507" />
+        <di:waypoint x="1197" y="507" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1614" y="162" width="37" height="14" />
+          <dc:Bounds x="1120" y="489" width="65" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_000ci9n_di" bpmnElement="Flow_000ci9n">
-        <di:waypoint x="705" y="290" />
-        <di:waypoint x="1450" y="290" />
+      <bpmndi:BPMNEdge id="E_SF_PA_Wyloguj" bpmnElement="SF_PA_Wyloguj">
+        <di:waypoint x="1070" y="532" />
+        <di:waypoint x="1070" y="657" />
+        <di:waypoint x="1197" y="657" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1047" y="272" width="63" height="14" />
+          <dc:Bounds x="1070" y="673" width="40" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_11yded2_di" bpmnElement="Flow_11yded2">
-        <di:waypoint x="880" y="440" />
-        <di:waypoint x="880" y="610" />
+      <bpmndi:BPMNEdge id="E_SF_PA_EndWyloguj" bpmnElement="SF_PA_EndWyloguj">
+        <di:waypoint x="2078" y="730" />
+        <di:waypoint x="2312" y="730" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1wny16p_di" bpmnElement="Flow_1wny16p">
-        <di:waypoint x="930" y="650" />
-        <di:waypoint x="995" y="650" />
+      <bpmndi:BPMNEdge id="E_SF_PA_EndUmow" bpmnElement="SF_PA_EndUmow">
+        <di:waypoint x="2148" y="260" />
+        <di:waypoint x="2312" y="260" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1jmfwpy_di" bpmnElement="Flow_1jmfwpy">
-        <di:waypoint x="1045" y="650" />
-        <di:waypoint x="1110" y="650" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1061" y="632" width="17" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0p37ap4_di" bpmnElement="Flow_0p37ap4">
-        <di:waypoint x="1020" y="675" />
-        <di:waypoint x="1020" y="760" />
-        <di:waypoint x="1110" y="760" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1026" y="693" width="18" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0n4ch72_di" bpmnElement="Flow_0n4ch72">
-        <di:waypoint x="1210" y="650" />
-        <di:waypoint x="1282" y="650" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0ripte5_di" bpmnElement="Flow_0ripte5">
-        <di:waypoint x="1500" y="330" />
-        <di:waypoint x="1500" y="610" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1pvdsbq_di" bpmnElement="Flow_1pvdsbq">
-        <di:waypoint x="1475" y="760" />
-        <di:waypoint x="1400" y="760" />
-        <di:waypoint x="1400" y="650" />
-        <di:waypoint x="1450" y="650" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1453" y="743" width="17" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1d9r2a7_di" bpmnElement="Flow_1d9r2a7">
-        <di:waypoint x="1500" y="690" />
-        <di:waypoint x="1500" y="735" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1ljbanh_di" bpmnElement="Flow_1ljbanh">
-        <di:waypoint x="1525" y="760" />
-        <di:waypoint x="1600" y="760" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="BPMNEdge_12gw8si" bpmnElement="Flow_0tchm01">
-        <di:waypoint x="1960" y="290" />
-        <di:waypoint x="2032" y="290" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_03945q1_di" bpmnElement="Flow_03945q1">
-        <di:waypoint x="2630" y="290" />
-        <di:waypoint x="2682" y="290" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1l3670t_di" bpmnElement="Flow_1l3670t">
-        <di:waypoint x="2320" y="290" />
-        <di:waypoint x="2392" y="290" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="Participant_1xrkpl9_di" bpmnElement="Participant_1xrkpl9" isHorizontal="true">
-        <dc:Bounds x="123" y="940" width="2687" height="350" />
+      <bpmndi:BPMNShape id="S_Pool_System" bpmnElement="Pool_System" isHorizontal="true">
+        <dc:Bounds x="120" y="1300" width="3530" height="830" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_04yc2by_di" bpmnElement="Event_04yc2by">
-        <dc:Bounds x="1132" y="1162" width="36" height="36" />
+      <bpmndi:BPMNShape id="S_End_SystemBladLogowania" bpmnElement="End_SystemBladLogowania">
+        <dc:Bounds x="522" y="1412" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="502" y="1455" width="76" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1lone6j_di" bpmnElement="Activity_1lone6j">
-        <dc:Bounds x="1220" y="1140" width="100" height="80" />
+      <bpmndi:BPMNShape id="S_Task_WyslijBladLogowania" bpmnElement="Task_WyslijBladLogowania">
+        <dc:Bounds x="350" y="1370" width="140" height="80" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_080tcou" bpmnElement="Event_1apb3wo">
-        <dc:Bounds x="1632" y="1042" width="36" height="36" />
+      <bpmndi:BPMNShape id="S_Start_SystemOtrzymujeDane" bpmnElement="Start_SystemOtrzymujeDane">
+        <dc:Bounds x="292" y="1562" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="270" y="1605" width="81" height="27" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_0grmyus" bpmnElement="Activity_0p3ws55">
-        <dc:Bounds x="1720" y="1020" width="100" height="80" />
+      <bpmndi:BPMNShape id="S_GW_SY_DaneOK" bpmnElement="GW_SY_DaneOK" isMarkerVisible="true">
+        <dc:Bounds x="395" y="1555" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="392.5" y="1615" width="55" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Task_WyslijPotwierdzenieLogowania" bpmnElement="Task_WyslijPotwierdzenieLogowania">
+        <dc:Bounds x="540" y="1540" width="140" height="80" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0v4pijt_di" bpmnElement="Event_0v4pijt">
-        <dc:Bounds x="1492" y="1162" width="36" height="36" />
+      <bpmndi:BPMNShape id="S_Catch_SystemWyborAkcji" bpmnElement="Catch_SystemWyborAkcji">
+        <dc:Bounds x="712" y="1562" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="693" y="1605" width="75" height="27" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_0b88kj8" bpmnElement="Event_1oot0nz">
-        <dc:Bounds x="1892" y="1042" width="36" height="36" />
+      <bpmndi:BPMNShape id="S_GW_SY_AkcjaRozgalezienie" bpmnElement="GW_SY_AkcjaRozgalezienie" isMarkerVisible="true">
+        <dc:Bounds x="940" y="1555" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="891.5" y="1553" width="59" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="Flow_14a543n_di" bpmnElement="Flow_14a543n">
-        <di:waypoint x="1168" y="1180" />
-        <di:waypoint x="1220" y="1180" />
+      <bpmndi:BPMNShape id="S_Catch_SystemAnulowanie" bpmnElement="Catch_SystemAnulowanie">
+        <dc:Bounds x="1082" y="1562" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1055" y="1524.5" width="89" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Catch_SystemWylogowanie" bpmnElement="Catch_SystemWylogowanie">
+        <dc:Bounds x="1082" y="1782" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1058" y="1745.5" width="83" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Catch_SystemUmawianie" bpmnElement="Catch_SystemUmawianie">
+        <dc:Bounds x="1082" y="1382" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1057" y="1427.5" width="86" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_End_SystemWylogowanie" bpmnElement="End_SystemWylogowanie">
+        <dc:Bounds x="1202" y="1782" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1175" y="1825" width="90" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Task_PrzekierujDoZwrotu" bpmnElement="Task_PrzekierujDoZwrotu">
+        <dc:Bounds x="2480" y="1500" width="140" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Catch_SystemStatusZwrotu" bpmnElement="Catch_SystemStatusZwrotu">
+        <dc:Bounds x="2682" y="1522" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2660" y="1495.5" width="79" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Task_SprawdzWolnyTermin" bpmnElement="Task_SprawdzWolnyTermin">
+        <dc:Bounds x="2220" y="1360" width="140" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_GW_SY_TerminDostepny" bpmnElement="GW_SY_TerminDostepny" isMarkerVisible="true">
+        <dc:Bounds x="2505" y="1375" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2502" y="1337" width="56" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Task_PrzekierujDoPlatnosci" bpmnElement="Task_PrzekierujDoPlatnosci">
+        <dc:Bounds x="2780" y="1360" width="140" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Catch_SystemStatusPlatnosci" bpmnElement="Catch_SystemStatusPlatnosci">
+        <dc:Bounds x="3052" y="1382" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="3033" y="1345" width="75" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Task_ZarezerwujWizyte" bpmnElement="Task_ZarezerwujWizyte">
+        <dc:Bounds x="3180" y="1500" width="140" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Task_WyslijPotwierdzenieRezerwacji" bpmnElement="Task_WyslijPotwierdzenieRezerwacji">
+        <dc:Bounds x="3180" y="1610" width="140" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_End_SystemRezerwacja" bpmnElement="End_SystemRezerwacja">
+        <dc:Bounds x="2802" y="1632" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2781" y="1675" width="78" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_GW_SY_CzyPlatnosc" bpmnElement="GW_SY_CzyPlatnosc" isMarkerVisible="true">
+        <dc:Bounds x="2365" y="1555" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2290.5" y="1536" width="79" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Task_AnulujRezerwacje" bpmnElement="Task_AnulujRezerwacje">
+        <dc:Bounds x="1890" y="1540" width="140" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Task_WyslijPotwierdzenieZwrotu" bpmnElement="Task_WyslijPotwierdzenieZwrotu">
+        <dc:Bounds x="2480" y="1650" width="140" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Task_WyslijPotwierdzenieAnulowania" bpmnElement="Task_WyslijPotwierdzenieAnulowania">
+        <dc:Bounds x="2480" y="1800" width="140" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_End_SystemAnulowanieBezZwrotu" bpmnElement="End_SystemAnulowanieBezZwrotu">
+        <dc:Bounds x="2682" y="1822" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2655" y="1865" width="90" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_End_SystemAnulowanieZeZwrotem" bpmnElement="End_SystemAnulowanieZeZwrotem">
+        <dc:Bounds x="2682" y="1672" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2655" y="1715" width="90" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="E_SF_SY_EndBlad" bpmnElement="SF_SY_EndBlad">
+        <di:waypoint x="490" y="1430" />
+        <di:waypoint x="522" y="1430" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0x3et5n_di" bpmnElement="Flow_0x3et5n">
-        <di:waypoint x="1320" y="1180" />
-        <di:waypoint x="1492" y="1180" />
+      <bpmndi:BPMNEdge id="E_SF_SY_Blad" bpmnElement="SF_SY_Blad">
+        <di:waypoint x="420" y="1555" />
+        <di:waypoint x="420" y="1450" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="401" y="1491" width="17" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="BPMNEdge_0juwe5w" bpmnElement="Flow_1gm8zdn">
-        <di:waypoint x="1668" y="1060" />
-        <di:waypoint x="1720" y="1060" />
+      <bpmndi:BPMNEdge id="E_SF_SY_01" bpmnElement="SF_SY_01">
+        <di:waypoint x="328" y="1580" />
+        <di:waypoint x="395" y="1580" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="BPMNEdge_1eb2k40" bpmnElement="Flow_15xjze3">
-        <di:waypoint x="1820" y="1060" />
-        <di:waypoint x="1892" y="1060" />
+      <bpmndi:BPMNEdge id="E_SF_SY_Zalogowany" bpmnElement="SF_SY_Zalogowany">
+        <di:waypoint x="445" y="1580" />
+        <di:waypoint x="540" y="1580" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="458" y="1567" width="18" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0yislj1_di" bpmnElement="Flow_0yislj1">
-        <di:waypoint x="1150" y="800" />
-        <di:waypoint x="1150" y="1162" />
+      <bpmndi:BPMNEdge id="E_SF_SY_02" bpmnElement="SF_SY_02">
+        <di:waypoint x="680" y="1580" />
+        <di:waypoint x="712" y="1580" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1g93f59_di" bpmnElement="Flow_1g93f59">
-        <di:waypoint x="1528" y="1180" />
-        <di:waypoint x="2270" y="1180" />
-        <di:waypoint x="2270" y="330" />
+      <bpmndi:BPMNEdge id="E_SF_SY_03" bpmnElement="SF_SY_03">
+        <di:waypoint x="748" y="1580" />
+        <di:waypoint x="940" y="1580" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0kplgs2_di" bpmnElement="Flow_0kplgs2">
-        <di:waypoint x="1650" y="800" />
-        <di:waypoint x="1650" y="1042" />
+      <bpmndi:BPMNEdge id="E_SF_SY_Umow" bpmnElement="SF_SY_Umow">
+        <di:waypoint x="965" y="1555" />
+        <di:waypoint x="965" y="1400" />
+        <di:waypoint x="1082" y="1400" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="978" y="1468" width="65" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0wavsvd_di" bpmnElement="Flow_0wavsvd">
-        <di:waypoint x="1910" y="1042" />
-        <di:waypoint x="1910" y="330" />
+      <bpmndi:BPMNEdge id="E_SF_SY_Anuluj" bpmnElement="SF_SY_Anuluj">
+        <di:waypoint x="990" y="1580" />
+        <di:waypoint x="1082" y="1580" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="994" y="1593" width="65" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_SY_Wyloguj" bpmnElement="SF_SY_Wyloguj">
+        <di:waypoint x="965" y="1605" />
+        <di:waypoint x="965" y="1800" />
+        <di:waypoint x="1082" y="1800" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="920" y="1772" width="40" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_SY_A1" bpmnElement="SF_SY_A1">
+        <di:waypoint x="1118" y="1580" />
+        <di:waypoint x="1890" y="1580" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_SY_W1" bpmnElement="SF_SY_W1">
+        <di:waypoint x="1118" y="1800" />
+        <di:waypoint x="1202" y="1800" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_SY_U1" bpmnElement="SF_SY_U1">
+        <di:waypoint x="1118" y="1400" />
+        <di:waypoint x="2220" y="1400" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_SY_A_Tak" bpmnElement="SF_SY_A_Tak">
+        <di:waypoint x="2391" y="1556" />
+        <di:waypoint x="2391" y="1540" />
+        <di:waypoint x="2480" y="1540" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2398" y="1523" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_SY_A3" bpmnElement="SF_SY_A3">
+        <di:waypoint x="2620" y="1540" />
+        <di:waypoint x="2682" y="1540" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_SY_A4" bpmnElement="SF_SY_A4">
+        <di:waypoint x="2700" y="1558" />
+        <di:waypoint x="2700" y="1610" />
+        <di:waypoint x="2600" y="1610" />
+        <di:waypoint x="2600" y="1650" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_SY_U2" bpmnElement="SF_SY_U2">
+        <di:waypoint x="2360" y="1400" />
+        <di:waypoint x="2505" y="1400" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_SY_U_Tak" bpmnElement="SF_SY_U_Tak">
+        <di:waypoint x="2555" y="1400" />
+        <di:waypoint x="2780" y="1400" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2645" y="1382" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_SY_U_Nie" bpmnElement="SF_SY_U_Nie">
+        <di:waypoint x="2530" y="1425" />
+        <di:waypoint x="2530" y="1480" />
+        <di:waypoint x="2820" y="1480" />
+        <di:waypoint x="2820" y="1632" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2541" y="1434" width="17" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_SY_U3" bpmnElement="SF_SY_U3">
+        <di:waypoint x="2920" y="1400" />
+        <di:waypoint x="3052" y="1400" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_SY_U4" bpmnElement="SF_SY_U4">
+        <di:waypoint x="3088" y="1400" />
+        <di:waypoint x="3250" y="1400" />
+        <di:waypoint x="3250" y="1500" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_SY_U5" bpmnElement="SF_SY_U5">
+        <di:waypoint x="3250" y="1580" />
+        <di:waypoint x="3250" y="1610" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_SY_U6" bpmnElement="SF_SY_U6">
+        <di:waypoint x="3180" y="1650" />
+        <di:waypoint x="2838" y="1650" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_SY_A2" bpmnElement="SF_SY_A2">
+        <di:waypoint x="2030" y="1580" />
+        <di:waypoint x="2365" y="1580" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_SY_A_Nie" bpmnElement="SF_SY_A_Nie">
+        <di:waypoint x="2390" y="1605" />
+        <di:waypoint x="2390" y="1840" />
+        <di:waypoint x="2480" y="1840" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2371" y="1803" width="17" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_SY_A5" bpmnElement="SF_SY_A5">
+        <di:waypoint x="2620" y="1690" />
+        <di:waypoint x="2682" y="1690" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_SY_A6" bpmnElement="SF_SY_A6">
+        <di:waypoint x="2620" y="1840" />
+        <di:waypoint x="2682" y="1840" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="S_Pool_SysPlatniczy" bpmnElement="Pool_SysPlatniczy" isHorizontal="true">
+        <dc:Bounds x="120" y="2340" width="3530" height="320" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Start_SysZwrot" bpmnElement="Start_SysZwrot">
+        <dc:Bounds x="3072" y="2402" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="3049" y="2447.5" width="81" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Task_WykonajZwrot" bpmnElement="Task_WykonajZwrot">
+        <dc:Bounds x="3180" y="2380" width="140" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_End_SysZwrotOK" bpmnElement="End_SysZwrotOK">
+        <dc:Bounds x="3392" y="2402" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="3373" y="2445" width="74" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Start_SysPlatnosc" bpmnElement="Start_SysPlatnosc">
+        <dc:Bounds x="3072" y="2533" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="3064" y="2576" width="52" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Task_WykonajPlatnosc" bpmnElement="Task_WykonajPlatnosc">
+        <dc:Bounds x="3180" y="2511" width="140" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_End_SysPlatnoscOK" bpmnElement="End_SysPlatnoscOK">
+        <dc:Bounds x="3392" y="2533" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="3368" y="2576" width="85" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="E_SF_SP_Z1" bpmnElement="SF_SP_Z1">
+        <di:waypoint x="3108" y="2420" />
+        <di:waypoint x="3180" y="2420" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_SP_Z2" bpmnElement="SF_SP_Z2">
+        <di:waypoint x="3320" y="2420" />
+        <di:waypoint x="3392" y="2420" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_SP_P1" bpmnElement="SF_SP_P1">
+        <di:waypoint x="3108" y="2551" />
+        <di:waypoint x="3180" y="2551" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SF_SP_P2" bpmnElement="SF_SP_P2">
+        <di:waypoint x="3320" y="2551" />
+        <di:waypoint x="3392" y="2551" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_MF_DaneLogowania" bpmnElement="MF_DaneLogowania">
+        <di:waypoint x="390" y="547" />
+        <di:waypoint x="390" y="1120" />
+        <di:waypoint x="310" y="1120" />
+        <di:waypoint x="310" y="1562" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="433" y="737" width="79" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_MF_BladLogowania" bpmnElement="MF_BladLogowania">
+        <di:waypoint x="490" y="1390" />
+        <di:waypoint x="750" y="1390" />
+        <di:waypoint x="750" y="790" />
+        <di:waypoint x="920" y="790" />
+        <di:waypoint x="920" y="320" />
+        <di:waypoint x="563" y="320" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="402" y="299" width="75" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_MF_PotwierdzenieLogowania" bpmnElement="MF_PotwierdzenieLogowania">
+        <di:waypoint x="665" y="1540" />
+        <di:waypoint x="665" y="525" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="683" y="711" width="73" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_MF_ZlecenieUmowienia" bpmnElement="MF_ZlecenieUmowienia">
+        <di:waypoint x="1233" y="343" />
+        <di:waypoint x="1580" y="343" />
+        <di:waypoint x="1580" y="1170" />
+        <di:waypoint x="1100" y="1170" />
+        <di:waypoint x="1100" y="1382" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1487" y="306" width="86" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_MF_ZlecenieAnulowania" bpmnElement="MF_ZlecenieAnulowania">
+        <di:waypoint x="1233" y="507" />
+        <di:waypoint x="1480" y="507" />
+        <di:waypoint x="1480" y="1100" />
+        <di:waypoint x="880" y="1100" />
+        <di:waypoint x="880" y="1670" />
+        <di:waypoint x="1100" y="1670" />
+        <di:waypoint x="1100" y="1598" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1385" y="465" width="89" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_MF_ZlecenieWylogowania" bpmnElement="MF_ZlecenieWylogowania">
+        <di:waypoint x="1233" y="657" />
+        <di:waypoint x="1380" y="657" />
+        <di:waypoint x="1380" y="1030" />
+        <di:waypoint x="800" y="1030" />
+        <di:waypoint x="800" y="1870" />
+        <di:waypoint x="1100" y="1870" />
+        <di:waypoint x="1100" y="1818" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1308" y="616" width="63" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_MF_PotwierdzenieRezerwacji" bpmnElement="MF_PotwierdzenieRezerwacji">
+        <di:waypoint x="3320" y="1650" />
+        <di:waypoint x="3420" y="1650" />
+        <di:waypoint x="3420" y="1180" />
+        <di:waypoint x="1880" y="1180" />
+        <di:waypoint x="1880" y="260" />
+        <di:waypoint x="2112" y="260" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2953" y="1609" width="73" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_MF_PotwierdzenieAnulowania" bpmnElement="MF_PotwierdzenieAnulowania">
+        <di:waypoint x="2480" y="1860" />
+        <di:waypoint x="2130" y="1860" />
+        <di:waypoint x="2130" y="458" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2135" y="1865" width="89" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_MF_PotwierdzenieZwrotu" bpmnElement="MF_PotwierdzenieZwrotu">
+        <di:waypoint x="2480" y="1690" />
+        <di:waypoint x="1780" y="1690" />
+        <di:waypoint x="1780" y="590" />
+        <di:waypoint x="2042" y="590" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1780" y="1695.9999999999995" width="79" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_MF_PotwierdzenieWylogowania" bpmnElement="MF_PotwierdzenieWylogowania">
+        <di:waypoint x="1220" y="1782" />
+        <di:waypoint x="1220" y="1240" />
+        <di:waypoint x="1680" y="1240" />
+        <di:waypoint x="1680" y="730" />
+        <di:waypoint x="2042" y="730" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1233" y="1700" width="73" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_MF_PrzekierowanieDoZwrotu" bpmnElement="MF_PrzekierowanieDoZwrotu">
+        <di:waypoint x="2480" y="1570" />
+        <di:waypoint x="2430" y="1570" />
+        <di:waypoint x="2430" y="2420" />
+        <di:waypoint x="3072" y="2420" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2439" y="2259" width="81" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_MF_StatusZwrotu" bpmnElement="MF_StatusZwrotu">
+        <di:waypoint x="3420" y="2405" />
+        <di:waypoint x="3420" y="2040" />
+        <di:waypoint x="2760" y="2040" />
+        <di:waypoint x="2760" y="1540" />
+        <di:waypoint x="2718" y="1540" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="3346" y="2253" width="67" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_MF_PrzekerowanieDoPlatnosci" bpmnElement="MF_PrzekerowanieDoPlatnosci">
+        <di:waypoint x="2900" y="1440" />
+        <di:waypoint x="2910" y="2551" />
+        <di:waypoint x="3072" y="2551" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="3072" y="2493" width="89" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_MF_StatusPlatnosci" bpmnElement="MF_StatusPlatnosci">
+        <di:waypoint x="3428" y="2551" />
+        <di:waypoint x="3490" y="2551" />
+        <di:waypoint x="3490" y="1935" />
+        <di:waypoint x="3070" y="1935" />
+        <di:waypoint x="3070" y="1418" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="3501" y="2492.9999999999995" width="78" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

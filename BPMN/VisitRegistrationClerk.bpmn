@@ -2,22 +2,22 @@
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_VisitRegistrationClerk" targetNamespace="http://bpmn.io/schema/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.13.1">
   <bpmn:collaboration id="Collab_VisitRegistrationClerk">
     <bpmn:participant id="Pool_VisitRegistrationClerk" name="Rejestracja wizyty przez recepcjonistę" processRef="Process_VisitRegistrationClerk" />
-    <bpmn:participant id="Pool_VisitRegistrationClerk_Patient" name="Pacjent" processRef="Process_VisitRegistrationClerk_Patient" />
-    <bpmn:messageFlow id="Flow_VisitReg_PatientToClerk" sourceRef="StartEvent_PatientInit" targetRef="StartEvent_1" />
-    <bpmn:messageFlow id="Flow_VisitReg_SystemToPatient" sourceRef="EndEvent_Registered" targetRef="Task_PatientWaitsForConfirmation" />
-    <bpmn:messageFlow id="Flow_Reg_FailedToPatient" sourceRef="EndEvent_Cancelled" targetRef="EndEvent_PatientRegistrationFailed" />
+    <bpmn:participant id="Pool_VisitRegistrationClerk_Patient" name="Pacjent" />
+    <bpmn:messageFlow id="Flow_VisitReg_PatientToClerk" sourceRef="Pool_VisitRegistrationClerk_Patient" targetRef="StartEvent_1" />
+    <bpmn:messageFlow id="Flow_VisitReg_SystemToPatient" sourceRef="EndEvent_Registered" targetRef="Pool_VisitRegistrationClerk_Patient" />
+    <bpmn:messageFlow id="Flow_Reg_FailedToPatient" sourceRef="EndEvent_Cancelled" targetRef="Pool_VisitRegistrationClerk_Patient" />
   </bpmn:collaboration>
   <bpmn:process id="Process_VisitRegistrationClerk" name="Rejestracja wizyty przez recepcjonistę" isExecutable="false">
     <bpmn:laneSet id="LaneSet_VisitRegistrationClerk">
       <bpmn:lane id="Lane_Clerk" name="Recepcjonista">
         <bpmn:flowNodeRef>Task_CollectPatientData</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_SelectPreferredSlot</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Task_ProposeAlternativeSlot</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_PatientAcceptsAlternative</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_AssignDoctor</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>StartEvent_1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ProposeAlternativeSlot</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>EndEvent_Registered</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>EndEvent_Cancelled</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>StartEvent_1</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="Lane_System" name="System">
         <bpmn:flowNodeRef>Task_ValidateSlotAvailability</bpmn:flowNodeRef>
@@ -38,19 +38,11 @@
       <bpmn:incoming>Flow_3</bpmn:incoming>
       <bpmn:outgoing>Flow_4</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:boundaryEvent id="BoundaryError_ValidateSlotAvailability" name="Błąd systemu przy sprawdzaniu dostępności" attachedToRef="Task_ValidateSlotAvailability">
-      <bpmn:outgoing>Flow_Error_ValidateSlotAvailability</bpmn:outgoing>
-      <bpmn:errorEventDefinition errorRef="Error_ValidateSlotAvailability" />
-    </bpmn:boundaryEvent>
     <bpmn:exclusiveGateway id="Gateway_SlotAvailable" name="Czy termin jest dostępny?" default="Flow_5">
       <bpmn:incoming>Flow_4</bpmn:incoming>
       <bpmn:outgoing>Flow_5</bpmn:outgoing>
       <bpmn:outgoing>Flow_6</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:userTask id="Task_ProposeAlternativeSlot" name="Zaproponuj alternatywny termin">
-      <bpmn:incoming>Flow_6</bpmn:incoming>
-      <bpmn:outgoing>Flow_7</bpmn:outgoing>
-    </bpmn:userTask>
     <bpmn:exclusiveGateway id="Gateway_PatientAcceptsAlternative" name="Pacjent akceptuje nowy termin?" default="Flow_8">
       <bpmn:incoming>Flow_7</bpmn:incoming>
       <bpmn:outgoing>Flow_8</bpmn:outgoing>
@@ -65,46 +57,14 @@
       <bpmn:incoming>Flow_10</bpmn:incoming>
       <bpmn:outgoing>Flow_11</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:boundaryEvent id="BoundaryError_AddVisitToDoctorSchedule" name="Błąd dodawania wizyty do grafiku" attachedToRef="Task_AddVisitToDoctorSchedule">
-      <bpmn:outgoing>Flow_Error_AddVisitToDoctorSchedule</bpmn:outgoing>
-      <bpmn:errorEventDefinition errorRef="Error_AddVisitToDoctorSchedule" />
-    </bpmn:boundaryEvent>
     <bpmn:serviceTask id="Task_SendRegistrationConfirmation" name="Wygeneruj i wyślij potwierdzenie wizyty">
       <bpmn:incoming>Flow_11</bpmn:incoming>
       <bpmn:outgoing>Flow_12</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:boundaryEvent id="BoundaryError_SendRegistrationConfirmation" name="Błąd wysyłki potwierdzenia" attachedToRef="Task_SendRegistrationConfirmation">
-      <bpmn:outgoing>Flow_Error_SendRegistrationConfirmation</bpmn:outgoing>
-      <bpmn:errorEventDefinition errorRef="Error_SendRegistrationConfirmation" />
-    </bpmn:boundaryEvent>
-    <bpmn:endEvent id="EndEvent_Registered" name="Wizyta zarejestrowana">
-      <bpmn:incoming>Flow_12</bpmn:incoming>
-      <bpmn:messageEventDefinition id="MessageEventDefinition_VisitRegisteredToPatient" />
-    </bpmn:endEvent>
-    <bpmn:endEvent id="EndEvent_Cancelled" name="Rejestracja przerwana">
-      <bpmn:incoming>Flow_9</bpmn:incoming>
-    </bpmn:endEvent>
-    <bpmn:task id="Task_InformPatientSystemError" name="Poinformuj recepcjonistę o błędzie systemu">
-      <bpmn:incoming>Flow_Error_ValidateSlotAvailability</bpmn:incoming>
-      <bpmn:outgoing>Flow_End_SystemError</bpmn:outgoing>
-    </bpmn:task>
-    <bpmn:endEvent id="EndEvent_SystemError" name="Rejestracja nieudana – błąd systemu">
-      <bpmn:incoming>Flow_End_SystemError</bpmn:incoming>
-    </bpmn:endEvent>
-    <bpmn:task id="Task_InformClerkScheduleError" name="Poinformuj recepcjonistę o błędzie grafiku">
-      <bpmn:incoming>Flow_Error_AddVisitToDoctorSchedule</bpmn:incoming>
-      <bpmn:outgoing>Flow_End_ScheduleError</bpmn:outgoing>
-    </bpmn:task>
-    <bpmn:endEvent id="EndEvent_ScheduleError" name="Rejestracja nieudana – błąd grafiku">
-      <bpmn:incoming>Flow_End_ScheduleError</bpmn:incoming>
-    </bpmn:endEvent>
     <bpmn:task id="Task_SaveVisitAndSendConfirmationManually" name="Wyślij potwierdzenie ręcznie">
       <bpmn:incoming>Flow_Error_SendRegistrationConfirmation</bpmn:incoming>
       <bpmn:outgoing>Flow_End_ManualConfirmation</bpmn:outgoing>
     </bpmn:task>
-    <bpmn:endEvent id="EndEvent_ManualConfirmation" name="Wizyta zarejestrowana – potwierdzenie manualne">
-      <bpmn:incoming>Flow_End_ManualConfirmation</bpmn:incoming>
-    </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_1" targetRef="Task_CollectPatientData" />
     <bpmn:sequenceFlow id="Flow_2" sourceRef="Task_CollectPatientData" targetRef="Task_SelectPreferredSlot" />
     <bpmn:sequenceFlow id="Flow_3" sourceRef="Task_SelectPreferredSlot" targetRef="Task_ValidateSlotAvailability" />
@@ -117,258 +77,157 @@
     <bpmn:sequenceFlow id="Flow_10" sourceRef="Task_AssignDoctor" targetRef="Task_AddVisitToDoctorSchedule" />
     <bpmn:sequenceFlow id="Flow_11" sourceRef="Task_AddVisitToDoctorSchedule" targetRef="Task_SendRegistrationConfirmation" />
     <bpmn:sequenceFlow id="Flow_12" sourceRef="Task_SendRegistrationConfirmation" targetRef="EndEvent_Registered" />
-    <bpmn:sequenceFlow id="Flow_Error_ValidateSlotAvailability" sourceRef="BoundaryError_ValidateSlotAvailability" targetRef="Task_InformPatientSystemError" />
-    <bpmn:sequenceFlow id="Flow_End_SystemError" sourceRef="Task_InformPatientSystemError" targetRef="EndEvent_SystemError" />
-    <bpmn:sequenceFlow id="Flow_Error_AddVisitToDoctorSchedule" sourceRef="BoundaryError_AddVisitToDoctorSchedule" targetRef="Task_InformClerkScheduleError" />
-    <bpmn:sequenceFlow id="Flow_End_ScheduleError" sourceRef="Task_InformClerkScheduleError" targetRef="EndEvent_ScheduleError" />
     <bpmn:sequenceFlow id="Flow_Error_SendRegistrationConfirmation" sourceRef="BoundaryError_SendRegistrationConfirmation" targetRef="Task_SaveVisitAndSendConfirmationManually" />
     <bpmn:sequenceFlow id="Flow_End_ManualConfirmation" sourceRef="Task_SaveVisitAndSendConfirmationManually" targetRef="EndEvent_ManualConfirmation" />
     <bpmn:startEvent id="StartEvent_1" name="Pacjent zgłasza chęć rejestracji w recepcji">
       <bpmn:outgoing>Flow_1</bpmn:outgoing>
       <bpmn:messageEventDefinition id="MessageEventDefinition_04wv2j0" />
     </bpmn:startEvent>
-  </bpmn:process>
-  <bpmn:process id="Process_VisitRegistrationClerk_Patient" name="Pacjent inicjuje rejestrację wizyty" isExecutable="false">
-    <bpmn:laneSet id="LaneSet_VisitRegistrationClerk_Patient">
-      <bpmn:lane id="Lane_Patient" name="Pacjent">
-        <bpmn:flowNodeRef>StartEvent_PatientInit</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Task_PatientWaitsForConfirmation</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>EndEvent_PatientVisitConfirmed</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>EndEvent_PatientRegistrationFailed</bpmn:flowNodeRef>
-      </bpmn:lane>
-    </bpmn:laneSet>
-    <bpmn:startEvent id="StartEvent_PatientInit" name="Chce zarejestrować wizytę">
-      <bpmn:outgoing>Flow_Patient_1</bpmn:outgoing>
-    </bpmn:startEvent>
-    <bpmn:userTask id="Task_PatientWaitsForConfirmation" name="Czeka na potwierdzenie rejestracji">
-      <bpmn:incoming>Flow_Patient_1</bpmn:incoming>
-      <bpmn:outgoing>Flow_Patient_2</bpmn:outgoing>
+    <bpmn:userTask id="Task_ProposeAlternativeSlot" name="Zaproponuj alternatywny termin">
+      <bpmn:incoming>Flow_6</bpmn:incoming>
+      <bpmn:outgoing>Flow_7</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:endEvent id="EndEvent_PatientVisitConfirmed" name="Wizyta potwierdzona">
-      <bpmn:incoming>Flow_Patient_2</bpmn:incoming>
+    <bpmn:endEvent id="EndEvent_Registered" name="Wizyta zarejestrowana">
+      <bpmn:incoming>Flow_12</bpmn:incoming>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_VisitRegisteredToPatient" />
     </bpmn:endEvent>
-    <bpmn:endEvent id="EndEvent_PatientRegistrationFailed" name="Rejestracja nieudana – poinformowano">
+    <bpmn:endEvent id="EndEvent_Cancelled" name="Rejestracja przerwana">
+      <bpmn:incoming>Flow_9</bpmn:incoming>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_07c3wss" />
     </bpmn:endEvent>
-    <bpmn:sequenceFlow id="Flow_Patient_1" sourceRef="StartEvent_PatientInit" targetRef="Task_PatientWaitsForConfirmation" />
-    <bpmn:sequenceFlow id="Flow_Patient_2" sourceRef="Task_PatientWaitsForConfirmation" targetRef="EndEvent_PatientVisitConfirmed" />
   </bpmn:process>
   <bpmn:error id="Error_ValidateSlotAvailability" name="Błąd systemu przy sprawdzaniu dostępności terminu" />
   <bpmn:error id="Error_AddVisitToDoctorSchedule" name="Błąd dodawania wizyty do grafiku" />
   <bpmn:error id="Error_SendRegistrationConfirmation" name="Błąd wysyłki potwierdzenia do pacjenta" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_VisitRegistrationClerk">
     <bpmndi:BPMNPlane id="BPMNPlane_VisitRegistrationClerk" bpmnElement="Collab_VisitRegistrationClerk">
-
-    <!-- POOL PACJENTA (góra) -->
-    <bpmndi:BPMNShape id="S_Pool_Patient" bpmnElement="Pool_VisitRegistrationClerk_Patient" isHorizontal="true">
-      <dc:Bounds x="120" y="-140" width="2560" height="160" />
-    </bpmndi:BPMNShape>
-    <bpmndi:BPMNShape id="S_Lane_Patient" bpmnElement="Lane_Patient" isHorizontal="true">
-      <dc:Bounds x="150" y="-140" width="2530" height="160" />
-    </bpmndi:BPMNShape>
-    <bpmndi:BPMNShape id="S_StartEvent_PatientInit" bpmnElement="StartEvent_PatientInit">
-      <dc:Bounds x="202" y="-78" width="36" height="36" />
-    </bpmndi:BPMNShape>
-    <bpmndi:BPMNShape id="S_EndEvent_PatientFailed" bpmnElement="EndEvent_PatientRegistrationFailed">
-      <dc:Bounds x="1667" y="-78" width="36" height="36" />
-    </bpmndi:BPMNShape>
-    <bpmndi:BPMNShape id="S_Task_PatientWaits" bpmnElement="Task_PatientWaitsForConfirmation">
-      <dc:Bounds x="2100" y="-100" width="200" height="80" />
-    </bpmndi:BPMNShape>
-    <bpmndi:BPMNShape id="S_EndEvent_PatientConfirmed" bpmnElement="EndEvent_PatientVisitConfirmed">
-      <dc:Bounds x="2362" y="-78" width="36" height="36" />
-    </bpmndi:BPMNShape>
-
-    <!-- POOL GŁÓWNY -->
-    <bpmndi:BPMNShape id="S_Pool_Main" bpmnElement="Pool_VisitRegistrationClerk" isHorizontal="true">
-      <dc:Bounds x="120" y="50" width="2560" height="780" />
-    </bpmndi:BPMNShape>
-    <bpmndi:BPMNShape id="S_Lane_Clerk" bpmnElement="Lane_Clerk" isHorizontal="true">
-      <dc:Bounds x="150" y="50" width="2530" height="220" />
-    </bpmndi:BPMNShape>
-    <bpmndi:BPMNShape id="S_Lane_System" bpmnElement="Lane_System" isHorizontal="true">
-      <dc:Bounds x="150" y="270" width="2530" height="560" />
-    </bpmndi:BPMNShape>
-
-    <!-- START i TASKI RECEPCJONISTY -->
-    <bpmndi:BPMNShape id="S_StartEvent_1" bpmnElement="StartEvent_1">
-      <dc:Bounds x="202" y="142" width="36" height="36" />
-    </bpmndi:BPMNShape>
-    <bpmndi:BPMNShape id="S_Task_CollectPatientData" bpmnElement="Task_CollectPatientData">
-      <dc:Bounds x="280" y="120" width="230" height="80" />
-    </bpmndi:BPMNShape>
-    <bpmndi:BPMNShape id="S_Task_SelectPreferredSlot" bpmnElement="Task_SelectPreferredSlot">
-      <dc:Bounds x="560" y="120" width="220" height="80" />
-    </bpmndi:BPMNShape>
-    <bpmndi:BPMNShape id="S_Task_ProposeAlternativeSlot" bpmnElement="Task_ProposeAlternativeSlot">
-      <dc:Bounds x="1250" y="120" width="220" height="80" />
-    </bpmndi:BPMNShape>
-    <bpmndi:BPMNShape id="S_Gateway_PatientAccepts" bpmnElement="Gateway_PatientAcceptsAlternative" isMarkerVisible="true">
-      <dc:Bounds x="1540" y="135" width="50" height="50" />
-    </bpmndi:BPMNShape>
-    <bpmndi:BPMNShape id="S_Task_AssignDoctor" bpmnElement="Task_AssignDoctor">
-      <dc:Bounds x="1660" y="120" width="200" height="80" />
-    </bpmndi:BPMNShape>
-    <bpmndi:BPMNShape id="S_EndEvent_Cancelled" bpmnElement="EndEvent_Cancelled">
-      <dc:Bounds x="1667" y="52" width="36" height="36" />
-    </bpmndi:BPMNShape>
-    <bpmndi:BPMNShape id="S_EndEvent_Registered" bpmnElement="EndEvent_Registered">
-      <dc:Bounds x="2462" y="142" width="36" height="36" />
-    </bpmndi:BPMNShape>
-
-    <!-- TASKI SYSTEMU - GŁÓWNA ŚCIEŻKA -->
-    <bpmndi:BPMNShape id="S_Task_Validate" bpmnElement="Task_ValidateSlotAvailability">
-      <dc:Bounds x="840" y="350" width="210" height="80" />
-    </bpmndi:BPMNShape>
-    <bpmndi:BPMNShape id="S_Gateway_SlotAvailable" bpmnElement="Gateway_SlotAvailable" isMarkerVisible="true">
-      <dc:Bounds x="1120" y="365" width="50" height="50" />
-    </bpmndi:BPMNShape>
-    <bpmndi:BPMNShape id="S_Task_AddSchedule" bpmnElement="Task_AddVisitToDoctorSchedule">
-      <dc:Bounds x="1930" y="350" width="220" height="80" />
-    </bpmndi:BPMNShape>
-    <bpmndi:BPMNShape id="S_Task_SendConfirmation" bpmnElement="Task_SendRegistrationConfirmation">
-      <dc:Bounds x="2210" y="350" width="220" height="80" />
-    </bpmndi:BPMNShape>
-
-    <!-- ŚCIEŻKA BŁĘDU 1: błąd sprawdzania dostępności (lewa strona) -->
-    <bpmndi:BPMNShape id="S_BErr_Validate" bpmnElement="BoundaryError_ValidateSlotAvailability">
-      <dc:Bounds x="912" y="412" width="36" height="36" />
-    </bpmndi:BPMNShape>
-    <bpmndi:BPMNShape id="S_Task_SystemError" bpmnElement="Task_InformPatientSystemError">
-      <dc:Bounds x="820" y="490" width="230" height="80" />
-    </bpmndi:BPMNShape>
-    <bpmndi:BPMNShape id="S_End_SystemError" bpmnElement="EndEvent_SystemError">
-      <dc:Bounds x="1102" y="512" width="36" height="36" />
-    </bpmndi:BPMNShape>
-
-    <!-- ŚCIEŻKA BŁĘDU 2: błąd grafiku (środek-dół) -->
-    <bpmndi:BPMNShape id="S_BErr_Schedule" bpmnElement="BoundaryError_AddVisitToDoctorSchedule">
-      <dc:Bounds x="2002" y="412" width="36" height="36" />
-    </bpmndi:BPMNShape>
-    <bpmndi:BPMNShape id="S_Task_ScheduleError" bpmnElement="Task_InformClerkScheduleError">
-      <dc:Bounds x="1900" y="490" width="250" height="80" />
-    </bpmndi:BPMNShape>
-    <bpmndi:BPMNShape id="S_End_ScheduleError" bpmnElement="EndEvent_ScheduleError">
-      <dc:Bounds x="1900" y="620" width="36" height="36" />
-    </bpmndi:BPMNShape>
-
-    <!-- ŚCIEŻKA BŁĘDU 3: błąd potwierdzenia (prawa strona-dół) -->
-    <bpmndi:BPMNShape id="S_BErr_Confirm" bpmnElement="BoundaryError_SendRegistrationConfirmation">
-      <dc:Bounds x="2282" y="412" width="36" height="36" />
-    </bpmndi:BPMNShape>
-    <bpmndi:BPMNShape id="S_Task_ManualConfirm" bpmnElement="Task_SaveVisitAndSendRegistrationConfirmationManually">
-      <dc:Bounds x="2200" y="490" width="250" height="80" />
-    </bpmndi:BPMNShape>
-    <bpmndi:BPMNShape id="S_End_ManualConfirm" bpmnElement="EndEvent_ManualConfirmation">
-      <dc:Bounds x="2350" y="620" width="36" height="36" />
-    </bpmndi:BPMNShape>
-
-    <!-- STRZAŁKI - POOL PACJENTA -->
-    <bpmndi:BPMNEdge id="E_Flow_Patient_1" bpmnElement="Flow_Patient_1">
-      <di:waypoint x="238" y="-60" />
-      <di:waypoint x="2100" y="-60" />
-    </bpmndi:BPMNEdge>
-    <bpmndi:BPMNEdge id="E_Flow_Patient_2" bpmnElement="Flow_Patient_2">
-      <di:waypoint x="2300" y="-60" />
-      <di:waypoint x="2362" y="-60" />
-    </bpmndi:BPMNEdge>
-
-    <!-- STRZAŁKI - GŁÓWNA ŚCIEŻKA -->
-    <bpmndi:BPMNEdge id="E_Flow_1" bpmnElement="Flow_1">
-      <di:waypoint x="238" y="160" />
-      <di:waypoint x="280" y="160" />
-    </bpmndi:BPMNEdge>
-    <bpmndi:BPMNEdge id="E_Flow_2" bpmnElement="Flow_2">
-      <di:waypoint x="510" y="160" />
-      <di:waypoint x="560" y="160" />
-    </bpmndi:BPMNEdge>
-    <bpmndi:BPMNEdge id="E_Flow_3" bpmnElement="Flow_3">
-      <di:waypoint x="670" y="200" />
-      <di:waypoint x="670" y="390" />
-      <di:waypoint x="840" y="390" />
-    </bpmndi:BPMNEdge>
-    <bpmndi:BPMNEdge id="E_Flow_4" bpmnElement="Flow_4">
-      <di:waypoint x="1050" y="390" />
-      <di:waypoint x="1120" y="390" />
-    </bpmndi:BPMNEdge>
-    <bpmndi:BPMNEdge id="E_Flow_5" bpmnElement="Flow_5">
-      <di:waypoint x="1145" y="365" />
-      <di:waypoint x="1145" y="240" />
-      <di:waypoint x="1760" y="240" />
-      <di:waypoint x="1760" y="200" />
-    </bpmndi:BPMNEdge>
-    <bpmndi:BPMNEdge id="E_Flow_6" bpmnElement="Flow_6">
-      <di:waypoint x="1170" y="390" />
-      <di:waypoint x="1250" y="160" />
-    </bpmndi:BPMNEdge>
-    <bpmndi:BPMNEdge id="E_Flow_7" bpmnElement="Flow_7">
-      <di:waypoint x="1470" y="160" />
-      <di:waypoint x="1540" y="160" />
-    </bpmndi:BPMNEdge>
-    <bpmndi:BPMNEdge id="E_Flow_8" bpmnElement="Flow_8">
-      <di:waypoint x="1590" y="160" />
-      <di:waypoint x="1660" y="160" />
-    </bpmndi:BPMNEdge>
-    <bpmndi:BPMNEdge id="E_Flow_9" bpmnElement="Flow_9">
-      <di:waypoint x="1565" y="135" />
-      <di:waypoint x="1565" y="70" />
-      <di:waypoint x="1667" y="70" />
-    </bpmndi:BPMNEdge>
-    <bpmndi:BPMNEdge id="E_Flow_10" bpmnElement="Flow_10">
-      <di:waypoint x="1760" y="200" />
-      <di:waypoint x="1760" y="390" />
-      <di:waypoint x="1930" y="390" />
-    </bpmndi:BPMNEdge>
-    <bpmndi:BPMNEdge id="E_Flow_11" bpmnElement="Flow_11">
-      <di:waypoint x="2150" y="390" />
-      <di:waypoint x="2210" y="390" />
-    </bpmndi:BPMNEdge>
-    <bpmndi:BPMNEdge id="E_Flow_12" bpmnElement="Flow_12">
-      <di:waypoint x="2430" y="390" />
-      <di:waypoint x="2462" y="390" />
-      <di:waypoint x="2462" y="178" />
-    </bpmndi:BPMNEdge>
-
-    <!-- STRZAŁKI BŁĘDÓW -->
-    <bpmndi:BPMNEdge id="E_Err_Validate" bpmnElement="Flow_Error_ValidateSlotAvailability">
-      <di:waypoint x="930" y="448" />
-      <di:waypoint x="930" y="490" />
-    </bpmndi:BPMNEdge>
-    <bpmndi:BPMNEdge id="E_End_SystemError" bpmnElement="Flow_End_SystemError">
-      <di:waypoint x="1050" y="530" />
-      <di:waypoint x="1102" y="530" />
-    </bpmndi:BPMNEdge>
-    <bpmndi:BPMNEdge id="E_Err_Schedule" bpmnElement="Flow_Error_AddVisitToDoctorSchedule">
-      <di:waypoint x="2020" y="448" />
-      <di:waypoint x="2020" y="490" />
-    </bpmndi:BPMNEdge>
-    <bpmndi:BPMNEdge id="E_End_ScheduleError" bpmnElement="Flow_End_ScheduleError">
-      <di:waypoint x="1918" y="570" />
-      <di:waypoint x="1918" y="620" />
-    </bpmndi:BPMNEdge>
-    <bpmndi:BPMNEdge id="E_Err_Confirm" bpmnElement="Flow_Error_SendRegistrationConfirmation">
-      <di:waypoint x="2300" y="448" />
-      <di:waypoint x="2300" y="490" />
-    </bpmndi:BPMNEdge>
-    <bpmndi:BPMNEdge id="E_End_ManualConfirm" bpmnElement="Flow_End_ManualConfirmation">
-      <di:waypoint x="2368" y="570" />
-      <di:waypoint x="2368" y="620" />
-    </bpmndi:BPMNEdge>
-
-    <!-- MESSAGE FLOWS między poolami -->
-    <bpmndi:BPMNEdge id="E_MF_PatientToClerk" bpmnElement="Flow_VisitReg_PatientToClerk">
-      <di:waypoint x="220" y="-42" />
-      <di:waypoint x="220" y="142" />
-    </bpmndi:BPMNEdge>
-    <bpmndi:BPMNEdge id="E_MF_RegisteredToPatient" bpmnElement="Flow_VisitReg_SystemToPatient">
-      <di:waypoint x="2480" y="142" />
-      <di:waypoint x="2480" y="-42" />
-      <di:waypoint x="2200" y="-42" />
-    </bpmndi:BPMNEdge>
-    <bpmndi:BPMNEdge id="E_MF_FailedToPatient" bpmnElement="Flow_Reg_FailedToPatient">
-      <di:waypoint x="1685" y="52" />
-      <di:waypoint x="1685" y="-42" />
-    </bpmndi:BPMNEdge>
-
-  </bpmndi:BPMNPlane>
+      <bpmndi:BPMNShape id="S_Pool_Main" bpmnElement="Pool_VisitRegistrationClerk" isHorizontal="true">
+        <dc:Bounds x="120" y="50" width="2560" height="480" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Lane_System" bpmnElement="Lane_System" isHorizontal="true">
+        <dc:Bounds x="150" y="270" width="2530" height="260" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Lane_Clerk" bpmnElement="Lane_Clerk" isHorizontal="true">
+        <dc:Bounds x="150" y="50" width="2530" height="220" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Task_CollectPatientData" bpmnElement="Task_CollectPatientData">
+        <dc:Bounds x="280" y="120" width="230" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Task_SelectPreferredSlot" bpmnElement="Task_SelectPreferredSlot">
+        <dc:Bounds x="560" y="120" width="220" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Task_Validate" bpmnElement="Task_ValidateSlotAvailability">
+        <dc:Bounds x="840" y="350" width="210" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Gateway_SlotAvailable" bpmnElement="Gateway_SlotAvailable" isMarkerVisible="true">
+        <dc:Bounds x="1120" y="365" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Gateway_PatientAccepts" bpmnElement="Gateway_PatientAcceptsAlternative" isMarkerVisible="true">
+        <dc:Bounds x="1540" y="135" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Task_AssignDoctor" bpmnElement="Task_AssignDoctor">
+        <dc:Bounds x="1660" y="120" width="200" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Task_AddSchedule" bpmnElement="Task_AddVisitToDoctorSchedule">
+        <dc:Bounds x="1930" y="350" width="220" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Task_SendConfirmation" bpmnElement="Task_SendRegistrationConfirmation">
+        <dc:Bounds x="2210" y="350" width="220" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_StartEvent_1" bpmnElement="StartEvent_1">
+        <dc:Bounds x="202" y="142" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Task_ProposeAlternativeSlot" bpmnElement="Task_ProposeAlternativeSlot">
+        <dc:Bounds x="1035" y="120" width="220" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_EndEvent_Registered" bpmnElement="EndEvent_Registered">
+        <dc:Bounds x="2502" y="142" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2418" y="146" width="74" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_12fco7l_di" bpmnElement="EndEvent_Cancelled">
+        <dc:Bounds x="1547" y="52" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1481" y="56.5" width="56" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="E_Flow_1" bpmnElement="Flow_1">
+        <di:waypoint x="238" y="160" />
+        <di:waypoint x="280" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Flow_2" bpmnElement="Flow_2">
+        <di:waypoint x="510" y="160" />
+        <di:waypoint x="560" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Flow_3" bpmnElement="Flow_3">
+        <di:waypoint x="670" y="200" />
+        <di:waypoint x="670" y="390" />
+        <di:waypoint x="840" y="390" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Flow_4" bpmnElement="Flow_4">
+        <di:waypoint x="1050" y="390" />
+        <di:waypoint x="1120" y="390" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Flow_5" bpmnElement="Flow_5">
+        <di:waypoint x="1170" y="390" />
+        <di:waypoint x="1760" y="390" />
+        <di:waypoint x="1760" y="200" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1457" y="365" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Flow_6" bpmnElement="Flow_6">
+        <di:waypoint x="1145" y="365" />
+        <di:waypoint x="1145" y="200" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1132" y="264" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Flow_7" bpmnElement="Flow_7">
+        <di:waypoint x="1255" y="160" />
+        <di:waypoint x="1540" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Flow_8" bpmnElement="Flow_8">
+        <di:waypoint x="1590" y="160" />
+        <di:waypoint x="1660" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Flow_9" bpmnElement="Flow_9">
+        <di:waypoint x="1565" y="135" />
+        <di:waypoint x="1565" y="88" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1573" y="103" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Flow_10" bpmnElement="Flow_10">
+        <di:waypoint x="1860" y="160" />
+        <di:waypoint x="2040" y="160" />
+        <di:waypoint x="2040" y="350" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Flow_11" bpmnElement="Flow_11">
+        <di:waypoint x="2150" y="390" />
+        <di:waypoint x="2210" y="390" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Flow_12" bpmnElement="Flow_12">
+        <di:waypoint x="2430" y="390" />
+        <di:waypoint x="2520" y="390" />
+        <di:waypoint x="2520" y="178" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Participant_0pg27wj_di" bpmnElement="Pool_VisitRegistrationClerk_Patient" isHorizontal="true">
+        <dc:Bounds x="120" y="-90" width="2560" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="E_MF_PatientToClerk" bpmnElement="Flow_VisitReg_PatientToClerk">
+        <di:waypoint x="220" y="-30" />
+        <di:waypoint x="220" y="142" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_MF_RegisteredToPatient" bpmnElement="Flow_VisitReg_SystemToPatient">
+        <di:waypoint x="2520" y="142" />
+        <di:waypoint x="2520" y="-30" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_MF_FailedToPatient" bpmnElement="Flow_Reg_FailedToPatient">
+        <di:waypoint x="1565" y="52" />
+        <di:waypoint x="1565" y="-30" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 </bpmn:definitions>

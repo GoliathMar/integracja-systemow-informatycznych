@@ -2,19 +2,20 @@
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_VisitCancelationClerk" targetNamespace="http://bpmn.io/schema/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.13.1">
   <bpmn:collaboration id="Collab_VisitCancelationClerk">
     <bpmn:participant id="Pool_VisitCancelationClerk" name="Anulowanie wizyty przez recepcjonistę" processRef="Process_VisitCancelationClerk" />
-    <bpmn:participant id="Pool_VisitCancelationClerk_Patient" name="Pacjent" processRef="Process_VisitCancelationClerk_Patient" />
-    <bpmn:messageFlow id="Flow_VisitCancel_PatientToClerk" sourceRef="StartEvent_PatientInitCancel" targetRef="StartEvent_1" />
-    <bpmn:messageFlow id="Flow_VisitCancel_SystemToPatient" sourceRef="EndEvent_Cancelled" targetRef="Task_PatientWaitsForCancelConfirmation" />
-    <bpmn:messageFlow id="Flow_VisitCancel_RejectedToPatient" sourceRef="EndEvent_CannotCancel" targetRef="EndEvent_PatientCancelRejectedInformed" />
+    <bpmn:participant id="Pool_VisitCancelationClerk_Patient" name="Pacjent" />
+    <bpmn:messageFlow id="Flow_0wrxtlx" sourceRef="Pool_VisitCancelationClerk_Patient" targetRef="StartEvent_1" />
+    <bpmn:messageFlow id="Flow_175uxov" sourceRef="EndEvent_Cancelled" targetRef="Pool_VisitCancelationClerk_Patient" />
+    <bpmn:messageFlow id="Flow_07ytig1" sourceRef="EndEvent_CannotCancel" targetRef="Pool_VisitCancelationClerk_Patient" />
   </bpmn:collaboration>
   <bpmn:process id="Process_VisitCancelationClerk" name="Anulowanie wizyty przez recepcjonistę" isExecutable="false">
     <bpmn:laneSet id="LaneSet_VisitCancelationClerk">
       <bpmn:lane id="Lane_Clerk" name="Recepcjonista">
-        <bpmn:flowNodeRef>StartEvent_1</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_FindVisit</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_InformCannotCancel</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>EndEvent_CannotCancel</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>EndEvent_Cancelled</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>StartEvent_1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_1aq0zzu</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_CannotCancel</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="Lane_System" name="System">
         <bpmn:flowNodeRef>Task_VerifyVisitStatus</bpmn:flowNodeRef>
@@ -25,9 +26,6 @@
         <bpmn:flowNodeRef>Task_SendCancelNotification</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
-    <bpmn:startEvent id="StartEvent_1" name="Pacjent zgłasza odwołanie wizyty w recepcji">
-      <bpmn:outgoing>Flow_1</bpmn:outgoing>
-    </bpmn:startEvent>
     <bpmn:userTask id="Task_FindVisit" name="Wyszukaj wizytę pacjenta">
       <bpmn:incoming>Flow_1</bpmn:incoming>
       <bpmn:outgoing>Flow_2</bpmn:outgoing>
@@ -73,13 +71,6 @@
       <bpmn:incoming>Flow_5</bpmn:incoming>
       <bpmn:outgoing>Flow_10</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:endEvent id="EndEvent_Cancelled" name="Wizyta anulowana">
-      <bpmn:incoming>Flow_9</bpmn:incoming>
-      <bpmn:messageEventDefinition id="MessageEventDefinition_VisitCancelledToPatient" />
-    </bpmn:endEvent>
-    <bpmn:endEvent id="EndEvent_CannotCancel" name="Anulowanie odrzucone">
-      <bpmn:incoming>Flow_10</bpmn:incoming>
-    </bpmn:endEvent>
     <bpmn:task id="Task_InformPatientTemporaryError" name="Poinformuj recepcjonistę o błędzie systemu">
       <bpmn:incoming>Flow_Error_VerifyVisitStatus</bpmn:incoming>
       <bpmn:outgoing>Flow_End_SystemError</bpmn:outgoing>
@@ -109,7 +100,7 @@
     <bpmn:sequenceFlow id="Flow_6" sourceRef="Task_CancelVisitInSchedule" targetRef="Task_ReleaseVisitSlot" />
     <bpmn:sequenceFlow id="Flow_7" sourceRef="Task_ReleaseVisitSlot" targetRef="Task_UpdateVisitHistory" />
     <bpmn:sequenceFlow id="Flow_8" sourceRef="Task_UpdateVisitHistory" targetRef="Task_SendCancelNotification" />
-    <bpmn:sequenceFlow id="Flow_9" sourceRef="Task_SendCancelNotification" targetRef="EndEvent_Cancelled" />
+    <bpmn:sequenceFlow id="Flow_9" sourceRef="Task_SendCancelNotification" targetRef="Activity_1aq0zzu" />
     <bpmn:sequenceFlow id="Flow_10" sourceRef="Task_InformCannotCancel" targetRef="EndEvent_CannotCancel" />
     <bpmn:sequenceFlow id="Flow_Error_VerifyVisitStatus" sourceRef="BoundaryError_VerifyVisitStatus" targetRef="Task_InformPatientTemporaryError" />
     <bpmn:sequenceFlow id="Flow_End_SystemError" sourceRef="Task_InformPatientTemporaryError" targetRef="EndEvent_SystemError" />
@@ -117,68 +108,37 @@
     <bpmn:sequenceFlow id="Flow_End_AdminIntervention" sourceRef="Task_EscalateScheduleError" targetRef="EndEvent_AdminIntervention" />
     <bpmn:sequenceFlow id="Flow_Error_SendCancelNotification" sourceRef="BoundaryError_SendCancelNotification" targetRef="Task_SendManualCancelNotification" />
     <bpmn:sequenceFlow id="Flow_End_ManualNotification" sourceRef="Task_SendManualCancelNotification" targetRef="EndEvent_ManualNotification" />
-  </bpmn:process>
-  <bpmn:process id="Process_VisitCancelationClerk_Patient" name="Pacjent anuluje wizytę" isExecutable="false">
-    <bpmn:laneSet id="LaneSet_VisitCancelationClerk_Patient">
-      <bpmn:lane id="Lane_Patient" name="Pacjent">
-        <bpmn:flowNodeRef>StartEvent_PatientInitCancel</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Task_PatientWaitsForCancelConfirmation</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>EndEvent_PatientVisitCancelledConfirmed</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>EndEvent_PatientCancelRejectedInformed</bpmn:flowNodeRef>
-      </bpmn:lane>
-    </bpmn:laneSet>
-    <bpmn:startEvent id="StartEvent_PatientInitCancel" name="Chce odwołać wizytę">
-      <bpmn:outgoing>Flow_PatientCancel_1</bpmn:outgoing>
+    <bpmn:startEvent id="StartEvent_1" name="Pacjent zgłasza odwołanie wizyty w recepcji">
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_0tshb7r" />
     </bpmn:startEvent>
-    <bpmn:userTask id="Task_PatientWaitsForCancelConfirmation" name="Czeka na potwierdzenie anulowania">
-      <bpmn:incoming>Flow_PatientCancel_1</bpmn:incoming>
-      <bpmn:outgoing>Flow_PatientCancel_2</bpmn:outgoing>
-    </bpmn:userTask>
-    <bpmn:endEvent id="EndEvent_PatientVisitCancelledConfirmed" name="Wizyta anulowana – potwierdzono">
-      <bpmn:incoming>Flow_PatientCancel_2</bpmn:incoming>
+    <bpmn:endEvent id="EndEvent_Cancelled" name="Wizyta anulowana">
+      <bpmn:incoming>Flow_1bg02y3</bpmn:incoming>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_VisitCancelledToPatient" />
     </bpmn:endEvent>
-    <bpmn:endEvent id="EndEvent_PatientCancelRejectedInformed" name="Anulowanie odrzucone – poinformowano">
-      <bpmn:incoming>Flow_PatientCancel_3</bpmn:incoming>
+    <bpmn:sequenceFlow id="Flow_1bg02y3" sourceRef="Activity_1aq0zzu" targetRef="EndEvent_Cancelled" />
+    <bpmn:task id="Activity_1aq0zzu" name="Zwrot pieniędzy">
+      <bpmn:incoming>Flow_9</bpmn:incoming>
+      <bpmn:outgoing>Flow_1bg02y3</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="EndEvent_CannotCancel" name="Anulowanie odrzucone">
+      <bpmn:incoming>Flow_10</bpmn:incoming>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_15ejry1" />
     </bpmn:endEvent>
-    <bpmn:sequenceFlow id="Flow_PatientCancel_1" sourceRef="StartEvent_PatientInitCancel" targetRef="Task_PatientWaitsForCancelConfirmation" />
-    <bpmn:sequenceFlow id="Flow_PatientCancel_2" sourceRef="Task_PatientWaitsForCancelConfirmation" targetRef="EndEvent_PatientVisitCancelledConfirmed" />
-    <bpmn:sequenceFlow id="Flow_PatientCancel_3" sourceRef="EndEvent_CannotCancel" targetRef="EndEvent_PatientCancelRejectedInformed" />
   </bpmn:process>
   <bpmn:error id="Error_VerifyVisitStatus" name="Błąd systemu przy weryfikacji statusu wizyty" />
   <bpmn:error id="Error_CancelVisitInSchedule" name="Błąd anulowania wizyty w grafiku" />
   <bpmn:error id="Error_SendCancelNotification" name="Błąd wysyłki powiadomienia o anulowaniu" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_VisitCancelationClerk">
     <bpmndi:BPMNPlane id="BPMNPlane_VisitCancelationClerk" bpmnElement="Collab_VisitCancelationClerk">
-      <!-- Pool Pacjenta nad głównym poolem -->
-      <bpmndi:BPMNShape id="S_Pool_Patient_Cancel" bpmnElement="Pool_VisitCancelationClerk_Patient" isHorizontal="true">
-        <dc:Bounds x="120" y="-120" width="2200" height="150" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="S_Lane_Patient_Cancel" bpmnElement="Lane_Patient" isHorizontal="true">
-        <dc:Bounds x="150" y="-120" width="2170" height="150" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="S_StartEvent_PatientInitCancel" bpmnElement="StartEvent_PatientInitCancel">
-        <dc:Bounds x="202" y="-62" width="36" height="36" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="S_Task_PatientWaitsCancel" bpmnElement="Task_PatientWaitsForCancelConfirmation">
-        <dc:Bounds x="1680" y="-80" width="220" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="S_EndEvent_PatientCancelledConfirmed" bpmnElement="EndEvent_PatientVisitCancelledConfirmed">
-        <dc:Bounds x="1932" y="-62" width="36" height="36" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="S_EndEvent_PatientCancelRejectedInformed" bpmnElement="EndEvent_PatientCancelRejectedInformed">
-        <dc:Bounds x="2132" y="-62" width="36" height="36" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="S_Pool_VisitCancelationClerk" bpmnElement="Pool_VisitCancelationClerk" isHorizontal="true">
-        <dc:Bounds x="120" y="50" width="2200" height="470" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="S_Lane_Clerk" bpmnElement="Lane_Clerk" isHorizontal="true">
-        <dc:Bounds x="150" y="50" width="2170" height="210" />
+        <dc:Bounds x="120" y="50" width="2300" height="470" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="S_Lane_System" bpmnElement="Lane_System" isHorizontal="true">
-        <dc:Bounds x="150" y="260" width="2170" height="260" />
+        <dc:Bounds x="150" y="260" width="2270" height="260" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="S_StartEvent_1" bpmnElement="StartEvent_1">
-        <dc:Bounds x="202" y="132" width="36" height="36" />
+      <bpmndi:BPMNShape id="S_Lane_Clerk" bpmnElement="Lane_Clerk" isHorizontal="true">
+        <dc:Bounds x="150" y="50" width="2270" height="210" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="S_Task_FindVisit" bpmnElement="Task_FindVisit">
         <dc:Bounds x="280" y="110" width="200" height="80" />
@@ -204,11 +164,27 @@
       <bpmndi:BPMNShape id="S_Task_InformCannotCancel" bpmnElement="Task_InformCannotCancel">
         <dc:Bounds x="1020" y="110" width="280" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="S_EndEvent_Cancelled" bpmnElement="EndEvent_Cancelled">
-        <dc:Bounds x="2092" y="132" width="36" height="36" />
+      <bpmndi:BPMNShape id="Event_0jm7kqj_di" bpmnElement="StartEvent_1">
+        <dc:Bounds x="202" y="132" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="178" y="168" width="84" height="40" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="S_EndEvent_CannotCancel" bpmnElement="EndEvent_CannotCancel">
-        <dc:Bounds x="1352" y="132" width="36" height="36" />
+      <bpmndi:BPMNShape id="S_EndEvent_Cancelled" bpmnElement="EndEvent_Cancelled">
+        <dc:Bounds x="2212" y="132" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2186" y="168" width="89" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1aq0zzu_di" bpmnElement="Activity_1aq0zzu">
+        <dc:Bounds x="1895" y="110" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_08z112c_di" bpmnElement="EndEvent_CannotCancel">
+        <dc:Bounds x="1442" y="132" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1432" y="176" width="56" height="27" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="E_Flow_1" bpmnElement="Flow_1">
         <di:waypoint x="238" y="150" />
@@ -245,40 +221,31 @@
         <di:waypoint x="1830" y="390" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="E_Flow_9" bpmnElement="Flow_9">
-        <di:waypoint x="2060" y="350" />
-        <di:waypoint x="2060" y="150" />
-        <di:waypoint x="2092" y="150" />
+        <di:waypoint x="1945" y="350" />
+        <di:waypoint x="1945" y="190" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="E_Flow_10" bpmnElement="Flow_10">
         <di:waypoint x="1300" y="150" />
-        <di:waypoint x="1352" y="150" />
+        <di:waypoint x="1442" y="150" />
       </bpmndi:BPMNEdge>
-      <!-- Strzałki w poolu Pacjenta -->
-      <bpmndi:BPMNEdge id="E_Flow_PatientCancel_1" bpmnElement="Flow_PatientCancel_1">
-        <di:waypoint x="238" y="-44" />
-        <di:waypoint x="1680" y="-44" />
+      <bpmndi:BPMNEdge id="Flow_1bg02y3_di" bpmnElement="Flow_1bg02y3">
+        <di:waypoint x="1995" y="150" />
+        <di:waypoint x="2212" y="150" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="E_Flow_PatientCancel_2" bpmnElement="Flow_PatientCancel_2">
-        <di:waypoint x="1900" y="-44" />
-        <di:waypoint x="1932" y="-44" />
+      <bpmndi:BPMNShape id="Participant_06w37no_di" bpmnElement="Pool_VisitCancelationClerk_Patient" isHorizontal="true">
+        <dc:Bounds x="120" y="-80" width="2200" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0wrxtlx_di" bpmnElement="Flow_0wrxtlx">
+        <di:waypoint x="220" y="-20" />
+        <di:waypoint x="220" y="132" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="E_Flow_PatientCancel_3" bpmnElement="Flow_PatientCancel_3">
-        <di:waypoint x="2110" y="150" />
-        <di:waypoint x="2110" y="-44" />
-        <di:waypoint x="2132" y="-44" />
+      <bpmndi:BPMNEdge id="Flow_175uxov_di" bpmnElement="Flow_175uxov">
+        <di:waypoint x="2230" y="132" />
+        <di:waypoint x="2230" y="-20" />
       </bpmndi:BPMNEdge>
-      <!-- Message flows między poolami -->
-      <bpmndi:BPMNEdge id="E_MF_Cancel_PatientToClerk" bpmnElement="Flow_VisitCancel_PatientToClerk">
-        <di:waypoint x="220" y="-26" />
-        <di:waypoint x="220" y="142" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="E_MF_Cancel_SystemToPatient" bpmnElement="Flow_VisitCancel_SystemToPatient">
-        <di:waypoint x="2110" y="168" />
-        <di:waypoint x="2110" y="-26" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="E_MF_Cancel_RejectedToPatient" bpmnElement="Flow_VisitCancel_RejectedToPatient">
-        <di:waypoint x="1370" y="150" />
-        <di:waypoint x="2132" y="-26" />
+      <bpmndi:BPMNEdge id="Flow_07ytig1_di" bpmnElement="Flow_07ytig1">
+        <di:waypoint x="1460" y="132" />
+        <di:waypoint x="1460" y="-20" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

@@ -2,6 +2,9 @@
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_VisitRegistrationClerk" targetNamespace="http://bpmn.io/schema/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.13.1">
   <bpmn:collaboration id="Collab_VisitRegistrationClerk">
     <bpmn:participant id="Pool_VisitRegistrationClerk" name="Rejestracja wizyty przez recepcjonistę" processRef="Process_VisitRegistrationClerk" />
+    <bpmn:participant id="Pool_VisitRegistrationClerk_Patient" name="Pacjent" processRef="Process_VisitRegistrationClerk_Patient" />
+    <bpmn:messageFlow id="Flow_VisitReg_PatientToClerk" sourceRef="EndEvent_PatientRequestSent" targetRef="StartEvent_1" />
+    <bpmn:messageFlow id="Flow_VisitReg_SystemToPatient" sourceRef="EndEvent_Registered" targetRef="IntermediateCatchEvent_PatientConfirmationReceived" />
   </bpmn:collaboration>
   <bpmn:process id="Process_VisitRegistrationClerk" name="Rejestracja wizyty przez recepcjonistę" isExecutable="false">
     <bpmn:laneSet id="LaneSet_VisitRegistrationClerk">
@@ -34,6 +37,10 @@
       <bpmn:incoming>Flow_3</bpmn:incoming>
       <bpmn:outgoing>Flow_4</bpmn:outgoing>
     </bpmn:serviceTask>
+    <bpmn:boundaryEvent id="BoundaryError_ValidateSlotAvailability" name="Błąd systemu przy sprawdzaniu dostępności" attachedToRef="Task_ValidateSlotAvailability">
+      <bpmn:outgoing>Flow_Error_ValidateSlotAvailability</bpmn:outgoing>
+      <bpmn:errorEventDefinition errorRef="Error_ValidateSlotAvailability" />
+    </bpmn:boundaryEvent>
     <bpmn:exclusiveGateway id="Gateway_SlotAvailable" name="Czy termin jest dostępny?" default="Flow_5">
       <bpmn:incoming>Flow_4</bpmn:incoming>
       <bpmn:outgoing>Flow_5</bpmn:outgoing>
@@ -57,15 +64,45 @@
       <bpmn:incoming>Flow_10</bpmn:incoming>
       <bpmn:outgoing>Flow_11</bpmn:outgoing>
     </bpmn:serviceTask>
+    <bpmn:boundaryEvent id="BoundaryError_AddVisitToDoctorSchedule" name="Błąd dodawania wizyty do grafiku" attachedToRef="Task_AddVisitToDoctorSchedule">
+      <bpmn:outgoing>Flow_Error_AddVisitToDoctorSchedule</bpmn:outgoing>
+      <bpmn:errorEventDefinition errorRef="Error_AddVisitToDoctorSchedule" />
+    </bpmn:boundaryEvent>
     <bpmn:serviceTask id="Task_SendRegistrationConfirmation" name="Wygeneruj i wyślij potwierdzenie wizyty">
       <bpmn:incoming>Flow_11</bpmn:incoming>
       <bpmn:outgoing>Flow_12</bpmn:outgoing>
     </bpmn:serviceTask>
+    <bpmn:boundaryEvent id="BoundaryError_SendRegistrationConfirmation" name="Błąd wysyłki potwierdzenia" attachedToRef="Task_SendRegistrationConfirmation">
+      <bpmn:outgoing>Flow_Error_SendRegistrationConfirmation</bpmn:outgoing>
+      <bpmn:errorEventDefinition errorRef="Error_SendRegistrationConfirmation" />
+    </bpmn:boundaryEvent>
     <bpmn:endEvent id="EndEvent_Registered" name="Wizyta zarejestrowana">
       <bpmn:incoming>Flow_12</bpmn:incoming>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_VisitRegisteredToPatient" />
     </bpmn:endEvent>
     <bpmn:endEvent id="EndEvent_Cancelled" name="Rejestracja przerwana">
       <bpmn:incoming>Flow_9</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:task id="Task_InformPatientSystemError" name="Poinformuj pacjenta o błędzie systemu">
+      <bpmn:incoming>Flow_Error_ValidateSlotAvailability</bpmn:incoming>
+      <bpmn:outgoing>Flow_End_SystemError</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="EndEvent_SystemError" name="Rejestracja nieudana – błąd systemu">
+      <bpmn:incoming>Flow_End_SystemError</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:task id="Task_InformClerkScheduleError" name="Poinformuj recepcjonistę o błędzie grafiku">
+      <bpmn:incoming>Flow_Error_AddVisitToDoctorSchedule</bpmn:incoming>
+      <bpmn:outgoing>Flow_End_ScheduleError</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="EndEvent_ScheduleError" name="Rejestracja nieudana – błąd grafiku">
+      <bpmn:incoming>Flow_End_ScheduleError</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:task id="Task_SaveVisitAndSendConfirmationManually" name="Zapisz wizytę i wyślij potwierdzenie manualnie">
+      <bpmn:incoming>Flow_Error_SendRegistrationConfirmation</bpmn:incoming>
+      <bpmn:outgoing>Flow_End_ManualConfirmation</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="EndEvent_ManualConfirmation" name="Wizyta zarejestrowana – potwierdzenie wysłane ręcznie">
+      <bpmn:incoming>Flow_End_ManualConfirmation</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_1" targetRef="Task_CollectPatientData" />
     <bpmn:sequenceFlow id="Flow_2" sourceRef="Task_CollectPatientData" targetRef="Task_SelectPreferredSlot" />
@@ -79,11 +116,52 @@
     <bpmn:sequenceFlow id="Flow_10" sourceRef="Task_AssignDoctor" targetRef="Task_AddVisitToDoctorSchedule" />
     <bpmn:sequenceFlow id="Flow_11" sourceRef="Task_AddVisitToDoctorSchedule" targetRef="Task_SendRegistrationConfirmation" />
     <bpmn:sequenceFlow id="Flow_12" sourceRef="Task_SendRegistrationConfirmation" targetRef="EndEvent_Registered" />
+    <bpmn:sequenceFlow id="Flow_Error_ValidateSlotAvailability" sourceRef="BoundaryError_ValidateSlotAvailability" targetRef="Task_InformPatientSystemError" />
+    <bpmn:sequenceFlow id="Flow_End_SystemError" sourceRef="Task_InformPatientSystemError" targetRef="EndEvent_SystemError" />
+    <bpmn:sequenceFlow id="Flow_Error_AddVisitToDoctorSchedule" sourceRef="BoundaryError_AddVisitToDoctorSchedule" targetRef="Task_InformClerkScheduleError" />
+    <bpmn:sequenceFlow id="Flow_End_ScheduleError" sourceRef="Task_InformClerkScheduleError" targetRef="EndEvent_ScheduleError" />
+    <bpmn:sequenceFlow id="Flow_Error_SendRegistrationConfirmation" sourceRef="BoundaryError_SendRegistrationConfirmation" targetRef="Task_SaveVisitAndSendConfirmationManually" />
+    <bpmn:sequenceFlow id="Flow_End_ManualConfirmation" sourceRef="Task_SaveVisitAndSendConfirmationManually" targetRef="EndEvent_ManualConfirmation" />
     <bpmn:startEvent id="StartEvent_1" name="Pacjent zgłasza chęć rejestracji w recepcji">
       <bpmn:outgoing>Flow_1</bpmn:outgoing>
       <bpmn:messageEventDefinition id="MessageEventDefinition_04wv2j0" />
     </bpmn:startEvent>
   </bpmn:process>
+  <bpmn:process id="Process_VisitRegistrationClerk_Patient" name="Pacjent inicjuje rejestrację wizyty" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_VisitRegistrationClerk_Patient">
+      <bpmn:lane id="Lane_Patient" name="Pacjent">
+        <bpmn:flowNodeRef>StartEvent_PatientInit</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_RequestVisitRegistration</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_PatientRequestSent</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>IntermediateCatchEvent_PatientConfirmationReceived</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_PatientConfirmationReceived</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="StartEvent_PatientInit" name="Pacjent chce zarejestrować wizytę">
+      <bpmn:outgoing>Flow_Patient_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="Task_RequestVisitRegistration" name="Zgłoś w recepcji prośbę o rejestrację wizyty">
+      <bpmn:incoming>Flow_Patient_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_Patient_2</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:intermediateThrowEvent id="EndEvent_PatientRequestSent" name="Żądanie rejestracji wysłane do recepcji">
+      <bpmn:incoming>Flow_Patient_2</bpmn:incoming>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_PatientToClerk" />
+    </bpmn:intermediateThrowEvent>
+    <bpmn:intermediateCatchEvent id="IntermediateCatchEvent_PatientConfirmationReceived" name="Potwierdzenie wizyty otrzymane">
+      <bpmn:outgoing>Flow_Patient_3</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_ClerkToPatient" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:endEvent id="EndEvent_PatientConfirmationReceived" name="Potwierdzenie otrzymane">
+      <bpmn:incoming>Flow_Patient_3</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_Patient_1" sourceRef="StartEvent_PatientInit" targetRef="Task_RequestVisitRegistration" />
+    <bpmn:sequenceFlow id="Flow_Patient_2" sourceRef="Task_RequestVisitRegistration" targetRef="EndEvent_PatientRequestSent" />
+    <bpmn:sequenceFlow id="Flow_Patient_3" sourceRef="IntermediateCatchEvent_PatientConfirmationReceived" targetRef="EndEvent_PatientConfirmationReceived" />
+  </bpmn:process>
+  <bpmn:error id="Error_ValidateSlotAvailability" name="Błąd systemu przy sprawdzaniu dostępności terminu" />
+  <bpmn:error id="Error_AddVisitToDoctorSchedule" name="Błąd dodawania wizyty do grafiku" />
+  <bpmn:error id="Error_SendRegistrationConfirmation" name="Błąd wysyłki potwierdzenia do pacjenta" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_VisitRegistrationClerk">
     <bpmndi:BPMNPlane id="BPMNPlane_VisitRegistrationClerk" bpmnElement="Collab_VisitRegistrationClerk">
       <bpmndi:BPMNShape id="S_Pool_VisitRegistrationClerk" bpmnElement="Pool_VisitRegistrationClerk" isHorizontal="true">

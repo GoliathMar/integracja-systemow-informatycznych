@@ -2,6 +2,9 @@
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_VisitCancelationClerk" targetNamespace="http://bpmn.io/schema/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.13.1">
   <bpmn:collaboration id="Collab_VisitCancelationClerk">
     <bpmn:participant id="Pool_VisitCancelationClerk" name="Anulowanie wizyty przez recepcjonistę" processRef="Process_VisitCancelationClerk" />
+    <bpmn:participant id="Pool_VisitCancelationClerk_Patient" name="Pacjent" processRef="Process_VisitCancelationClerk_Patient" />
+    <bpmn:messageFlow id="Flow_VisitCancel_PatientToClerk" sourceRef="EndEvent_PatientCancelRequestSent" targetRef="StartEvent_1" />
+    <bpmn:messageFlow id="Flow_VisitCancel_SystemToPatient" sourceRef="EndEvent_Cancelled" targetRef="IntermediateCatchEvent_PatientCancelConfirmationReceived" />
   </bpmn:collaboration>
   <bpmn:process id="Process_VisitCancelationClerk" name="Anulowanie wizyty przez recepcjonistę" isExecutable="false">
     <bpmn:laneSet id="LaneSet_VisitCancelationClerk">
@@ -32,6 +35,10 @@
       <bpmn:incoming>Flow_2</bpmn:incoming>
       <bpmn:outgoing>Flow_3</bpmn:outgoing>
     </bpmn:serviceTask>
+    <bpmn:boundaryEvent id="BoundaryError_VerifyVisitStatus" name="Błąd systemu przy weryfikacji wizyty" attachedToRef="Task_VerifyVisitStatus">
+      <bpmn:outgoing>Flow_Error_VerifyVisitStatus</bpmn:outgoing>
+      <bpmn:errorEventDefinition errorRef="Error_VerifyVisitStatus" />
+    </bpmn:boundaryEvent>
     <bpmn:exclusiveGateway id="Gateway_CanCancelVisit" name="Czy wizytę można anulować?" default="Flow_4">
       <bpmn:incoming>Flow_3</bpmn:incoming>
       <bpmn:outgoing>Flow_4</bpmn:outgoing>
@@ -41,6 +48,10 @@
       <bpmn:incoming>Flow_4</bpmn:incoming>
       <bpmn:outgoing>Flow_6</bpmn:outgoing>
     </bpmn:serviceTask>
+    <bpmn:boundaryEvent id="BoundaryError_CancelVisitInSchedule" name="Błąd anulowania wizyty w grafiku" attachedToRef="Task_CancelVisitInSchedule">
+      <bpmn:outgoing>Flow_Error_CancelVisitInSchedule</bpmn:outgoing>
+      <bpmn:errorEventDefinition errorRef="Error_CancelVisitInSchedule" />
+    </bpmn:boundaryEvent>
     <bpmn:serviceTask id="Task_ReleaseVisitSlot" name="Zwolnij termin wizyty">
       <bpmn:incoming>Flow_6</bpmn:incoming>
       <bpmn:outgoing>Flow_7</bpmn:outgoing>
@@ -53,15 +64,41 @@
       <bpmn:incoming>Flow_8</bpmn:incoming>
       <bpmn:outgoing>Flow_9</bpmn:outgoing>
     </bpmn:serviceTask>
+    <bpmn:boundaryEvent id="BoundaryError_SendCancelNotification" name="Błąd wysyłki powiadomienia o anulowaniu" attachedToRef="Task_SendCancelNotification">
+      <bpmn:outgoing>Flow_Error_SendCancelNotification</bpmn:outgoing>
+      <bpmn:errorEventDefinition errorRef="Error_SendCancelNotification" />
+    </bpmn:boundaryEvent>
     <bpmn:userTask id="Task_InformCannotCancel" name="Poinformuj pacjenta o braku możliwości anulowania">
       <bpmn:incoming>Flow_5</bpmn:incoming>
       <bpmn:outgoing>Flow_10</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:endEvent id="EndEvent_Cancelled" name="Wizyta anulowana">
       <bpmn:incoming>Flow_9</bpmn:incoming>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_VisitCancelledToPatient" />
     </bpmn:endEvent>
     <bpmn:endEvent id="EndEvent_CannotCancel" name="Anulowanie odrzucone">
       <bpmn:incoming>Flow_10</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:task id="Task_InformPatientTemporaryError" name="Poinformuj pacjenta o tymczasowym błędzie">
+      <bpmn:incoming>Flow_Error_VerifyVisitStatus</bpmn:incoming>
+      <bpmn:outgoing>Flow_End_SystemError</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="EndEvent_SystemError" name="Anulowanie nieudane – błąd systemu">
+      <bpmn:incoming>Flow_End_SystemError</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:task id="Task_EscalateScheduleError" name="Eskaluj do administratora systemu">
+      <bpmn:incoming>Flow_Error_CancelVisitInSchedule</bpmn:incoming>
+      <bpmn:outgoing>Flow_End_AdminIntervention</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="EndEvent_AdminIntervention" name="Anulowanie nieudane – wymaga interwencji">
+      <bpmn:incoming>Flow_End_AdminIntervention</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:task id="Task_SendManualCancelNotification" name="Wyślij powiadomienie ręcznie lub przez inny kanał">
+      <bpmn:incoming>Flow_Error_SendCancelNotification</bpmn:incoming>
+      <bpmn:outgoing>Flow_End_ManualNotification</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="EndEvent_ManualNotification" name="Wizyta anulowana – powiadomienie wysłane ręcznie">
+      <bpmn:incoming>Flow_End_ManualNotification</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_1" targetRef="Task_FindVisit" />
     <bpmn:sequenceFlow id="Flow_2" sourceRef="Task_FindVisit" targetRef="Task_VerifyVisitStatus" />
@@ -73,7 +110,48 @@
     <bpmn:sequenceFlow id="Flow_8" sourceRef="Task_UpdateVisitHistory" targetRef="Task_SendCancelNotification" />
     <bpmn:sequenceFlow id="Flow_9" sourceRef="Task_SendCancelNotification" targetRef="EndEvent_Cancelled" />
     <bpmn:sequenceFlow id="Flow_10" sourceRef="Task_InformCannotCancel" targetRef="EndEvent_CannotCancel" />
+    <bpmn:sequenceFlow id="Flow_Error_VerifyVisitStatus" sourceRef="BoundaryError_VerifyVisitStatus" targetRef="Task_InformPatientTemporaryError" />
+    <bpmn:sequenceFlow id="Flow_End_SystemError" sourceRef="Task_InformPatientTemporaryError" targetRef="EndEvent_SystemError" />
+    <bpmn:sequenceFlow id="Flow_Error_CancelVisitInSchedule" sourceRef="BoundaryError_CancelVisitInSchedule" targetRef="Task_EscalateScheduleError" />
+    <bpmn:sequenceFlow id="Flow_End_AdminIntervention" sourceRef="Task_EscalateScheduleError" targetRef="EndEvent_AdminIntervention" />
+    <bpmn:sequenceFlow id="Flow_Error_SendCancelNotification" sourceRef="BoundaryError_SendCancelNotification" targetRef="Task_SendManualCancelNotification" />
+    <bpmn:sequenceFlow id="Flow_End_ManualNotification" sourceRef="Task_SendManualCancelNotification" targetRef="EndEvent_ManualNotification" />
   </bpmn:process>
+  <bpmn:process id="Process_VisitCancelationClerk_Patient" name="Pacjent anuluje wizytę" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_VisitCancelationClerk_Patient">
+      <bpmn:lane id="Lane_Patient" name="Pacjent">
+        <bpmn:flowNodeRef>StartEvent_PatientInitCancel</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_RequestVisitCancelAtReception</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_PatientCancelRequestSent</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>IntermediateCatchEvent_PatientCancelConfirmationReceived</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_PatientCancelConfirmationReceived</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="StartEvent_PatientInitCancel" name="Pacjent chce anulować wizytę">
+      <bpmn:outgoing>Flow_PatientCancel_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="Task_RequestVisitCancelAtReception" name="Zgłoś w recepcji prośbę o anulowanie wizyty">
+      <bpmn:incoming>Flow_PatientCancel_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_PatientCancel_2</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:intermediateThrowEvent id="EndEvent_PatientCancelRequestSent" name="Żądanie anulowania wysłane do recepcji">
+      <bpmn:incoming>Flow_PatientCancel_2</bpmn:incoming>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_PatientToClerkCancel" />
+    </bpmn:intermediateThrowEvent>
+    <bpmn:intermediateCatchEvent id="IntermediateCatchEvent_PatientCancelConfirmationReceived" name="Potwierdzenie anulowania otrzymane">
+      <bpmn:outgoing>Flow_PatientCancel_3</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_ClerkToPatientCancel" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:endEvent id="EndEvent_PatientCancelConfirmationReceived" name="Potwierdzenie otrzymane">
+      <bpmn:incoming>Flow_PatientCancel_3</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_PatientCancel_1" sourceRef="StartEvent_PatientInitCancel" targetRef="Task_RequestVisitCancelAtReception" />
+    <bpmn:sequenceFlow id="Flow_PatientCancel_2" sourceRef="Task_RequestVisitCancelAtReception" targetRef="EndEvent_PatientCancelRequestSent" />
+    <bpmn:sequenceFlow id="Flow_PatientCancel_3" sourceRef="IntermediateCatchEvent_PatientCancelConfirmationReceived" targetRef="EndEvent_PatientCancelConfirmationReceived" />
+  </bpmn:process>
+  <bpmn:error id="Error_VerifyVisitStatus" name="Błąd systemu przy weryfikacji statusu wizyty" />
+  <bpmn:error id="Error_CancelVisitInSchedule" name="Błąd anulowania wizyty w grafiku" />
+  <bpmn:error id="Error_SendCancelNotification" name="Błąd wysyłki powiadomienia o anulowaniu" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_VisitCancelationClerk">
     <bpmndi:BPMNPlane id="BPMNPlane_VisitCancelationClerk" bpmnElement="Collab_VisitCancelationClerk">
       <bpmndi:BPMNShape id="S_Pool_VisitCancelationClerk" bpmnElement="Pool_VisitCancelationClerk" isHorizontal="true">

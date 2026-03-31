@@ -5,6 +5,7 @@
     <bpmn:participant id="Pool_VisitRegistrationClerk_Patient" name="Pacjent" processRef="Process_VisitRegistrationClerk_Patient" />
     <bpmn:messageFlow id="Flow_VisitReg_PatientToClerk" sourceRef="StartEvent_PatientInit" targetRef="StartEvent_1" />
     <bpmn:messageFlow id="Flow_VisitReg_SystemToPatient" sourceRef="EndEvent_Registered" targetRef="Task_PatientWaitsForConfirmation" />
+    <bpmn:messageFlow id="Flow_Reg_FailedToPatient" sourceRef="EndEvent_Cancelled" targetRef="EndEvent_PatientRegistrationFailed" />
   </bpmn:collaboration>
   <bpmn:process id="Process_VisitRegistrationClerk" name="Rejestracja wizyty przez recepcjonistę" isExecutable="false">
     <bpmn:laneSet id="LaneSet_VisitRegistrationClerk">
@@ -133,6 +134,7 @@
         <bpmn:flowNodeRef>StartEvent_PatientInit</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_PatientWaitsForConfirmation</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>EndEvent_PatientVisitConfirmed</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_PatientRegistrationFailed</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
     <bpmn:startEvent id="StartEvent_PatientInit" name="Chce zarejestrować wizytę">
@@ -141,12 +143,17 @@
     <bpmn:userTask id="Task_PatientWaitsForConfirmation" name="Czeka na potwierdzenie rejestracji">
       <bpmn:incoming>Flow_Patient_1</bpmn:incoming>
       <bpmn:outgoing>Flow_Patient_2</bpmn:outgoing>
+      <bpmn:outgoing>Flow_PatientFailed_1</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:endEvent id="EndEvent_PatientVisitConfirmed" name="Wizyta potwierdzona">
       <bpmn:incoming>Flow_Patient_2</bpmn:incoming>
     </bpmn:endEvent>
+    <bpmn:endEvent id="EndEvent_PatientRegistrationFailed" name="Rejestracja nieudana – poinformowano">
+      <bpmn:incoming>Flow_PatientFailed_1</bpmn:incoming>
+    </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_Patient_1" sourceRef="StartEvent_PatientInit" targetRef="Task_PatientWaitsForConfirmation" />
     <bpmn:sequenceFlow id="Flow_Patient_2" sourceRef="Task_PatientWaitsForConfirmation" targetRef="EndEvent_PatientVisitConfirmed" />
+    <bpmn:sequenceFlow id="Flow_PatientFailed_1" sourceRef="Task_PatientWaitsForConfirmation" targetRef="EndEvent_PatientRegistrationFailed" />
   </bpmn:process>
   <bpmn:error id="Error_ValidateSlotAvailability" name="Błąd systemu przy sprawdzaniu dostępności terminu" />
   <bpmn:error id="Error_AddVisitToDoctorSchedule" name="Błąd dodawania wizyty do grafiku" />
@@ -168,6 +175,9 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="S_EndEvent_PatientConfirmed" bpmnElement="EndEvent_PatientVisitConfirmed">
         <dc:Bounds x="2362" y="-62" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_EndEvent_PatientFailed" bpmnElement="EndEvent_PatientRegistrationFailed">
+        <dc:Bounds x="1699" y="-62" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="S_Pool_VisitRegistrationClerk" bpmnElement="Pool_VisitRegistrationClerk" isHorizontal="true">
         <dc:Bounds x="120" y="50" width="2560" height="600" />
@@ -346,6 +356,10 @@
       <bpmndi:BPMNEdge id="E_MF_SystemToPatient" bpmnElement="Flow_VisitReg_SystemToPatient">
         <di:waypoint x="2400" y="160" />
         <di:waypoint x="2400" y="-26" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_MF_FailedToPatient" bpmnElement="Flow_Reg_FailedToPatient">
+        <di:waypoint x="1685" y="52" />
+        <di:waypoint x="1685" y="-44" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

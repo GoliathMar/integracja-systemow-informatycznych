@@ -143,17 +143,14 @@
     <bpmn:userTask id="Task_PatientWaitsForConfirmation" name="Czeka na potwierdzenie rejestracji">
       <bpmn:incoming>Flow_Patient_1</bpmn:incoming>
       <bpmn:outgoing>Flow_Patient_2</bpmn:outgoing>
-      <bpmn:outgoing>Flow_PatientFailed_1</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:endEvent id="EndEvent_PatientVisitConfirmed" name="Wizyta potwierdzona">
       <bpmn:incoming>Flow_Patient_2</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:endEvent id="EndEvent_PatientRegistrationFailed" name="Rejestracja nieudana – poinformowano">
-      <bpmn:incoming>Flow_PatientFailed_1</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_Patient_1" sourceRef="StartEvent_PatientInit" targetRef="Task_PatientWaitsForConfirmation" />
     <bpmn:sequenceFlow id="Flow_Patient_2" sourceRef="Task_PatientWaitsForConfirmation" targetRef="EndEvent_PatientVisitConfirmed" />
-    <bpmn:sequenceFlow id="Flow_PatientFailed_1" sourceRef="Task_PatientWaitsForConfirmation" targetRef="EndEvent_PatientRegistrationFailed" />
   </bpmn:process>
   <bpmn:error id="Error_ValidateSlotAvailability" name="Błąd systemu przy sprawdzaniu dostępności terminu" />
   <bpmn:error id="Error_AddVisitToDoctorSchedule" name="Błąd dodawania wizyty do grafiku" />
@@ -180,10 +177,10 @@
         <dc:Bounds x="1699" y="-62" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="S_Pool_VisitRegistrationClerk" bpmnElement="Pool_VisitRegistrationClerk" isHorizontal="true">
-        <dc:Bounds x="120" y="50" width="2560" height="600" />
+        <dc:Bounds x="120" y="50" width="2560" height="720" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="S_Lane_System" bpmnElement="Lane_System" isHorizontal="true">
-        <dc:Bounds x="150" y="270" width="2530" height="380" />
+        <dc:Bounds x="150" y="270" width="2530" height="500" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="S_Lane_Clerk" bpmnElement="Lane_Clerk" isHorizontal="true">
         <dc:Bounds x="150" y="50" width="2330" height="220" />
@@ -292,27 +289,27 @@
       <bpmndi:BPMNShape id="S_EndEvent_SystemError" bpmnElement="EndEvent_SystemError">
         <dc:Bounds x="1112" y="532" width="36" height="36" />
       </bpmndi:BPMNShape>
-      <!-- Boundary error event na Dodaj wizytę do grafiku -->
+      <!-- Boundary error event na Dodaj wizytę do grafiku - PRZESUNIĘTY W DÓŁ -->
       <bpmndi:BPMNShape id="S_BoundaryError_Schedule" bpmnElement="BoundaryError_AddVisitToDoctorSchedule">
         <dc:Bounds x="2002" y="422" width="36" height="36" />
       </bpmndi:BPMNShape>
-      <!-- Task i end event - błąd grafiku -->
+      <!-- Task i end event - błąd grafiku - PRZESUNIĘTE W DÓŁ -->
       <bpmndi:BPMNShape id="S_Task_ScheduleError" bpmnElement="Task_InformClerkScheduleError">
-        <dc:Bounds x="1930" y="510" width="240" height="80" />
+        <dc:Bounds x="1880" y="520" width="260" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="S_EndEvent_ScheduleError" bpmnElement="EndEvent_ScheduleError">
-        <dc:Bounds x="2232" y="532" width="36" height="36" />
+        <dc:Bounds x="1880" y="650" width="36" height="36" />
       </bpmndi:BPMNShape>
-      <!-- Boundary error event na Wyślij potwierdzenie -->
+      <!-- Boundary error event na Wyślij potwierdzenie - PRZESUNIĘTY W DÓŁ I W PRAWO -->
       <bpmndi:BPMNShape id="S_BoundaryError_Confirm" bpmnElement="BoundaryError_SendRegistrationConfirmation">
         <dc:Bounds x="2282" y="422" width="36" height="36" />
       </bpmndi:BPMNShape>
-      <!-- Task i end event - potwierdzenie manualne -->
+      <!-- Task i end event - potwierdzenie manualne - PRZESUNIĘTE W DÓŁ I W PRAWO -->
       <bpmndi:BPMNShape id="S_Task_ManualConfirm" bpmnElement="Task_SaveVisitAndSendConfirmationManually">
-        <dc:Bounds x="2210" y="510" width="220" height="80" />
+        <dc:Bounds x="2210" y="520" width="260" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="S_EndEvent_ManualConfirm" bpmnElement="EndEvent_ManualConfirmation">
-        <dc:Bounds x="2492" y="532" width="36" height="36" />
+        <dc:Bounds x="2330" y="650" width="36" height="36" />
       </bpmndi:BPMNShape>
       <!-- Strzałki ścieżek błędów -->
       <bpmndi:BPMNEdge id="E_Flow_Error_Validate" bpmnElement="Flow_Error_ValidateSlotAvailability">
@@ -325,19 +322,19 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="E_Flow_Error_Schedule" bpmnElement="Flow_Error_AddVisitToDoctorSchedule">
         <di:waypoint x="2020" y="458" />
-        <di:waypoint x="2020" y="510" />
+        <di:waypoint x="2020" y="520" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="E_Flow_End_ScheduleError" bpmnElement="Flow_End_ScheduleError">
-        <di:waypoint x="2170" y="550" />
-        <di:waypoint x="2232" y="550" />
+        <di:waypoint x="2010" y="600" />
+        <di:waypoint x="2010" y="650" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="E_Flow_Error_Confirm" bpmnElement="Flow_Error_SendRegistrationConfirmation">
         <di:waypoint x="2300" y="458" />
-        <di:waypoint x="2300" y="510" />
+        <di:waypoint x="2300" y="520" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="E_Flow_End_ManualConfirm" bpmnElement="Flow_End_ManualConfirmation">
-        <di:waypoint x="2430" y="550" />
-        <di:waypoint x="2492" y="550" />
+        <di:waypoint x="2340" y="600" />
+        <di:waypoint x="2348" y="650" />
       </bpmndi:BPMNEdge>
       <!-- Strzałki w poolu Pacjenta -->
       <bpmndi:BPMNEdge id="E_Flow_Patient_1" bpmnElement="Flow_Patient_1">

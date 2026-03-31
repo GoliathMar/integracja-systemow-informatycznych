@@ -2,9 +2,10 @@
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_ClerkRegistrationAdmin" targetNamespace="http://bpmn.io/schema/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.13.1">
   <bpmn:collaboration id="Collab_ClerkRegistrationAdmin">
     <bpmn:participant id="Pool_Registration" name="Rejestracja pracownika" processRef="Process_ClerkRegistrationAdmin" />
-    <bpmn:participant id="Participant_1ahnl3u" name="Rejestracja" />
+    <bpmn:participant id="Participant_1ahnl3u" name="Pracownik rejestracji" />
+    <bpmn:participant id="Participant_1nlshvf" name="Zarządca placówki" />
     <bpmn:messageFlow id="Flow_070mk1z" sourceRef="Event_08xcvdv" targetRef="Participant_1ahnl3u" />
-    <bpmn:messageFlow id="Flow_1hf9k57" sourceRef="Participant_1ahnl3u" targetRef="StartEvent_1" />
+    <bpmn:messageFlow id="Flow_0vhvr3b" sourceRef="Participant_1nlshvf" targetRef="StartEvent_1" />
   </bpmn:collaboration>
   <bpmn:process id="Process_ClerkRegistrationAdmin" name="Zakładanie konta rejestracji przez admina" isExecutable="false">
     <bpmn:laneSet id="LaneSet_Registration">
@@ -150,13 +151,18 @@
         <di:waypoint x="1612" y="330" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Participant_0a1ce90_di" bpmnElement="Participant_1ahnl3u" isHorizontal="true">
-        <dc:Bounds x="120" y="-70" width="1586" height="60" />
+        <dc:Bounds x="1400" y="-70" width="306" height="60" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_04d9izz" bpmnElement="Participant_1nlshvf" isHorizontal="true">
+        <dc:Bounds x="120" y="-70" width="300" height="60" />
+        <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_070mk1z_di" bpmnElement="Flow_070mk1z">
         <di:waypoint x="1630" y="312" />
         <di:waypoint x="1630" y="-10" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1hf9k57_di" bpmnElement="Flow_1hf9k57">
+      <bpmndi:BPMNEdge id="Flow_0vhvr3b_di" bpmnElement="Flow_0vhvr3b">
         <di:waypoint x="220" y="-10" />
         <di:waypoint x="220" y="132" />
       </bpmndi:BPMNEdge>

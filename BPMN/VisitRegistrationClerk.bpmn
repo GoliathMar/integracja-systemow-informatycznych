@@ -170,10 +170,10 @@
         <dc:Bounds x="2362" y="-62" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="S_Pool_VisitRegistrationClerk" bpmnElement="Pool_VisitRegistrationClerk" isHorizontal="true">
-        <dc:Bounds x="120" y="50" width="2360" height="500" />
+        <dc:Bounds x="120" y="50" width="2560" height="600" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="S_Lane_System" bpmnElement="Lane_System" isHorizontal="true">
-        <dc:Bounds x="150" y="270" width="2330" height="280" />
+        <dc:Bounds x="150" y="270" width="2530" height="380" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="S_Lane_Clerk" bpmnElement="Lane_Clerk" isHorizontal="true">
         <dc:Bounds x="150" y="50" width="2330" height="220" />
@@ -270,6 +270,64 @@
         <di:waypoint x="2320" y="360" />
         <di:waypoint x="2320" y="160" />
         <di:waypoint x="2382" y="160" />
+      </bpmndi:BPMNEdge>
+      <!-- Boundary error event na Sprawdź dostępność terminu -->
+      <bpmndi:BPMNShape id="S_BoundaryError_Validate" bpmnElement="BoundaryError_ValidateSlotAvailability">
+        <dc:Bounds x="912" y="422" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <!-- Task i end event - błąd systemu -->
+      <bpmndi:BPMNShape id="S_Task_SystemError" bpmnElement="Task_InformPatientSystemError">
+        <dc:Bounds x="840" y="510" width="220" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_EndEvent_SystemError" bpmnElement="EndEvent_SystemError">
+        <dc:Bounds x="1112" y="532" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <!-- Boundary error event na Dodaj wizytę do grafiku -->
+      <bpmndi:BPMNShape id="S_BoundaryError_Schedule" bpmnElement="BoundaryError_AddVisitToDoctorSchedule">
+        <dc:Bounds x="2002" y="422" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <!-- Task i end event - błąd grafiku -->
+      <bpmndi:BPMNShape id="S_Task_ScheduleError" bpmnElement="Task_InformClerkScheduleError">
+        <dc:Bounds x="1930" y="510" width="240" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_EndEvent_ScheduleError" bpmnElement="EndEvent_ScheduleError">
+        <dc:Bounds x="2232" y="532" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <!-- Boundary error event na Wyślij potwierdzenie -->
+      <bpmndi:BPMNShape id="S_BoundaryError_Confirm" bpmnElement="BoundaryError_SendRegistrationConfirmation">
+        <dc:Bounds x="2282" y="422" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <!-- Task i end event - potwierdzenie manualne -->
+      <bpmndi:BPMNShape id="S_Task_ManualConfirm" bpmnElement="Task_SaveVisitAndSendConfirmationManually">
+        <dc:Bounds x="2210" y="510" width="220" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_EndEvent_ManualConfirm" bpmnElement="EndEvent_ManualConfirmation">
+        <dc:Bounds x="2492" y="532" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <!-- Strzałki ścieżek błędów -->
+      <bpmndi:BPMNEdge id="E_Flow_Error_Validate" bpmnElement="Flow_Error_ValidateSlotAvailability">
+        <di:waypoint x="930" y="458" />
+        <di:waypoint x="930" y="510" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Flow_End_SystemError" bpmnElement="Flow_End_SystemError">
+        <di:waypoint x="1060" y="550" />
+        <di:waypoint x="1112" y="550" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Flow_Error_Schedule" bpmnElement="Flow_Error_AddVisitToDoctorSchedule">
+        <di:waypoint x="2020" y="458" />
+        <di:waypoint x="2020" y="510" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Flow_End_ScheduleError" bpmnElement="Flow_End_ScheduleError">
+        <di:waypoint x="2170" y="550" />
+        <di:waypoint x="2232" y="550" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Flow_Error_Confirm" bpmnElement="Flow_Error_SendRegistrationConfirmation">
+        <di:waypoint x="2300" y="458" />
+        <di:waypoint x="2300" y="510" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Flow_End_ManualConfirm" bpmnElement="Flow_End_ManualConfirmation">
+        <di:waypoint x="2430" y="550" />
+        <di:waypoint x="2492" y="550" />
       </bpmndi:BPMNEdge>
       <!-- Strzałki w poolu Pacjenta -->
       <bpmndi:BPMNEdge id="E_Flow_Patient_1" bpmnElement="Flow_Patient_1">

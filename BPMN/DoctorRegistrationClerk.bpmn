@@ -1,195 +1,273 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.13.1">
-  <bpmn:collaboration id="Collaboration_0d6ljj1">
-    <bpmn:participant id="Participant_06wexyt" name="System medyczny" processRef="Process_0sl8mmb" />
-    <bpmn:participant id="Participant_15g1c8i" name="Recepcjonista" processRef="Process_0rx01m4" />
-    <bpmn:messageFlow id="Flow_09uykzk" sourceRef="Event_14oifw3" targetRef="Activity_0b12lga" />
-    <bpmn:messageFlow id="Flow_127kmlg" sourceRef="Activity_0tdgzsd" targetRef="Event_0zwrc8h" />
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.13.2">
+  <bpmn:message id="Msg_DaneLek" name="Zatwierdzone dane lekarza" />
+  <bpmn:message id="Msg_Potwierdzenie" name="Potwierdzenie utworzenia konta" />
+  <bpmn:collaboration id="Collaboration_1">
+    <bpmn:participant id="Participant_Klinika" name="Klinika" processRef="Process_Klinika" />
+    <bpmn:participant id="Participant_System" name="System Medyczny" processRef="Process_System" />
+    <bpmn:messageFlow id="MF_DaneDo" name="Zatwierdzone dane lekarza" sourceRef="Event_SendSys" targetRef="StartEvent_Sys" />
+    <bpmn:messageFlow id="MF_Potwierdzenie" name="Potwierdzenie" sourceRef="EndEvent_Sys" targetRef="Event_CatchConfirm" />
   </bpmn:collaboration>
-  <bpmn:process id="Process_0sl8mmb">
-    <bpmn:laneSet id="LaneSet_1d7gtmd">
-      <bpmn:lane id="Lane_0xj91c3" name="System">
-        <bpmn:flowNodeRef>Activity_1cavf5h</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Event_0mrgwu2</bpmn:flowNodeRef>
+  <bpmn:process id="Process_Klinika" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_Klinika">
+      <bpmn:lane id="Lane_Admin" name="Administrator">
+        <bpmn:flowNodeRef>Task_4</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_5</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_SendSys</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_Admin</bpmn:flowNodeRef>
       </bpmn:lane>
-      <bpmn:lane id="Lane_111oc80" name="Administrator">
-        <bpmn:flowNodeRef>Activity_08a9ywk</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Gateway_06l79uq</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Activity_076wn9v</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Event_14oifw3</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Event_0zwrc8h</bpmn:flowNodeRef>
+      <bpmn:lane id="Lane_Rec" name="Recepcjonista">
+        <bpmn:flowNodeRef>Task_1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_2</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_3</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_CatchConfirm</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_Rec</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_04vpxcg</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
-    <bpmn:task id="Activity_08a9ywk" name="Weryfikuje dane lekarza">
-      <bpmn:incoming>Flow_0b45pgy</bpmn:incoming>
-      <bpmn:outgoing>Flow_132psf4</bpmn:outgoing>
+    <bpmn:task id="Task_1" name="Pobiera formularz z danymi lekarza">
+      <bpmn:incoming>Flow_1x41gun</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
     </bpmn:task>
-    <bpmn:exclusiveGateway id="Gateway_06l79uq" name="Czy dane kompletne?">
-      <bpmn:incoming>Flow_132psf4</bpmn:incoming>
-      <bpmn:outgoing>Flow_1evaem7</bpmn:outgoing>
-      <bpmn:outgoing>Flow_1oyqahl</bpmn:outgoing>
-    </bpmn:exclusiveGateway>
-    <bpmn:task id="Activity_076wn9v" name="Wprowadza dane do systemu">
-      <bpmn:incoming>Flow_1evaem7</bpmn:incoming>
-      <bpmn:outgoing>Flow_1a6hnsu</bpmn:outgoing>
+    <bpmn:task id="Task_2" name="Wprowadza dane lekarza">
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+      <bpmn:incoming>Flow_Nie</bpmn:incoming>
+      <bpmn:outgoing>Flow_3</bpmn:outgoing>
     </bpmn:task>
-    <bpmn:task id="Activity_1cavf5h" name="Tworzy konto i wysyła wiadomość z potwierdzeniem">
-      <bpmn:incoming>Flow_1rhxxrr</bpmn:incoming>
+    <bpmn:task id="Task_3" name="Wysyła żądanie rejestracji do administratora">
+      <bpmn:incoming>Flow_3</bpmn:incoming>
+      <bpmn:outgoing>Flow_4</bpmn:outgoing>
     </bpmn:task>
-    <bpmn:intermediateCatchEvent id="Event_0mrgwu2">
-      <bpmn:incoming>Flow_1a6hnsu</bpmn:incoming>
-      <bpmn:outgoing>Flow_1rhxxrr</bpmn:outgoing>
-      <bpmn:messageEventDefinition id="MessageEventDefinition_1nwc0e8" />
+    <bpmn:intermediateCatchEvent id="Event_CatchConfirm" name="Otrzymuje potwierdzenie">
+      <bpmn:outgoing>Flow_9</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MED_CatchConfirm" messageRef="Msg_Potwierdzenie" />
     </bpmn:intermediateCatchEvent>
-    <bpmn:intermediateThrowEvent id="Event_14oifw3">
-      <bpmn:incoming>Flow_1oyqahl</bpmn:incoming>
-      <bpmn:messageEventDefinition id="MessageEventDefinition_0d4k4x1" />
-    </bpmn:intermediateThrowEvent>
-    <bpmn:intermediateCatchEvent id="Event_0zwrc8h">
-      <bpmn:outgoing>Flow_0b45pgy</bpmn:outgoing>
-      <bpmn:messageEventDefinition id="MessageEventDefinition_005av2g" />
-    </bpmn:intermediateCatchEvent>
-    <bpmn:sequenceFlow id="Flow_0b45pgy" sourceRef="Event_0zwrc8h" targetRef="Activity_08a9ywk" />
-    <bpmn:sequenceFlow id="Flow_132psf4" sourceRef="Activity_08a9ywk" targetRef="Gateway_06l79uq" />
-    <bpmn:sequenceFlow id="Flow_1evaem7" name="Tak" sourceRef="Gateway_06l79uq" targetRef="Activity_076wn9v" />
-    <bpmn:sequenceFlow id="Flow_1oyqahl" name="Nie" sourceRef="Gateway_06l79uq" targetRef="Event_14oifw3" />
-    <bpmn:sequenceFlow id="Flow_1a6hnsu" sourceRef="Activity_076wn9v" targetRef="Event_0mrgwu2" />
-    <bpmn:sequenceFlow id="Flow_1rhxxrr" sourceRef="Event_0mrgwu2" targetRef="Activity_1cavf5h" />
-  </bpmn:process>
-  <bpmn:process id="Process_0rx01m4">
-    <bpmn:task id="Activity_0b12lga" name="Wprowadza dane lekarza">
-      <bpmn:incoming>Flow_1khaddv</bpmn:incoming>
-      <bpmn:outgoing>Flow_1a1hnse</bpmn:outgoing>
-    </bpmn:task>
-    <bpmn:task id="Activity_0tdgzsd" name="Wysyła żądanie do administratora">
-      <bpmn:incoming>Flow_1a1hnse</bpmn:incoming>
-      <bpmn:outgoing>Flow_1w4z6ev</bpmn:outgoing>
-    </bpmn:task>
-    <bpmn:endEvent id="Event_1h35o3c">
-      <bpmn:incoming>Flow_1w4z6ev</bpmn:incoming>
-      <bpmn:messageEventDefinition id="MessageEventDefinition_0od4ka5" />
+    <bpmn:endEvent id="EndEvent_Rec" name="Konto lekarza aktywne">
+      <bpmn:incoming>Flow_9</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:startEvent id="StartEvent_1" name="Otrzymuje formularz z danymi lekarza">
-      <bpmn:outgoing>Flow_1khaddv</bpmn:outgoing>
-      <bpmn:messageEventDefinition id="MessageEventDefinition_0q27lvf" />
+    <bpmn:startEvent id="Event_04vpxcg" name="Otrzymuje formularz z danymi lekarza">
+      <bpmn:outgoing>Flow_1x41gun</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_1ddvq8o" />
     </bpmn:startEvent>
-    <bpmn:sequenceFlow id="Flow_1khaddv" sourceRef="StartEvent_1" targetRef="Activity_0b12lga" />
-    <bpmn:sequenceFlow id="Flow_1a1hnse" sourceRef="Activity_0b12lga" targetRef="Activity_0tdgzsd" />
-    <bpmn:sequenceFlow id="Flow_1w4z6ev" sourceRef="Activity_0tdgzsd" targetRef="Event_1h35o3c" />
+    <bpmn:task id="Task_4" name="Weryfikuje dane lekarza">
+      <bpmn:incoming>Flow_4</bpmn:incoming>
+      <bpmn:outgoing>Flow_5</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_5" name="Zatwierdza i przekazuje dane do systemu">
+      <bpmn:incoming>Flow_Tak</bpmn:incoming>
+      <bpmn:outgoing>Flow_6</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="Gateway_1" name="Czy dane kompletne i poprawne?">
+      <bpmn:incoming>Flow_5</bpmn:incoming>
+      <bpmn:outgoing>Flow_Tak</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Nie</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:intermediateThrowEvent id="Event_SendSys" name="Wysyła dane do systemu">
+      <bpmn:incoming>Flow_6</bpmn:incoming>
+      <bpmn:outgoing>Flow_7</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MED_SendSys" messageRef="Msg_DaneLek" />
+    </bpmn:intermediateThrowEvent>
+    <bpmn:endEvent id="EndEvent_Admin" name="Dane przekazane do systemu">
+      <bpmn:incoming>Flow_7</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1x41gun" sourceRef="Event_04vpxcg" targetRef="Task_1" />
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Task_1" targetRef="Task_2" />
+    <bpmn:sequenceFlow id="Flow_Nie" name="Nie" sourceRef="Gateway_1" targetRef="Task_2" />
+    <bpmn:sequenceFlow id="Flow_3" sourceRef="Task_2" targetRef="Task_3" />
+    <bpmn:sequenceFlow id="Flow_4" sourceRef="Task_3" targetRef="Task_4" />
+    <bpmn:sequenceFlow id="Flow_9" sourceRef="Event_CatchConfirm" targetRef="EndEvent_Rec" />
+    <bpmn:sequenceFlow id="Flow_5" sourceRef="Task_4" targetRef="Gateway_1" />
+    <bpmn:sequenceFlow id="Flow_Tak" name="Tak" sourceRef="Gateway_1" targetRef="Task_5" />
+    <bpmn:sequenceFlow id="Flow_6" sourceRef="Task_5" targetRef="Event_SendSys" />
+    <bpmn:sequenceFlow id="Flow_7" sourceRef="Event_SendSys" targetRef="EndEvent_Admin" />
+  </bpmn:process>
+  <bpmn:process id="Process_System" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_System">
+      <bpmn:lane id="Lane_System" name="System">
+        <bpmn:flowNodeRef>StartEvent_Sys</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Sys</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_Sys</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="StartEvent_Sys" name="Odebranie zatwierdzonych danych">
+      <bpmn:outgoing>Flow_Sys1</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MED_SysStart" messageRef="Msg_DaneLek" />
+    </bpmn:startEvent>
+    <bpmn:task id="Task_Sys" name="Tworzy konto i generuje powiadomienie">
+      <bpmn:incoming>Flow_Sys1</bpmn:incoming>
+      <bpmn:outgoing>Flow_Sys2</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="EndEvent_Sys" name="Wysłanie potwierdzenia">
+      <bpmn:incoming>Flow_Sys2</bpmn:incoming>
+      <bpmn:messageEventDefinition id="MED_SysEnd" messageRef="Msg_Potwierdzenie" />
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_Sys1" sourceRef="StartEvent_Sys" targetRef="Task_Sys" />
+    <bpmn:sequenceFlow id="Flow_Sys2" sourceRef="Task_Sys" targetRef="EndEvent_Sys" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
-    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_0d6ljj1">
-      <bpmndi:BPMNShape id="Participant_06wexyt_di" bpmnElement="Participant_06wexyt" isHorizontal="true">
-        <dc:Bounds x="123" y="21" width="1477" height="388" />
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1">
+      <bpmndi:BPMNShape id="Participant_Klinika_di" bpmnElement="Participant_Klinika" isHorizontal="true">
+        <dc:Bounds x="120" y="80" width="1810" height="380" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Lane_0xj91c3_di" bpmnElement="Lane_0xj91c3" isHorizontal="true">
-        <dc:Bounds x="153" y="239" width="1447" height="170" />
+      <bpmndi:BPMNShape id="Lane_Rec_di" bpmnElement="Lane_Rec" isHorizontal="true">
+        <dc:Bounds x="150" y="80" width="1780" height="190" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Lane_111oc80_di" bpmnElement="Lane_111oc80" isHorizontal="true">
-        <dc:Bounds x="153" y="21" width="1447" height="218" />
+      <bpmndi:BPMNShape id="Lane_Admin_di" bpmnElement="Lane_Admin" isHorizontal="true">
+        <dc:Bounds x="150" y="270" width="1780" height="190" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_08a9ywk_di" bpmnElement="Activity_08a9ywk">
-        <dc:Bounds x="800" y="69" width="100" height="80" />
+      <bpmndi:BPMNShape id="Task_1_di" bpmnElement="Task_1">
+        <dc:Bounds x="300" y="130" width="160" height="80" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_06l79uq_di" bpmnElement="Gateway_06l79uq" isMarkerVisible="true">
-        <dc:Bounds x="955" y="84" width="50" height="50" />
+      <bpmndi:BPMNShape id="Task_2_di" bpmnElement="Task_2">
+        <dc:Bounds x="520" y="130" width="160" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_3_di" bpmnElement="Task_3">
+        <dc:Bounds x="740" y="130" width="160" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_CatchConfirm_di" bpmnElement="Event_CatchConfirm">
+        <dc:Bounds x="1672" y="152" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="952" y="47" width="57" height="27" />
+          <dc:Bounds x="1656" y="114.5" width="68" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_076wn9v_di" bpmnElement="Activity_076wn9v">
-        <dc:Bounds x="1080" y="69" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1cavf5h_di" bpmnElement="Activity_1cavf5h">
-        <dc:Bounds x="1260" y="279" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0lciosx_di" bpmnElement="Event_0mrgwu2">
-        <dc:Bounds x="1112" y="301" width="36" height="36" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_14oifw3_di" bpmnElement="Event_14oifw3">
-        <dc:Bounds x="532" y="91" width="36" height="36" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1rgm20o_di" bpmnElement="Event_0zwrc8h">
-        <dc:Bounds x="702" y="91" width="36" height="36" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="Flow_0b45pgy_di" bpmnElement="Flow_0b45pgy">
-        <di:waypoint x="738" y="109" />
-        <di:waypoint x="800" y="109" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_132psf4_di" bpmnElement="Flow_132psf4">
-        <di:waypoint x="900" y="109" />
-        <di:waypoint x="955" y="109" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1evaem7_di" bpmnElement="Flow_1evaem7">
-        <di:waypoint x="1005" y="109" />
-        <di:waypoint x="1080" y="109" />
+      <bpmndi:BPMNShape id="EndEvent_Rec_di" bpmnElement="EndEvent_Rec">
+        <dc:Bounds x="1822" y="152" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1008" y="87" width="17" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1oyqahl_di" bpmnElement="Flow_1oyqahl">
-        <di:waypoint x="980" y="134" />
-        <di:waypoint x="980" y="189" />
-        <di:waypoint x="550" y="189" />
-        <di:waypoint x="550" y="127" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="951" y="142" width="17" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1a6hnsu_di" bpmnElement="Flow_1a6hnsu">
-        <di:waypoint x="1130" y="149" />
-        <di:waypoint x="1130" y="301" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1rhxxrr_di" bpmnElement="Flow_1rhxxrr">
-        <di:waypoint x="1148" y="319" />
-        <di:waypoint x="1260" y="319" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="Participant_15g1c8i_di" bpmnElement="Participant_15g1c8i" isHorizontal="true">
-        <dc:Bounds x="123" y="-360" width="1477" height="250" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0b12lga_di" bpmnElement="Activity_0b12lga">
-        <dc:Bounds x="500" y="-280" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0tdgzsd_di" bpmnElement="Activity_0tdgzsd">
-        <dc:Bounds x="670" y="-280" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1h35o3c_di" bpmnElement="Event_1h35o3c">
-        <dc:Bounds x="1312" y="-258" width="36" height="36" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_11lngy7_di" bpmnElement="StartEvent_1">
-        <dc:Bounds x="232" y="-258" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="214" y="-215" width="74" height="40" />
+          <dc:Bounds x="1805" y="195" width="71" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="Flow_1khaddv_di" bpmnElement="Flow_1khaddv">
-        <di:waypoint x="268" y="-240" />
-        <di:waypoint x="500" y="-240" />
+      <bpmndi:BPMNShape id="Event_04vpxcg_di" bpmnElement="Event_04vpxcg">
+        <dc:Bounds x="212" y="152" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="193" y="195" width="74" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_4_di" bpmnElement="Task_4">
+        <dc:Bounds x="740" y="320" width="160" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_5_di" bpmnElement="Task_5">
+        <dc:Bounds x="1060" y="320" width="160" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1_di" bpmnElement="Gateway_1" isMarkerVisible="true">
+        <dc:Bounds x="955" y="335" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="950" y="285" width="60" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_SendSys_di" bpmnElement="Event_SendSys">
+        <dc:Bounds x="1282" y="342" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1259" y="304.5" width="82" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_Admin_di" bpmnElement="EndEvent_Admin">
+        <dc:Bounds x="1402" y="342" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1375" y="385" width="90" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1x41gun_di" bpmnElement="Flow_1x41gun">
+        <di:waypoint x="248" y="170" />
+        <di:waypoint x="300" y="170" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1a1hnse_di" bpmnElement="Flow_1a1hnse">
-        <di:waypoint x="600" y="-240" />
-        <di:waypoint x="670" y="-240" />
+      <bpmndi:BPMNEdge id="Flow_2_di" bpmnElement="Flow_2">
+        <di:waypoint x="460" y="170" />
+        <di:waypoint x="520" y="170" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1w4z6ev_di" bpmnElement="Flow_1w4z6ev">
-        <di:waypoint x="770" y="-240" />
-        <di:waypoint x="1312" y="-240" />
+      <bpmndi:BPMNEdge id="Flow_Nie_di" bpmnElement="Flow_Nie">
+        <di:waypoint x="980" y="385" />
+        <di:waypoint x="980" y="430" />
+        <di:waypoint x="600" y="430" />
+        <di:waypoint x="600" y="210" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="956" y="398" width="17" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_09uykzk_di" bpmnElement="Flow_09uykzk">
-        <di:waypoint x="550" y="91" />
-        <di:waypoint x="550" y="-200" />
+      <bpmndi:BPMNEdge id="Flow_3_di" bpmnElement="Flow_3">
+        <di:waypoint x="680" y="170" />
+        <di:waypoint x="740" y="170" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_127kmlg_di" bpmnElement="Flow_127kmlg">
-        <di:waypoint x="720" y="-200" />
-        <di:waypoint x="720" y="91" />
+      <bpmndi:BPMNEdge id="Flow_4_di" bpmnElement="Flow_4">
+        <di:waypoint x="820" y="210" />
+        <di:waypoint x="820" y="320" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_9_di" bpmnElement="Flow_9">
+        <di:waypoint x="1708" y="170" />
+        <di:waypoint x="1822" y="170" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_5_di" bpmnElement="Flow_5">
+        <di:waypoint x="900" y="360" />
+        <di:waypoint x="955" y="360" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Tak_di" bpmnElement="Flow_Tak">
+        <di:waypoint x="1005" y="360" />
+        <di:waypoint x="1060" y="360" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1025" y="342" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_6_di" bpmnElement="Flow_6">
+        <di:waypoint x="1220" y="360" />
+        <di:waypoint x="1282" y="360" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_7_di" bpmnElement="Flow_7">
+        <di:waypoint x="1318" y="360" />
+        <di:waypoint x="1402" y="360" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Participant_System_di" bpmnElement="Participant_System" isHorizontal="true">
+        <dc:Bounds x="120" y="560" width="1810" height="160" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_System_di" bpmnElement="Lane_System" isHorizontal="true">
+        <dc:Bounds x="150" y="560" width="1780" height="160" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="StartEvent_Sys_di" bpmnElement="StartEvent_Sys">
+        <dc:Bounds x="1282" y="622" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1261" y="665" width="79" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Sys_di" bpmnElement="Task_Sys">
+        <dc:Bounds x="1440" y="600" width="160" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_Sys_di" bpmnElement="EndEvent_Sys">
+        <dc:Bounds x="1672" y="622" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1656" y="665" width="68" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_Sys1_di" bpmnElement="Flow_Sys1">
+        <di:waypoint x="1318" y="640" />
+        <di:waypoint x="1440" y="640" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Sys2_di" bpmnElement="Flow_Sys2">
+        <di:waypoint x="1600" y="640" />
+        <di:waypoint x="1672" y="640" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF_DaneDo_di" bpmnElement="MF_DaneDo">
+        <di:waypoint x="1300" y="378" />
+        <di:waypoint x="1300" y="622" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1305" y="500" width="70" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF_Potwierdzenie_di" bpmnElement="MF_Potwierdzenie">
+        <di:waypoint x="1690" y="622" />
+        <di:waypoint x="1690" y="188" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1695" y="503" width="70" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

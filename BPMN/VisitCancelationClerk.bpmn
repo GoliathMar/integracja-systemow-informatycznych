@@ -10,30 +10,22 @@
   <bpmn:process id="Process_VisitCancelationClerk" name="Anulowanie wizyty przez recepcjonistę" isExecutable="false">
     <bpmn:laneSet id="LaneSet_VisitCancelationClerk">
       <bpmn:lane id="Lane_Clerk" name="Recepcjonista">
-        <bpmn:flowNodeRef>Task_FindVisit</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Task_InformCannotCancel</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>EndEvent_Cancelled</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>StartEvent_1</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Activity_1aq0zzu</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>EndEvent_CannotCancel</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_InformCannotCancel</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_FindVisit</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_1aq0zzu</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="Lane_System" name="System">
-        <bpmn:flowNodeRef>Task_VerifyVisitStatus</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_CanCancelVisit</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_VerifyVisitStatus</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_CancelVisitInSchedule</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_ReleaseVisitSlot</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_UpdateVisitHistory</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_SendCancelNotification</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
-    <bpmn:userTask id="Task_FindVisit" name="Wyszukaj wizytę pacjenta">
-      <bpmn:incoming>Flow_1</bpmn:incoming>
-      <bpmn:outgoing>Flow_2</bpmn:outgoing>
-    </bpmn:userTask>
-    <bpmn:serviceTask id="Task_VerifyVisitStatus" name="Zweryfikuj status i możliwość anulowania wizyty">
-      <bpmn:incoming>Flow_2</bpmn:incoming>
-      <bpmn:outgoing>Flow_3</bpmn:outgoing>
-    </bpmn:serviceTask>
     <bpmn:boundaryEvent id="BoundaryError_VerifyVisitStatus" name="Błąd systemu przy weryfikacji wizyty" attachedToRef="Task_VerifyVisitStatus">
       <bpmn:outgoing>Flow_Error_VerifyVisitStatus</bpmn:outgoing>
       <bpmn:errorEventDefinition errorRef="Error_VerifyVisitStatus" />
@@ -43,34 +35,14 @@
       <bpmn:outgoing>Flow_4</bpmn:outgoing>
       <bpmn:outgoing>Flow_5</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:serviceTask id="Task_CancelVisitInSchedule" name="Anuluj wizytę w grafiku lekarza">
-      <bpmn:incoming>Flow_4</bpmn:incoming>
-      <bpmn:outgoing>Flow_6</bpmn:outgoing>
-    </bpmn:serviceTask>
     <bpmn:boundaryEvent id="BoundaryError_CancelVisitInSchedule" name="Błąd anulowania wizyty w grafiku" attachedToRef="Task_CancelVisitInSchedule">
       <bpmn:outgoing>Flow_Error_CancelVisitInSchedule</bpmn:outgoing>
       <bpmn:errorEventDefinition errorRef="Error_CancelVisitInSchedule" />
     </bpmn:boundaryEvent>
-    <bpmn:serviceTask id="Task_ReleaseVisitSlot" name="Zwolnij termin wizyty">
-      <bpmn:incoming>Flow_6</bpmn:incoming>
-      <bpmn:outgoing>Flow_7</bpmn:outgoing>
-    </bpmn:serviceTask>
-    <bpmn:serviceTask id="Task_UpdateVisitHistory" name="Zaktualizuj historię wizyt i metryki">
-      <bpmn:incoming>Flow_7</bpmn:incoming>
-      <bpmn:outgoing>Flow_8</bpmn:outgoing>
-    </bpmn:serviceTask>
-    <bpmn:serviceTask id="Task_SendCancelNotification" name="Wygeneruj powiadomienie o anulowaniu">
-      <bpmn:incoming>Flow_8</bpmn:incoming>
-      <bpmn:outgoing>Flow_9</bpmn:outgoing>
-    </bpmn:serviceTask>
     <bpmn:boundaryEvent id="BoundaryError_SendCancelNotification" name="Błąd wysyłki powiadomienia o anulowaniu" attachedToRef="Task_SendCancelNotification">
       <bpmn:outgoing>Flow_Error_SendCancelNotification</bpmn:outgoing>
       <bpmn:errorEventDefinition errorRef="Error_SendCancelNotification" />
     </bpmn:boundaryEvent>
-    <bpmn:userTask id="Task_InformCannotCancel" name="Poinformuj pacjenta o braku możliwości anulowania">
-      <bpmn:incoming>Flow_5</bpmn:incoming>
-      <bpmn:outgoing>Flow_10</bpmn:outgoing>
-    </bpmn:userTask>
     <bpmn:task id="Task_InformPatientTemporaryError" name="Poinformuj recepcjonistę o błędzie systemu">
       <bpmn:incoming>Flow_Error_VerifyVisitStatus</bpmn:incoming>
       <bpmn:outgoing>Flow_End_SystemError</bpmn:outgoing>
@@ -117,14 +89,42 @@
       <bpmn:messageEventDefinition id="MessageEventDefinition_VisitCancelledToPatient" />
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_1bg02y3" sourceRef="Activity_1aq0zzu" targetRef="EndEvent_Cancelled" />
-    <bpmn:task id="Activity_1aq0zzu" name="Zwrot pieniędzy">
-      <bpmn:incoming>Flow_9</bpmn:incoming>
-      <bpmn:outgoing>Flow_1bg02y3</bpmn:outgoing>
-    </bpmn:task>
     <bpmn:endEvent id="EndEvent_CannotCancel" name="Anulowanie odrzucone">
       <bpmn:incoming>Flow_10</bpmn:incoming>
       <bpmn:messageEventDefinition id="MessageEventDefinition_15ejry1" />
     </bpmn:endEvent>
+    <bpmn:task id="Task_VerifyVisitStatus" name="Zweryfikuj status i możliwość anulowania wizyty">
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+      <bpmn:outgoing>Flow_3</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_CancelVisitInSchedule" name="Anuluj wizytę w grafiku lekarza">
+      <bpmn:incoming>Flow_4</bpmn:incoming>
+      <bpmn:outgoing>Flow_6</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_InformCannotCancel" name="Poinformuj pacjenta o braku możliwości anulowania">
+      <bpmn:incoming>Flow_5</bpmn:incoming>
+      <bpmn:outgoing>Flow_10</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_ReleaseVisitSlot" name="Zwolnij termin wizyty">
+      <bpmn:incoming>Flow_6</bpmn:incoming>
+      <bpmn:outgoing>Flow_7</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_UpdateVisitHistory" name="Zaktualizuj historię wizyt i metryki">
+      <bpmn:incoming>Flow_7</bpmn:incoming>
+      <bpmn:outgoing>Flow_8</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_SendCancelNotification" name="Wygeneruj powiadomienie o anulowaniu">
+      <bpmn:incoming>Flow_8</bpmn:incoming>
+      <bpmn:outgoing>Flow_9</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_FindVisit" name="Wyszukaj wizytę pacjenta">
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Activity_1aq0zzu" name="Zwrot pieniędzy">
+      <bpmn:incoming>Flow_9</bpmn:incoming>
+      <bpmn:outgoing>Flow_1bg02y3</bpmn:outgoing>
+    </bpmn:task>
   </bpmn:process>
   <bpmn:error id="Error_VerifyVisitStatus" name="Błąd systemu przy weryfikacji statusu wizyty" />
   <bpmn:error id="Error_CancelVisitInSchedule" name="Błąd anulowania wizyty w grafiku" />
@@ -140,29 +140,8 @@
       <bpmndi:BPMNShape id="S_Lane_Clerk" bpmnElement="Lane_Clerk" isHorizontal="true">
         <dc:Bounds x="150" y="50" width="2270" height="210" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="S_Task_FindVisit" bpmnElement="Task_FindVisit">
-        <dc:Bounds x="280" y="110" width="200" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="S_Task_VerifyVisitStatus" bpmnElement="Task_VerifyVisitStatus">
-        <dc:Bounds x="560" y="350" width="250" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="S_Gateway_CanCancelVisit" bpmnElement="Gateway_CanCancelVisit" isMarkerVisible="true">
         <dc:Bounds x="890" y="365" width="50" height="50" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="S_Task_CancelVisitInSchedule" bpmnElement="Task_CancelVisitInSchedule">
-        <dc:Bounds x="1020" y="350" width="230" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="S_Task_ReleaseVisitSlot" bpmnElement="Task_ReleaseVisitSlot">
-        <dc:Bounds x="1310" y="350" width="180" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="S_Task_UpdateVisitHistory" bpmnElement="Task_UpdateVisitHistory">
-        <dc:Bounds x="1550" y="350" width="220" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="S_Task_SendCancelNotification" bpmnElement="Task_SendCancelNotification">
-        <dc:Bounds x="1830" y="350" width="230" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="S_Task_InformCannotCancel" bpmnElement="Task_InformCannotCancel">
-        <dc:Bounds x="1020" y="110" width="280" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0jm7kqj_di" bpmnElement="StartEvent_1">
         <dc:Bounds x="202" y="132" width="36" height="36" />
@@ -176,60 +155,87 @@
           <dc:Bounds x="2186" y="168" width="89" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1aq0zzu_di" bpmnElement="Activity_1aq0zzu">
-        <dc:Bounds x="1895" y="110" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_08z112c_di" bpmnElement="EndEvent_CannotCancel">
         <dc:Bounds x="1442" y="132" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="1432" y="176" width="56" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1p0iuzd_di" bpmnElement="Task_VerifyVisitStatus">
+        <dc:Bounds x="560" y="350" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_11ik459_di" bpmnElement="Task_CancelVisitInSchedule">
+        <dc:Bounds x="1020" y="350" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_03vmlb4_di" bpmnElement="Task_InformCannotCancel">
+        <dc:Bounds x="1020" y="110" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0bv9cgl_di" bpmnElement="Task_ReleaseVisitSlot">
+        <dc:Bounds x="1310" y="350" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_10g2nlv_di" bpmnElement="Task_UpdateVisitHistory">
+        <dc:Bounds x="1550" y="350" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1kqvxiu_di" bpmnElement="Task_SendCancelNotification">
+        <dc:Bounds x="1830" y="350" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1505mla_di" bpmnElement="Task_FindVisit">
+        <dc:Bounds x="280" y="110" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1aq0zzu_di" bpmnElement="Activity_1aq0zzu">
+        <dc:Bounds x="1830" y="110" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="E_Flow_1" bpmnElement="Flow_1">
         <di:waypoint x="238" y="150" />
         <di:waypoint x="280" y="150" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="E_Flow_2" bpmnElement="Flow_2">
-        <di:waypoint x="380" y="190" />
-        <di:waypoint x="380" y="390" />
+        <di:waypoint x="330" y="190" />
+        <di:waypoint x="330" y="390" />
         <di:waypoint x="560" y="390" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="E_Flow_3" bpmnElement="Flow_3">
-        <di:waypoint x="810" y="390" />
+        <di:waypoint x="660" y="390" />
         <di:waypoint x="890" y="390" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="E_Flow_4" bpmnElement="Flow_4">
         <di:waypoint x="940" y="390" />
         <di:waypoint x="1020" y="390" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="973" y="365" width="15" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="E_Flow_5" bpmnElement="Flow_5">
         <di:waypoint x="915" y="365" />
         <di:waypoint x="915" y="150" />
         <di:waypoint x="1020" y="150" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="923" y="248" width="15" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="E_Flow_6" bpmnElement="Flow_6">
-        <di:waypoint x="1250" y="390" />
+        <di:waypoint x="1120" y="390" />
         <di:waypoint x="1310" y="390" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="E_Flow_7" bpmnElement="Flow_7">
-        <di:waypoint x="1490" y="390" />
+        <di:waypoint x="1410" y="390" />
         <di:waypoint x="1550" y="390" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="E_Flow_8" bpmnElement="Flow_8">
-        <di:waypoint x="1770" y="390" />
+        <di:waypoint x="1650" y="390" />
         <di:waypoint x="1830" y="390" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="E_Flow_9" bpmnElement="Flow_9">
-        <di:waypoint x="1945" y="350" />
-        <di:waypoint x="1945" y="190" />
+        <di:waypoint x="1880" y="350" />
+        <di:waypoint x="1880" y="190" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="E_Flow_10" bpmnElement="Flow_10">
-        <di:waypoint x="1300" y="150" />
+        <di:waypoint x="1120" y="150" />
         <di:waypoint x="1442" y="150" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1bg02y3_di" bpmnElement="Flow_1bg02y3">
-        <di:waypoint x="1995" y="150" />
+        <di:waypoint x="1930" y="150" />
         <di:waypoint x="2212" y="150" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Participant_06w37no_di" bpmnElement="Pool_VisitCancelationClerk_Patient" isHorizontal="true">

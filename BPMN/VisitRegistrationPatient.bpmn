@@ -17,32 +17,22 @@
         <bpmn:flowNodeRef>EndEvent_Success</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="Lane_System" name="System">
-        <bpmn:flowNodeRef>Task_ValidateSlot</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Task_ReserveSlot</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Task_StartQueueTimer</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_1r5tbg8</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Task_AddToDoctorSchedule</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Task_CheckPaymentStatus</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_1sw02lp</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_PaymentSuccess</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_0bbg081</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Task_SendVisitNotification</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Task_NotifyTimeout</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Task_NotifyPaymentFailed</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Task_ReleaseSlot</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_1a66c0f</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ValidateSlot</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ReserveSlot</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_StartQueueTimer</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_CheckPaymentStatus</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_NotifyPaymentFailed</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_NotifyTimeout</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_SendVisitNotification</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_AddToDoctorSchedule</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ReleaseSlot</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
-    <bpmn:serviceTask id="Task_ValidateSlot" name="Sprawdź dostępność terminu">
-      <bpmn:outgoing>Flow_4</bpmn:outgoing>
-    </bpmn:serviceTask>
-    <bpmn:serviceTask id="Task_ReserveSlot" name="Tymczasowo zajmij miejsce">
-      <bpmn:incoming>Flow_4</bpmn:incoming>
-      <bpmn:outgoing>Flow_5</bpmn:outgoing>
-    </bpmn:serviceTask>
-    <bpmn:serviceTask id="Task_StartQueueTimer" name="Uruchom kolejkę płatności i limit czasu transakcji">
-      <bpmn:incoming>Flow_5</bpmn:incoming>
-    </bpmn:serviceTask>
     <bpmn:sequenceFlow id="Flow_4" sourceRef="Task_ValidateSlot" targetRef="Task_ReserveSlot" />
     <bpmn:sequenceFlow id="Flow_5" sourceRef="Task_ReserveSlot" targetRef="Task_StartQueueTimer" />
     <bpmn:intermediateThrowEvent id="Event_1r5tbg8">
@@ -50,14 +40,6 @@
       <bpmn:outgoing>Flow_1csj06x</bpmn:outgoing>
       <bpmn:messageEventDefinition id="MessageEventDefinition_10vgtl7" />
     </bpmn:intermediateThrowEvent>
-    <bpmn:serviceTask id="Task_AddToDoctorSchedule" name="Dodaj wizytę do grafiku lekarza">
-      <bpmn:incoming>Flow_9</bpmn:incoming>
-      <bpmn:outgoing>Flow_11</bpmn:outgoing>
-    </bpmn:serviceTask>
-    <bpmn:serviceTask id="Task_CheckPaymentStatus" name="Zweryfikuj status płatności">
-      <bpmn:incoming>Flow_0v0inkj</bpmn:incoming>
-      <bpmn:outgoing>Flow_8</bpmn:outgoing>
-    </bpmn:serviceTask>
     <bpmn:sequenceFlow id="Flow_11" sourceRef="Task_AddToDoctorSchedule" targetRef="Task_SendVisitNotification" />
     <bpmn:sequenceFlow id="Flow_12" sourceRef="Task_SendVisitNotification" targetRef="EndEvent_Success" />
     <bpmn:sequenceFlow id="Flow_10" name="nie" sourceRef="Gateway_PaymentSuccess" targetRef="Task_ReleaseSlot" />
@@ -80,29 +62,7 @@
       <bpmn:messageEventDefinition id="MessageEventDefinition_0x57bp3" />
     </bpmn:intermediateCatchEvent>
     <bpmn:sequenceFlow id="Flow_0o9ztrf" sourceRef="Event_0bbg081" targetRef="Event_1r5tbg8" />
-    <bpmn:endEvent id="EndEvent_Success">
-      <bpmn:incoming>Flow_12</bpmn:incoming>
-      <bpmn:incoming>Flow_1wyk4f6</bpmn:incoming>
-      <bpmn:incoming>Flow_0zi9ly0</bpmn:incoming>
-      <bpmn:messageEventDefinition id="MessageEventDefinition_0v5b3px" />
-    </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_1wyk4f6" sourceRef="Task_NotifyTimeout" targetRef="EndEvent_Success" />
-    <bpmn:serviceTask id="Task_SendVisitNotification" name="Wyślij potwierdzenie wizyty do pacjenta">
-      <bpmn:incoming>Flow_11</bpmn:incoming>
-      <bpmn:outgoing>Flow_12</bpmn:outgoing>
-    </bpmn:serviceTask>
-    <bpmn:serviceTask id="Task_NotifyTimeout" name="Poinformuj o przekroczeniu czasu płatności">
-      <bpmn:incoming>Flow_00ktoxv</bpmn:incoming>
-      <bpmn:outgoing>Flow_1wyk4f6</bpmn:outgoing>
-    </bpmn:serviceTask>
-    <bpmn:serviceTask id="Task_NotifyPaymentFailed" name="Poinformuj o nieudanej płatności">
-      <bpmn:incoming>Flow_0g9617l</bpmn:incoming>
-      <bpmn:outgoing>Flow_0zi9ly0</bpmn:outgoing>
-    </bpmn:serviceTask>
-    <bpmn:serviceTask id="Task_ReleaseSlot" name="Zwolnij zajęte miejsce terminu">
-      <bpmn:incoming>Flow_10</bpmn:incoming>
-      <bpmn:outgoing>Flow_0hdtefz</bpmn:outgoing>
-    </bpmn:serviceTask>
     <bpmn:exclusiveGateway id="Gateway_1a66c0f" name="Czy nieudana płątność">
       <bpmn:incoming>Flow_0hdtefz</bpmn:incoming>
       <bpmn:outgoing>Flow_00ktoxv</bpmn:outgoing>
@@ -112,6 +72,46 @@
     <bpmn:sequenceFlow id="Flow_00ktoxv" name="N" sourceRef="Gateway_1a66c0f" targetRef="Task_NotifyTimeout" />
     <bpmn:sequenceFlow id="Flow_0g9617l" name="T" sourceRef="Gateway_1a66c0f" targetRef="Task_NotifyPaymentFailed" />
     <bpmn:sequenceFlow id="Flow_0zi9ly0" sourceRef="Task_NotifyPaymentFailed" targetRef="EndEvent_Success" />
+    <bpmn:endEvent id="EndEvent_Success">
+      <bpmn:incoming>Flow_12</bpmn:incoming>
+      <bpmn:incoming>Flow_1wyk4f6</bpmn:incoming>
+      <bpmn:incoming>Flow_0zi9ly0</bpmn:incoming>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_0v5b3px" />
+    </bpmn:endEvent>
+    <bpmn:task id="Task_ValidateSlot" name="Sprawdź dostępność terminu">
+      <bpmn:outgoing>Flow_4</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_ReserveSlot" name="Tymczasowo zajmij miejsce">
+      <bpmn:incoming>Flow_4</bpmn:incoming>
+      <bpmn:outgoing>Flow_5</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_StartQueueTimer" name="Uruchom kolejkę płatności i limit czasu transakcji">
+      <bpmn:incoming>Flow_5</bpmn:incoming>
+    </bpmn:task>
+    <bpmn:task id="Task_CheckPaymentStatus" name="Zweryfikuj status płatności">
+      <bpmn:incoming>Flow_0v0inkj</bpmn:incoming>
+      <bpmn:outgoing>Flow_8</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_NotifyPaymentFailed" name="Poinformuj o nieudanej płatności">
+      <bpmn:incoming>Flow_0g9617l</bpmn:incoming>
+      <bpmn:outgoing>Flow_0zi9ly0</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_NotifyTimeout" name="Poinformuj o przekroczeniu czasu płatności">
+      <bpmn:incoming>Flow_00ktoxv</bpmn:incoming>
+      <bpmn:outgoing>Flow_1wyk4f6</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_SendVisitNotification" name="Wyślij potwierdzenie wizyty do pacjenta">
+      <bpmn:incoming>Flow_11</bpmn:incoming>
+      <bpmn:outgoing>Flow_12</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_AddToDoctorSchedule" name="Dodaj wizytę do grafiku lekarza">
+      <bpmn:incoming>Flow_9</bpmn:incoming>
+      <bpmn:outgoing>Flow_11</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_ReleaseSlot" name="Zwolnij zajęte miejsce terminu">
+      <bpmn:incoming>Flow_10</bpmn:incoming>
+      <bpmn:outgoing>Flow_0hdtefz</bpmn:outgoing>
+    </bpmn:task>
   </bpmn:process>
   <bpmn:process id="Process_12bihh5">
     <bpmn:intermediateCatchEvent id="Event_120yntx">
@@ -130,37 +130,14 @@
     <bpmn:sequenceFlow id="Flow_1ts94vy" sourceRef="Activity_04l4o4p" targetRef="Event_1agjqlz" />
   </bpmn:process>
   <bpmn:process id="Process_16x1lfs">
-    <bpmn:userTask id="Task_SelectDoctorFacility" name="Wybierz lekarza i placówkę na stronie">
-      <bpmn:incoming>Flow_1grw9as</bpmn:incoming>
-      <bpmn:outgoing>Flow_1qpvr17</bpmn:outgoing>
-    </bpmn:userTask>
     <bpmn:startEvent id="StartEvent_1" name="Pacjent chce zarejestrować wizytę">
       <bpmn:outgoing>Flow_1grw9as</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:sequenceFlow id="Flow_1grw9as" sourceRef="StartEvent_1" targetRef="Task_SelectDoctorFacility" />
-    <bpmn:userTask id="Task_SelectVisitSlot" name="Wybierz termin wizyty">
-      <bpmn:incoming>Flow_1qpvr17</bpmn:incoming>
-      <bpmn:outgoing>Flow_1xz26k1</bpmn:outgoing>
-    </bpmn:userTask>
-    <bpmn:sequenceFlow id="Flow_1qpvr17" sourceRef="Task_SelectDoctorFacility" targetRef="Task_SelectVisitSlot" />
-    <bpmn:userTask id="Task_PayGateway" name="Opłać wizytę przez bramkę płatniczą">
-      <bpmn:incoming>Flow_1obriyi</bpmn:incoming>
-      <bpmn:outgoing>Flow_0k1pr3t</bpmn:outgoing>
-    </bpmn:userTask>
-    <bpmn:sequenceFlow id="Flow_1obriyi" sourceRef="Event_1dujlkt" targetRef="Task_PayGateway" />
-    <bpmn:sequenceFlow id="Flow_0k1pr3t" sourceRef="Task_PayGateway" targetRef="Event_0zb02pb" />
-    <bpmn:intermediateThrowEvent id="Event_0zb02pb">
-      <bpmn:incoming>Flow_0k1pr3t</bpmn:incoming>
-      <bpmn:outgoing>Flow_1gpk4b1</bpmn:outgoing>
-      <bpmn:messageEventDefinition id="MessageEventDefinition_0m0w0zc" />
-    </bpmn:intermediateThrowEvent>
     <bpmn:intermediateCatchEvent id="Event_1dujlkt">
       <bpmn:incoming>Flow_1xz26k1</bpmn:incoming>
       <bpmn:outgoing>Flow_1obriyi</bpmn:outgoing>
       <bpmn:messageEventDefinition id="MessageEventDefinition_125y3re" />
     </bpmn:intermediateCatchEvent>
-    <bpmn:sequenceFlow id="Flow_1xz26k1" sourceRef="Task_SelectVisitSlot" targetRef="Event_1dujlkt" />
-    <bpmn:sequenceFlow id="Flow_1gpk4b1" sourceRef="Event_0zb02pb" targetRef="Event_0cblcpu" />
     <bpmn:intermediateCatchEvent id="Event_0cblcpu">
       <bpmn:incoming>Flow_1gpk4b1</bpmn:incoming>
       <bpmn:outgoing>Flow_0ad2pfx</bpmn:outgoing>
@@ -169,36 +146,44 @@
     <bpmn:endEvent id="Event_0qg0m46">
       <bpmn:incoming>Flow_0ad2pfx</bpmn:incoming>
     </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1grw9as" sourceRef="StartEvent_1" targetRef="Task_SelectDoctorFacility" />
+    <bpmn:sequenceFlow id="Flow_1qpvr17" sourceRef="Task_SelectDoctorFacility" targetRef="Task_SelectVisitSlot" />
+    <bpmn:sequenceFlow id="Flow_1xz26k1" sourceRef="Task_SelectVisitSlot" targetRef="Event_1dujlkt" />
+    <bpmn:sequenceFlow id="Flow_1obriyi" sourceRef="Event_1dujlkt" targetRef="Task_PayGateway" />
+    <bpmn:sequenceFlow id="Flow_0k1pr3t" sourceRef="Task_PayGateway" targetRef="Event_0zb02pb" />
+    <bpmn:sequenceFlow id="Flow_1gpk4b1" sourceRef="Event_0zb02pb" targetRef="Event_0cblcpu" />
     <bpmn:sequenceFlow id="Flow_0ad2pfx" sourceRef="Event_0cblcpu" targetRef="Event_0qg0m46" />
+    <bpmn:task id="Task_SelectDoctorFacility" name="Wybierz lekarza i placówkę na stronie">
+      <bpmn:incoming>Flow_1grw9as</bpmn:incoming>
+      <bpmn:outgoing>Flow_1qpvr17</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_SelectVisitSlot" name="Wybierz termin wizyty">
+      <bpmn:incoming>Flow_1qpvr17</bpmn:incoming>
+      <bpmn:outgoing>Flow_1xz26k1</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_PayGateway" name="Opłać wizytę przez bramkę płatniczą">
+      <bpmn:incoming>Flow_1obriyi</bpmn:incoming>
+      <bpmn:outgoing>Flow_0k1pr3t</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:intermediateThrowEvent id="Event_0zb02pb">
+      <bpmn:incoming>Flow_0k1pr3t</bpmn:incoming>
+      <bpmn:outgoing>Flow_1gpk4b1</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_0m0w0zc" />
+    </bpmn:intermediateThrowEvent>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_VisitRegistrationPatient">
     <bpmndi:BPMNPlane id="BPMNPlane_VisitRegistrationPatient" bpmnElement="Collab_VisitRegistrationPatient">
       <bpmndi:BPMNShape id="S_Pool_VisitRegistrationPatient" bpmnElement="Pool_VisitRegistrationPatient" isHorizontal="true">
-        <dc:Bounds x="120" y="50" width="3438" height="570" />
+        <dc:Bounds x="120" y="140" width="3438" height="480" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="S_Lane_System" bpmnElement="Lane_System" isHorizontal="true">
         <dc:Bounds x="150" y="260" width="3408" height="360" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="S_Lane_Patient" bpmnElement="Lane_Patient" isHorizontal="true">
-        <dc:Bounds x="150" y="50" width="3408" height="210" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="S_Task_ValidateSlot" bpmnElement="Task_ValidateSlot">
-        <dc:Bounds x="800" y="300" width="190" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="S_Task_ReserveSlot" bpmnElement="Task_ReserveSlot">
-        <dc:Bounds x="1050" y="300" width="180" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="S_Task_StartQueueTimer" bpmnElement="Task_StartQueueTimer">
-        <dc:Bounds x="1280" y="300" width="270" height="80" />
+        <dc:Bounds x="150" y="140" width="3408" height="120" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0gqchdl_di" bpmnElement="Event_1r5tbg8">
         <dc:Bounds x="1982" y="372" width="36" height="36" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="S_Task_AddToDoctorSchedule" bpmnElement="Task_AddToDoctorSchedule">
-        <dc:Bounds x="2692" y="300" width="220" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="S_Task_CheckPaymentStatus" bpmnElement="Task_CheckPaymentStatus">
-        <dc:Bounds x="2360" y="350" width="200" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1g5sxmn_di" bpmnElement="Event_1sw02lp">
         <dc:Bounds x="2222" y="372" width="36" height="36" />
@@ -212,47 +197,62 @@
       <bpmndi:BPMNShape id="Event_0i86831_di" bpmnElement="Event_0bbg081">
         <dc:Bounds x="1882" y="372" width="36" height="36" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1a66c0f_di" bpmnElement="Gateway_1a66c0f" isMarkerVisible="true">
+        <dc:Bounds x="2925" y="485" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2916" y="545" width="68" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0shsmg2_di" bpmnElement="EndEvent_Success">
-        <dc:Bounds x="3372" y="132" width="36" height="36" />
+        <dc:Bounds x="3372" y="192" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="3256" y="96" width="52" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="S_Task_SendVisitNotification" bpmnElement="Task_SendVisitNotification">
-        <dc:Bounds x="3045" y="300" width="230" height="80" />
+      <bpmndi:BPMNShape id="Activity_1dxce7n_di" bpmnElement="Task_ValidateSlot">
+        <dc:Bounds x="800" y="300" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="S_Task_NotifyTimeout" bpmnElement="Task_NotifyTimeout">
-        <dc:Bounds x="3045" y="430" width="230" height="60" />
+      <bpmndi:BPMNShape id="Activity_1mx5qf1_di" bpmnElement="Task_ReserveSlot">
+        <dc:Bounds x="1050" y="300" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="S_Task_NotifyPaymentFailed" bpmnElement="Task_NotifyPaymentFailed">
-        <dc:Bounds x="3045" y="520" width="230" height="60" />
+      <bpmndi:BPMNShape id="Activity_0idokct_di" bpmnElement="Task_StartQueueTimer">
+        <dc:Bounds x="1365" y="300" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="S_Task_ReleaseSlot" bpmnElement="Task_ReleaseSlot">
-        <dc:Bounds x="2670" y="480" width="220" height="60" />
+      <bpmndi:BPMNShape id="Activity_1toabv7_di" bpmnElement="Task_CheckPaymentStatus">
+        <dc:Bounds x="2360" y="350" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_1a66c0f_di" bpmnElement="Gateway_1a66c0f" isMarkerVisible="true">
-        <dc:Bounds x="2925" y="485" width="50" height="50" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="2996" y="500" width="68" height="27" />
-        </bpmndi:BPMNLabel>
+      <bpmndi:BPMNShape id="Activity_02ownb2_di" bpmnElement="Task_NotifyPaymentFailed">
+        <dc:Bounds x="3045" y="470" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0endscz_di" bpmnElement="Task_NotifyTimeout">
+        <dc:Bounds x="3045" y="380" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1b247sx_di" bpmnElement="Task_SendVisitNotification">
+        <dc:Bounds x="3045" y="290" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0s3285h_di" bpmnElement="Task_AddToDoctorSchedule">
+        <dc:Bounds x="2692" y="290" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_013n0q4_di" bpmnElement="Task_ReleaseSlot">
+        <dc:Bounds x="2670" y="470" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="E_Flow_4" bpmnElement="Flow_4">
-        <di:waypoint x="990" y="340" />
+        <di:waypoint x="900" y="340" />
         <di:waypoint x="1050" y="340" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="E_Flow_5" bpmnElement="Flow_5">
-        <di:waypoint x="1230" y="340" />
-        <di:waypoint x="1280" y="340" />
+        <di:waypoint x="1150" y="340" />
+        <di:waypoint x="1365" y="340" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="E_Flow_11" bpmnElement="Flow_11">
-        <di:waypoint x="2912" y="340" />
-        <di:waypoint x="3045" y="340" />
+        <di:waypoint x="2792" y="330" />
+        <di:waypoint x="3045" y="330" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="E_Flow_12" bpmnElement="Flow_12">
-        <di:waypoint x="3275" y="340" />
-        <di:waypoint x="3330" y="340" />
-        <di:waypoint x="3330" y="150" />
-        <di:waypoint x="3372" y="150" />
+        <di:waypoint x="3145" y="330" />
+        <di:waypoint x="3330" y="330" />
+        <di:waypoint x="3330" y="210" />
+        <di:waypoint x="3372" y="210" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="E_Flow_10" bpmnElement="Flow_10">
         <di:waypoint x="2610" y="415" />
@@ -264,14 +264,14 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="E_Flow_9" bpmnElement="Flow_9">
         <di:waypoint x="2610" y="365" />
-        <di:waypoint x="2610" y="340" />
-        <di:waypoint x="2692" y="340" />
+        <di:waypoint x="2610" y="330" />
+        <di:waypoint x="2692" y="330" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="2585" y="349" width="15" height="14" />
+          <dc:Bounds x="2585" y="345" width="15" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="E_Flow_8" bpmnElement="Flow_8">
-        <di:waypoint x="2560" y="390" />
+        <di:waypoint x="2460" y="390" />
         <di:waypoint x="2585" y="390" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1csj06x_di" bpmnElement="Flow_1csj06x">
@@ -287,142 +287,139 @@
         <di:waypoint x="1982" y="390" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1wyk4f6_di" bpmnElement="Flow_1wyk4f6">
-        <di:waypoint x="3275" y="460" />
-        <di:waypoint x="3390" y="460" />
-        <di:waypoint x="3390" y="168" />
+        <di:waypoint x="3145" y="420" />
+        <di:waypoint x="3390" y="420" />
+        <di:waypoint x="3390" y="228" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0hdtefz_di" bpmnElement="Flow_0hdtefz">
-        <di:waypoint x="2890" y="510" />
+        <di:waypoint x="2770" y="510" />
         <di:waypoint x="2925" y="510" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_00ktoxv_di" bpmnElement="Flow_00ktoxv">
         <di:waypoint x="2950" y="485" />
-        <di:waypoint x="2950" y="460" />
-        <di:waypoint x="3045" y="460" />
+        <di:waypoint x="2950" y="420" />
+        <di:waypoint x="3045" y="420" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="2961" y="470" width="8" height="14" />
+          <dc:Bounds x="2961" y="423" width="8" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0g9617l_di" bpmnElement="Flow_0g9617l">
-        <di:waypoint x="2950" y="535" />
-        <di:waypoint x="2950" y="550" />
-        <di:waypoint x="3045" y="550" />
+        <di:waypoint x="2975" y="510" />
+        <di:waypoint x="3045" y="510" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="2962" y="540" width="6" height="14" />
+          <dc:Bounds x="2984" y="500" width="6" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0zi9ly0_di" bpmnElement="Flow_0zi9ly0">
-        <di:waypoint x="3275" y="550" />
-        <di:waypoint x="3390" y="550" />
-        <di:waypoint x="3390" y="168" />
+        <di:waypoint x="3145" y="510" />
+        <di:waypoint x="3390" y="510" />
+        <di:waypoint x="3390" y="228" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Participant_1cnmy6s_di" bpmnElement="Participant_1cnmy6s" isHorizontal="true">
-        <dc:Bounds x="120" y="-260" width="3438" height="250" />
+        <dc:Bounds x="120" y="-180" width="3438" height="250" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="S_Task_SelectDoctorFacility" bpmnElement="Task_SelectDoctorFacility">
-        <dc:Bounds x="280" y="-160" width="230" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="S_StartEvent_1" bpmnElement="StartEvent_1">
-        <dc:Bounds x="202" y="-138" width="36" height="36" />
+        <dc:Bounds x="202" y="-58" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="186" y="-102" width="68" height="40" />
+          <dc:Bounds x="186" y="-22" width="68" height="40" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="S_Task_SelectVisitSlot" bpmnElement="Task_SelectVisitSlot">
-        <dc:Bounds x="560" y="-160" width="190" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="S_Task_PayGateway" bpmnElement="Task_PayGateway">
-        <dc:Bounds x="1585" y="-160" width="230" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1f4111u_di" bpmnElement="Event_0zb02pb">
-        <dc:Bounds x="1972" y="-138" width="36" height="36" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0f9yuhz_di" bpmnElement="Event_1dujlkt">
-        <dc:Bounds x="1397" y="-138" width="36" height="36" />
+        <dc:Bounds x="1397" y="-58" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0x4858n_di" bpmnElement="Event_0cblcpu">
-        <dc:Bounds x="3372" y="-138" width="36" height="36" />
+        <dc:Bounds x="3372" y="-58" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0qg0m46_di" bpmnElement="Event_0qg0m46">
-        <dc:Bounds x="3462" y="-138" width="36" height="36" />
+        <dc:Bounds x="3462" y="-58" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1n0xv9s_di" bpmnElement="Task_SelectDoctorFacility">
+        <dc:Bounds x="280" y="-80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0vdczcu_di" bpmnElement="Task_SelectVisitSlot">
+        <dc:Bounds x="560" y="-80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_02eenml_di" bpmnElement="Task_PayGateway">
+        <dc:Bounds x="1545" y="-80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1f4111u_di" bpmnElement="Event_0zb02pb">
+        <dc:Bounds x="1882" y="-58" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_1grw9as_di" bpmnElement="Flow_1grw9as">
-        <di:waypoint x="238" y="-120" />
-        <di:waypoint x="280" y="-120" />
+        <di:waypoint x="238" y="-40" />
+        <di:waypoint x="280" y="-40" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1qpvr17_di" bpmnElement="Flow_1qpvr17">
-        <di:waypoint x="510" y="-120" />
-        <di:waypoint x="560" y="-120" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1obriyi_di" bpmnElement="Flow_1obriyi">
-        <di:waypoint x="1433" y="-120" />
-        <di:waypoint x="1585" y="-120" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0k1pr3t_di" bpmnElement="Flow_0k1pr3t">
-        <di:waypoint x="1815" y="-120" />
-        <di:waypoint x="1972" y="-120" />
+        <di:waypoint x="380" y="-40" />
+        <di:waypoint x="560" y="-40" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1xz26k1_di" bpmnElement="Flow_1xz26k1">
-        <di:waypoint x="750" y="-120" />
-        <di:waypoint x="1397" y="-120" />
+        <di:waypoint x="660" y="-40" />
+        <di:waypoint x="1397" y="-40" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1obriyi_di" bpmnElement="Flow_1obriyi">
+        <di:waypoint x="1433" y="-40" />
+        <di:waypoint x="1545" y="-40" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0k1pr3t_di" bpmnElement="Flow_0k1pr3t">
+        <di:waypoint x="1645" y="-40" />
+        <di:waypoint x="1882" y="-40" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1gpk4b1_di" bpmnElement="Flow_1gpk4b1">
-        <di:waypoint x="2008" y="-120" />
-        <di:waypoint x="3372" y="-120" />
+        <di:waypoint x="1918" y="-40" />
+        <di:waypoint x="3372" y="-40" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0ad2pfx_di" bpmnElement="Flow_0ad2pfx">
-        <di:waypoint x="3408" y="-120" />
-        <di:waypoint x="3462" y="-120" />
+        <di:waypoint x="3408" y="-40" />
+        <di:waypoint x="3462" y="-40" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Participant_1dp6tb3_di" bpmnElement="Participant_1dp6tb3" isHorizontal="true">
-        <dc:Bounds x="120" y="680" width="3140" height="250" />
+        <dc:Bounds x="120" y="680" width="3438" height="160" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0n72tgs_di" bpmnElement="Event_120yntx">
-        <dc:Bounds x="1982" y="792" width="36" height="36" />
+        <dc:Bounds x="1982" y="742" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_04l4o4p_di" bpmnElement="Activity_04l4o4p">
-        <dc:Bounds x="2070" y="770" width="100" height="80" />
+        <dc:Bounds x="2070" y="720" width="100" height="80" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0z5uq3d_di" bpmnElement="Event_1agjqlz">
-        <dc:Bounds x="2222" y="792" width="36" height="36" />
+        <dc:Bounds x="2222" y="742" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_1il3nk8_di" bpmnElement="Flow_1il3nk8">
-        <di:waypoint x="2018" y="810" />
-        <di:waypoint x="2070" y="810" />
+        <di:waypoint x="2018" y="760" />
+        <di:waypoint x="2070" y="760" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1ts94vy_di" bpmnElement="Flow_1ts94vy">
-        <di:waypoint x="2170" y="810" />
-        <di:waypoint x="2222" y="810" />
+        <di:waypoint x="2170" y="760" />
+        <di:waypoint x="2222" y="760" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_03brxsu_di" bpmnElement="Flow_03brxsu">
         <di:waypoint x="2000" y="408" />
-        <di:waypoint x="2000" y="792" />
+        <di:waypoint x="2000" y="742" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0g4w4js_di" bpmnElement="Flow_0g4w4js">
-        <di:waypoint x="2240" y="792" />
+        <di:waypoint x="2240" y="742" />
         <di:waypoint x="2240" y="408" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1teolyw_di" bpmnElement="Flow_1teolyw">
-        <di:waypoint x="655" y="-80" />
-        <di:waypoint x="655" y="340" />
+        <di:waypoint x="610" y="0" />
+        <di:waypoint x="610" y="340" />
         <di:waypoint x="800" y="340" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1cdj7ig_di" bpmnElement="Flow_1cdj7ig">
-        <di:waypoint x="1990" y="-102" />
-        <di:waypoint x="1990" y="135" />
-        <di:waypoint x="1900" y="135" />
+        <di:waypoint x="1900" y="-22" />
         <di:waypoint x="1900" y="372" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_190qry1_di" bpmnElement="Flow_190qry1">
         <di:waypoint x="1415" y="300" />
-        <di:waypoint x="1415" y="-102" />
+        <di:waypoint x="1415" y="-22" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0l1tumw_di" bpmnElement="Flow_0l1tumw">
-        <di:waypoint x="3390" y="132" />
-        <di:waypoint x="3390" y="-102" />
+        <di:waypoint x="3390" y="192" />
+        <di:waypoint x="3390" y="-22" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

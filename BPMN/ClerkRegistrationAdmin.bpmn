@@ -10,27 +10,18 @@
   <bpmn:process id="Process_ClerkRegistrationAdmin" name="Zakładanie konta rejestracji przez admina" isExecutable="false">
     <bpmn:laneSet id="LaneSet_Registration">
       <bpmn:lane id="Lane_Admin" name="Administrator">
-        <bpmn:flowNodeRef>Task_EnterData</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Task_SelectRole</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>StartEvent_1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_SelectRole</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_EnterData</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="Lane_System" name="System">
         <bpmn:flowNodeRef>Gateway_DataValid</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_08xcvdv</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Validate</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_CreateAccount</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_GenerateCredentials</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Task_Validate</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Event_08xcvdv</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
-    <bpmn:userTask id="Task_EnterData" name="Wprowadź dane pracownika rejestracji">
-      <bpmn:incoming>Flow_1</bpmn:incoming>
-      <bpmn:incoming>Flow_1i757ci</bpmn:incoming>
-      <bpmn:outgoing>Flow_2</bpmn:outgoing>
-    </bpmn:userTask>
-    <bpmn:userTask id="Task_SelectRole" name="Wybierz rolę i placówkę">
-      <bpmn:incoming>Flow_2</bpmn:incoming>
-      <bpmn:outgoing>Flow_3</bpmn:outgoing>
-    </bpmn:userTask>
     <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_1" targetRef="Task_EnterData" />
     <bpmn:sequenceFlow id="Flow_2" sourceRef="Task_EnterData" targetRef="Task_SelectRole" />
     <bpmn:sequenceFlow id="Flow_3" sourceRef="Task_SelectRole" targetRef="Task_Validate" />
@@ -40,22 +31,9 @@
       <bpmn:outgoing>Flow_5</bpmn:outgoing>
       <bpmn:outgoing>Flow_1i757ci</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:serviceTask id="Task_CreateAccount" name="Utwórz konto użytkownika">
-      <bpmn:incoming>Flow_5</bpmn:incoming>
-      <bpmn:outgoing>Flow_6</bpmn:outgoing>
-    </bpmn:serviceTask>
-    <bpmn:serviceTask id="Task_GenerateCredentials" name="Wygeneruj login i hasło tymczasowe, a następnie wyślij informacje do pracownika">
-      <bpmn:incoming>Flow_6</bpmn:incoming>
-      <bpmn:outgoing>Flow_1cdzvrs</bpmn:outgoing>
-    </bpmn:serviceTask>
     <bpmn:sequenceFlow id="Flow_5" name="tak" sourceRef="Gateway_DataValid" targetRef="Task_CreateAccount" />
     <bpmn:sequenceFlow id="Flow_6" sourceRef="Task_CreateAccount" targetRef="Task_GenerateCredentials" />
-    <bpmn:serviceTask id="Task_Validate" name="Zweryfikuj kompletność i duplikaty">
-      <bpmn:incoming>Flow_3</bpmn:incoming>
-      <bpmn:outgoing>Flow_4</bpmn:outgoing>
-    </bpmn:serviceTask>
     <bpmn:sequenceFlow id="Flow_1i757ci" name="nie" sourceRef="Gateway_DataValid" targetRef="Task_EnterData" />
-    <bpmn:sequenceFlow id="Flow_1cdzvrs" sourceRef="Task_GenerateCredentials" targetRef="Event_08xcvdv" />
     <bpmn:endEvent id="Event_08xcvdv">
       <bpmn:incoming>Flow_1cdzvrs</bpmn:incoming>
       <bpmn:messageEventDefinition id="MessageEventDefinition_1m09cih" />
@@ -64,41 +42,46 @@
       <bpmn:outgoing>Flow_1</bpmn:outgoing>
       <bpmn:messageEventDefinition id="MessageEventDefinition_0iig2ax" />
     </bpmn:startEvent>
+    <bpmn:task id="Task_Validate" name="Zweryfikuj kompletność i duplikaty">
+      <bpmn:incoming>Flow_3</bpmn:incoming>
+      <bpmn:outgoing>Flow_4</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_SelectRole" name="Wybierz rolę i placówkę">
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+      <bpmn:outgoing>Flow_3</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_EnterData" name="Wprowadź dane pracownika rejestracji">
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:incoming>Flow_1i757ci</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_CreateAccount" name="Utwórz konto użytkownika">
+      <bpmn:incoming>Flow_5</bpmn:incoming>
+      <bpmn:outgoing>Flow_6</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="Flow_1cdzvrs" sourceRef="Task_GenerateCredentials" targetRef="Event_08xcvdv" />
+    <bpmn:task id="Task_GenerateCredentials" name="Wygeneruj login i hasło tymczasowe, a następnie wyślij informacje do pracownika">
+      <bpmn:incoming>Flow_6</bpmn:incoming>
+      <bpmn:outgoing>Flow_1cdzvrs</bpmn:outgoing>
+    </bpmn:task>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_ClerkRegistrationAdmin">
     <bpmndi:BPMNPlane id="BPMNPlane_ClerkRegistrationAdmin" bpmnElement="Collab_ClerkRegistrationAdmin">
       <bpmndi:BPMNShape id="S_Pool_Registration" bpmnElement="Pool_Registration" isHorizontal="true">
-        <dc:Bounds x="120" y="50" width="1586" height="370" />
+        <dc:Bounds x="120" y="50" width="1700" height="400" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="S_Lane_System" bpmnElement="Lane_System" isHorizontal="true">
-        <dc:Bounds x="150" y="240" width="1556" height="180" />
+        <dc:Bounds x="150" y="240" width="1670" height="210" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="S_Lane_Admin" bpmnElement="Lane_Admin" isHorizontal="true">
-        <dc:Bounds x="150" y="50" width="1556" height="190" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="S_Task_EnterData" bpmnElement="Task_EnterData">
-        <dc:Bounds x="280" y="110" width="220" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="S_Task_SelectRole" bpmnElement="Task_SelectRole">
-        <dc:Bounds x="540" y="110" width="180" height="80" />
-        <bpmndi:BPMNLabel />
+        <dc:Bounds x="150" y="50" width="1670" height="190" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="S_Gateway_DataValid" bpmnElement="Gateway_DataValid" isMarkerVisible="true">
         <dc:Bounds x="1008" y="305" width="50" height="50" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="991" y="281" width="84" height="14" />
         </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="S_Task_CreateAccount" bpmnElement="Task_CreateAccount">
-        <dc:Bounds x="1103" y="290" width="180" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="S_Task_GenerateCredentials" bpmnElement="Task_GenerateCredentials">
-        <dc:Bounds x="1323" y="290" width="220" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="S_Task_Validate" bpmnElement="Task_Validate">
-        <dc:Bounds x="725" y="290" width="210" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1sq8555_di" bpmnElement="Event_08xcvdv">
         <dc:Bounds x="1612" y="312" width="36" height="36" />
@@ -109,12 +92,30 @@
           <dc:Bounds x="180" y="168" width="80" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_062e4c2_di" bpmnElement="Task_Validate">
+        <dc:Bounds x="725" y="290" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0t6obsh_di" bpmnElement="Task_SelectRole">
+        <dc:Bounds x="540" y="110" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1ykhvne_di" bpmnElement="Task_EnterData">
+        <dc:Bounds x="280" y="110" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0m2aye1_di" bpmnElement="Task_CreateAccount">
+        <dc:Bounds x="1103" y="290" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_117b98c_di" bpmnElement="Task_GenerateCredentials">
+        <dc:Bounds x="1330" y="290" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="E_Flow_1" bpmnElement="Flow_1">
         <di:waypoint x="238" y="150" />
         <di:waypoint x="280" y="150" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="E_Flow_2" bpmnElement="Flow_2">
-        <di:waypoint x="500" y="150" />
+        <di:waypoint x="380" y="150" />
         <di:waypoint x="540" y="150" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="E_Flow_3" bpmnElement="Flow_3">
@@ -123,7 +124,7 @@
         <di:waypoint x="725" y="330" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="E_Flow_4" bpmnElement="Flow_4">
-        <di:waypoint x="935" y="330" />
+        <di:waypoint x="825" y="330" />
         <di:waypoint x="1008" y="330" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="E_Flow_5" bpmnElement="Flow_5">
@@ -134,20 +135,20 @@
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="E_Flow_6" bpmnElement="Flow_6">
-        <di:waypoint x="1283" y="330" />
-        <di:waypoint x="1323" y="330" />
+        <di:waypoint x="1203" y="330" />
+        <di:waypoint x="1330" y="330" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1i757ci_di" bpmnElement="Flow_1i757ci">
         <di:waypoint x="1033" y="355" />
         <di:waypoint x="1033" y="400" />
-        <di:waypoint x="390" y="400" />
-        <di:waypoint x="390" y="190" />
+        <di:waypoint x="330" y="400" />
+        <di:waypoint x="330" y="190" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="712" y="383" width="15" height="14" />
+          <dc:Bounds x="683" y="383" width="15" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1cdzvrs_di" bpmnElement="Flow_1cdzvrs">
-        <di:waypoint x="1543" y="330" />
+        <di:waypoint x="1430" y="330" />
         <di:waypoint x="1612" y="330" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Participant_0a1ce90_di" bpmnElement="Participant_1ahnl3u" isHorizontal="true">

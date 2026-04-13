@@ -9,7 +9,6 @@
     <bpmn:messageFlow id="MsgFlow_1" name="Żądanie formularza" sourceRef="Throw_ReqForm" targetRef="Start_Sys_Req" />
     <bpmn:messageFlow id="MsgFlow_2" name="Gotowy formularz" sourceRef="Throw_Sys_Form" targetRef="Catch_Form" />
     <bpmn:messageFlow id="MsgFlow_3" sourceRef="Throw_Data" targetRef="Catch_Sys_Data" />
-    <bpmn:messageFlow id="MsgFlow_4" name="Błąd walidacji" sourceRef="Throw_Sys_Err" targetRef="Catch_Result" />
     <bpmn:messageFlow id="MsgFlow_5" name="Potwierdzenie dodania" sourceRef="End_Sys" targetRef="Catch_Result" />
   </bpmn:collaboration>
   <bpmn:process id="Process_Biznes" isExecutable="false">
@@ -112,36 +111,30 @@
     </bpmn:intermediateThrowEvent>
     <bpmn:intermediateCatchEvent id="Catch_Sys_Data" name="Odbiór danych z formularza">
       <bpmn:incoming>Flow_Sys3</bpmn:incoming>
-      <bpmn:incoming>Flow_Sys_Loop</bpmn:incoming>
       <bpmn:outgoing>Flow_Sys4</bpmn:outgoing>
       <bpmn:messageEventDefinition />
     </bpmn:intermediateCatchEvent>
     <bpmn:exclusiveGateway id="Gateway_Sys" name="Czy dane poprawne?">
       <bpmn:incoming>Flow_Sys4</bpmn:incoming>
-      <bpmn:outgoing>Flow_Sys_Nie</bpmn:outgoing>
       <bpmn:outgoing>Flow_Sys_Tak</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0msfi7x</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:intermediateThrowEvent id="Throw_Sys_Err" name="Zwrócenie błędu walidacji">
-      <bpmn:incoming>Flow_Sys_Nie</bpmn:incoming>
-      <bpmn:outgoing>Flow_Sys_Loop</bpmn:outgoing>
-      <bpmn:messageEventDefinition />
-    </bpmn:intermediateThrowEvent>
-    <bpmn:task id="Task_Sys2" name="Dodanie placówki do bazy">
-      <bpmn:incoming>Flow_Sys_Tak</bpmn:incoming>
-      <bpmn:outgoing>Flow_Sys5</bpmn:outgoing>
-    </bpmn:task>
     <bpmn:endEvent id="End_Sys" name="Wysłanie potwierdzenia">
       <bpmn:incoming>Flow_Sys5</bpmn:incoming>
+      <bpmn:incoming>Flow_0msfi7x</bpmn:incoming>
       <bpmn:messageEventDefinition />
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_Sys1" sourceRef="Start_Sys_Req" targetRef="Task_Sys1" />
     <bpmn:sequenceFlow id="Flow_Sys2" sourceRef="Task_Sys1" targetRef="Throw_Sys_Form" />
     <bpmn:sequenceFlow id="Flow_Sys3" sourceRef="Throw_Sys_Form" targetRef="Catch_Sys_Data" />
     <bpmn:sequenceFlow id="Flow_Sys4" sourceRef="Catch_Sys_Data" targetRef="Gateway_Sys" />
-    <bpmn:sequenceFlow id="Flow_Sys_Nie" name="Nie" sourceRef="Gateway_Sys" targetRef="Throw_Sys_Err" />
-    <bpmn:sequenceFlow id="Flow_Sys_Loop" sourceRef="Throw_Sys_Err" targetRef="Catch_Sys_Data" />
     <bpmn:sequenceFlow id="Flow_Sys_Tak" name="Tak" sourceRef="Gateway_Sys" targetRef="Task_Sys2" />
     <bpmn:sequenceFlow id="Flow_Sys5" sourceRef="Task_Sys2" targetRef="End_Sys" />
+    <bpmn:task id="Task_Sys2" name="Dodanie placówki do bazy">
+      <bpmn:incoming>Flow_Sys_Tak</bpmn:incoming>
+      <bpmn:outgoing>Flow_Sys5</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="Flow_0msfi7x" name="Nie" sourceRef="Gateway_Sys" targetRef="End_Sys" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1">
@@ -325,20 +318,14 @@
           <dc:Bounds x="1030" y="478" width="59" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Throw_Sys_Err_di" bpmnElement="Throw_Sys_Err">
-        <dc:Bounds x="1042" y="602" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="818" y="636" width="84" height="27" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Task_Sys2_di" bpmnElement="Task_Sys2">
-        <dc:Bounds x="1140" y="500" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="End_Sys_di" bpmnElement="End_Sys">
         <dc:Bounds x="1280" y="522" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1262" y="565" width="73" height="27" />
+          <dc:Bounds x="1326" y="526" width="68" height="27" />
         </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Sys2_di" bpmnElement="Task_Sys2">
+        <dc:Bounds x="1140" y="580" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_Sys1_di" bpmnElement="Flow_Sys1">
         <di:waypoint x="686" y="540" />
@@ -356,28 +343,25 @@
         <di:waypoint x="986" y="540" />
         <di:waypoint x="1035" y="540" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_Sys_Nie_di" bpmnElement="Flow_Sys_Nie">
-        <di:waypoint x="1060" y="565" />
-        <di:waypoint x="1060" y="602" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1065" y="575" width="17" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_Sys_Loop_di" bpmnElement="Flow_Sys_Loop">
-        <di:waypoint x="1042" y="620" />
-        <di:waypoint x="968" y="620" />
-        <di:waypoint x="968" y="558" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_Sys_Tak_di" bpmnElement="Flow_Sys_Tak">
-        <di:waypoint x="1085" y="540" />
-        <di:waypoint x="1140" y="540" />
+        <di:waypoint x="1060" y="565" />
+        <di:waypoint x="1060" y="620" />
+        <di:waypoint x="1140" y="620" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1100" y="522" width="18" height="14" />
+          <dc:Bounds x="1087" y="602" width="17" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_Sys5_di" bpmnElement="Flow_Sys5">
-        <di:waypoint x="1240" y="540" />
+        <di:waypoint x="1240" y="620" />
+        <di:waypoint x="1298" y="620" />
+        <di:waypoint x="1298" y="558" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0msfi7x_di" bpmnElement="Flow_0msfi7x">
+        <di:waypoint x="1085" y="540" />
         <di:waypoint x="1280" y="540" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1174" y="522" width="17" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Msg_BizToAdmin_di" bpmnElement="Msg_BizToAdmin">
         <di:waypoint x="468" y="148" />
@@ -414,17 +398,6 @@
         <di:waypoint x="968" y="522" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="877" y="383" width="85" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="MsgFlow_4_di" bpmnElement="MsgFlow_4">
-        <di:waypoint x="1060" y="638" />
-        <di:waypoint x="1060" y="680" />
-        <di:waypoint x="590" y="680" />
-        <di:waypoint x="590" y="430" />
-        <di:waypoint x="1048" y="430" />
-        <di:waypoint x="1048" y="338" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1009" y="442" width="67" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="MsgFlow_5_di" bpmnElement="MsgFlow_5">

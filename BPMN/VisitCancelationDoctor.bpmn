@@ -8,13 +8,13 @@
   <bpmn:collaboration id="Collab_VisitCancel">
     <bpmn:participant id="Pool_Lekarz" name="Lekarz" processRef="Proc_Lekarz" />
     <bpmn:participant id="Pool_System" name="System Medyczny" processRef="Proc_System" />
-    <bpmn:participant id="Pool_Pacjent" name="Pacjent" processRef="Proc_Pacjent" />
     <bpmn:participant id="Pool_PayU" name="System Płatniczy" processRef="Proc_PayU" />
+    <bpmn:participant id="Pool_Pacjent" name="Pacjent" />
     <bpmn:messageFlow id="MF_LekarzDoSystem" name="Powód anulowania" sourceRef="End_LekarzAnulowal" targetRef="Start_SystemOtrzymuje" />
     <bpmn:messageFlow id="MF_SystemDoPayU" name="Zlecenie zwrotu płatności" sourceRef="Task_PrzekierujDoZwrotu" targetRef="Start_PayUZwrot" />
     <bpmn:messageFlow id="MF_PayUDoSystem" name="Status transakcji" sourceRef="End_PayUInformuje" targetRef="Catch_StatusZwrotu" />
-    <bpmn:messageFlow id="MF_SystemDoPacjentAnulowanie" name="Powiadomienie o anulowaniu" sourceRef="Pool_System" targetRef="Catch_PacjentAnulowanie" />
-    <bpmn:messageFlow id="MF_SystemDoPacjentZwrot" name="Powiadomienie o zwrocie" sourceRef="Task_WyslijPowiadomienieoZwrocie" targetRef="Catch_PacjentZwrot" />
+    <bpmn:messageFlow id="Flow_070vfgx" sourceRef="End_SystemBezZwrotu" targetRef="Pool_Pacjent" />
+    <bpmn:messageFlow id="Flow_1ubjfqu" sourceRef="End_SystemZwrot" targetRef="Pool_Pacjent" />
   </bpmn:collaboration>
   <bpmn:process id="Proc_Lekarz" isExecutable="false">
     <bpmn:startEvent id="Start_Lekarz" name="Wybiera wizytę do anulowania">
@@ -59,9 +59,6 @@
       <bpmn:incoming>SF_S3_Nie</bpmn:incoming>
       <bpmn:outgoing>SF_S7</bpmn:outgoing>
     </bpmn:task>
-    <bpmn:endEvent id="End_SystemZwrot" name="Anulowanie ze zwrotem zakończone">
-      <bpmn:incoming>SF_S6</bpmn:incoming>
-    </bpmn:endEvent>
     <bpmn:task id="Task_WyslijPowiadomienieoZwrocie" name="Wysyła powiadomienie o zwrocie do Pacjenta">
       <bpmn:incoming>SF_S5</bpmn:incoming>
       <bpmn:outgoing>SF_S6</bpmn:outgoing>
@@ -75,9 +72,6 @@
       <bpmn:outgoing>SF_S5</bpmn:outgoing>
       <bpmn:messageEventDefinition id="MED_SysCatch" messageRef="Msg_StatusTransakcji" />
     </bpmn:intermediateCatchEvent>
-    <bpmn:endEvent id="End_SystemBezZwrotu" name="Anulowanie bez zwrotu zakończone">
-      <bpmn:incoming>SF_S7</bpmn:incoming>
-    </bpmn:endEvent>
     <bpmn:sequenceFlow id="SF_S1" sourceRef="Start_SystemOtrzymuje" targetRef="Task_AnulujWBazie" />
     <bpmn:sequenceFlow id="SF_S2" sourceRef="Task_AnulujWBazie" targetRef="GW_CzyPlatnosc" />
     <bpmn:sequenceFlow id="SF_S3_Tak" name="Tak" sourceRef="GW_CzyPlatnosc" targetRef="Task_PrzekierujDoZwrotu" />
@@ -86,29 +80,14 @@
     <bpmn:sequenceFlow id="SF_S6" sourceRef="Task_WyslijPowiadomienieoZwrocie" targetRef="End_SystemZwrot" />
     <bpmn:sequenceFlow id="SF_S5" sourceRef="Catch_StatusZwrotu" targetRef="Task_WyslijPowiadomienieoZwrocie" />
     <bpmn:sequenceFlow id="SF_S4" sourceRef="Task_PrzekierujDoZwrotu" targetRef="Catch_StatusZwrotu" />
-  </bpmn:process>
-  <bpmn:process id="Proc_Pacjent" isExecutable="false">
-    <bpmn:startEvent id="Catch_PacjentZwrot" name="Otrzymuje powiadomienie o zwrocie płatności">
-      <bpmn:outgoing>SF_P2</bpmn:outgoing>
-      <bpmn:messageEventDefinition id="MED_PacZwrot" messageRef="Msg_PowiadomienieZwrotu" />
-    </bpmn:startEvent>
-    <bpmn:task id="Task_PacjentOtrzymujeZwrot" name="Otrzymuje zwrot płatności">
-      <bpmn:incoming>SF_P2</bpmn:incoming>
-      <bpmn:outgoing>SF_P3</bpmn:outgoing>
-    </bpmn:task>
-    <bpmn:endEvent id="End_PacjentZwrot" name="Wizyta anulowana, płatność zwrócona">
-      <bpmn:incoming>SF_P3</bpmn:incoming>
+    <bpmn:endEvent id="End_SystemBezZwrotu" name="Anulowanie bez zwrotu zakończone">
+      <bpmn:incoming>SF_S7</bpmn:incoming>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_0hbpez9" />
     </bpmn:endEvent>
-    <bpmn:endEvent id="End_PacjentAnulowanie" name="Wizyta anulowana">
-      <bpmn:incoming>SF_P1</bpmn:incoming>
+    <bpmn:endEvent id="End_SystemZwrot" name="Anulowanie ze zwrotem zakończone">
+      <bpmn:incoming>SF_S6</bpmn:incoming>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_0t6d5z9" />
     </bpmn:endEvent>
-    <bpmn:startEvent id="Catch_PacjentAnulowanie" name="Otrzymuje powiadomienie o anulowaniu wizyty">
-      <bpmn:outgoing>SF_P1</bpmn:outgoing>
-      <bpmn:messageEventDefinition id="MED_PacAnul" messageRef="Msg_PowiadomieniePacjenta" />
-    </bpmn:startEvent>
-    <bpmn:sequenceFlow id="SF_P2" sourceRef="Catch_PacjentZwrot" targetRef="Task_PacjentOtrzymujeZwrot" />
-    <bpmn:sequenceFlow id="SF_P3" sourceRef="Task_PacjentOtrzymujeZwrot" targetRef="End_PacjentZwrot" />
-    <bpmn:sequenceFlow id="SF_P1" sourceRef="Catch_PacjentAnulowanie" targetRef="End_PacjentAnulowanie" />
   </bpmn:process>
   <bpmn:process id="Proc_PayU" isExecutable="false">
     <bpmn:endEvent id="End_PayUInformuje" name="Informuje o statusie transakcji">
@@ -129,7 +108,7 @@
   <bpmndi:BPMNDiagram id="BPMNDiagram_VisitCancel">
     <bpmndi:BPMNPlane id="BPMNPlane_VisitCancel" bpmnElement="Collab_VisitCancel">
       <bpmndi:BPMNShape id="S_Pool_Lekarz" bpmnElement="Pool_Lekarz" isHorizontal="true">
-        <dc:Bounds x="120" y="80" width="1520" height="290" />
+        <dc:Bounds x="120" y="80" width="680" height="290" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="S_Start_Lekarz" bpmnElement="Start_Lekarz">
@@ -207,12 +186,6 @@
         <dc:Bounds x="620" y="630" width="140" height="80" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="S_End_SystemZwrot" bpmnElement="End_SystemZwrot">
-        <dc:Bounds x="1532" y="555" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1513" y="598" width="75" height="40" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="S_Task_WyslijPowiadomienieoZwrocie" bpmnElement="Task_WyslijPowiadomienieoZwrocie">
         <dc:Bounds x="1310" y="533" width="140" height="80" />
         <bpmndi:BPMNLabel />
@@ -227,10 +200,16 @@
           <dc:Bounds x="1149" y="517.5" width="81" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="S_End_SystemBezZwrotu" bpmnElement="End_SystemBezZwrotu">
+      <bpmndi:BPMNShape id="Event_0xnl5e0_di" bpmnElement="End_SystemBezZwrotu">
         <dc:Bounds x="862" y="652" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="840" y="695" width="81" height="40" />
+          <dc:Bounds x="842" y="695" width="78" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1kr01ff_di" bpmnElement="End_SystemZwrot">
+        <dc:Bounds x="1532" y="555" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1515" y="598" width="71" height="40" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="E_SF_S1" bpmnElement="SF_S1">
@@ -272,77 +251,36 @@
         <di:waypoint x="1080" y="573" />
         <di:waypoint x="1172" y="573" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="S_Pool_Pacjent" bpmnElement="Pool_Pacjent" isHorizontal="true">
-        <dc:Bounds x="120" y="870" width="1520" height="230" />
-        <bpmndi:BPMNLabel />
+      <bpmndi:BPMNShape id="Participant_1nk53sw_di" bpmnElement="Pool_Pacjent" isHorizontal="true">
+        <dc:Bounds x="840" y="300" width="800" height="70" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="S_Catch_PacjentZwrot" bpmnElement="Catch_PacjentZwrot">
-        <dc:Bounds x="192" y="945" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="167" y="988" width="86" height="40" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="S_Task_PacjentOtrzymujeZwrot" bpmnElement="Task_PacjentOtrzymujeZwrot">
-        <dc:Bounds x="300" y="923" width="140" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="S_End_PacjentZwrot" bpmnElement="End_PacjentZwrot">
-        <dc:Bounds x="522" y="945" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="510" y="988" width="60" height="53" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="S_End_PacjentAnulowanie" bpmnElement="End_PacjentAnulowanie">
-        <dc:Bounds x="1542" y="945" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1515" y="988" width="90" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="S_Catch_PacjentAnulowanie" bpmnElement="Catch_PacjentAnulowanie">
-        <dc:Bounds x="1392" y="945" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1366" y="988" width="89" height="40" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="E_SF_P2" bpmnElement="SF_P2">
-        <di:waypoint x="228" y="963" />
-        <di:waypoint x="300" y="963" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="E_SF_P3" bpmnElement="SF_P3">
-        <di:waypoint x="440" y="963" />
-        <di:waypoint x="522" y="963" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="E_SF_P1" bpmnElement="SF_P1">
-        <di:waypoint x="1428" y="963" />
-        <di:waypoint x="1542" y="963" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="S_Pool_PayU" bpmnElement="Pool_PayU" isHorizontal="true">
-        <dc:Bounds x="120" y="1180" width="1520" height="210" />
+        <dc:Bounds x="120" y="820" width="1520" height="210" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="S_End_PayUInformuje" bpmnElement="End_PayUInformuje">
-        <dc:Bounds x="1342" y="1251" width="36" height="36" />
+        <dc:Bounds x="1342" y="891" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1316" y="1294" width="88" height="27" />
+          <dc:Bounds x="1316" y="937" width="88" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="S_Task_WykonajZwrot" bpmnElement="Task_WykonajZwrot">
-        <dc:Bounds x="1070" y="1229" width="140" height="80" />
+        <dc:Bounds x="1070" y="869" width="140" height="80" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="S_Start_PayUZwrot" bpmnElement="Start_PayUZwrot">
-        <dc:Bounds x="942" y="1251" width="36" height="36" />
+        <dc:Bounds x="942" y="891" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="920" y="1294" width="81" height="27" />
+          <dc:Bounds x="922" y="934" width="77" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="E_SF_PU2" bpmnElement="SF_PU2">
-        <di:waypoint x="1210" y="1269" />
-        <di:waypoint x="1342" y="1269" />
+        <di:waypoint x="1210" y="909" />
+        <di:waypoint x="1342" y="909" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="E_SF_PU1" bpmnElement="SF_PU1">
-        <di:waypoint x="978" y="1269" />
-        <di:waypoint x="1070" y="1269" />
+        <di:waypoint x="978" y="909" />
+        <di:waypoint x="1070" y="909" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="E_MF_LekarzDoSystem" bpmnElement="MF_LekarzDoSystem">
         <di:waypoint x="660" y="218" />
@@ -355,35 +293,27 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="E_MF_SystemDoPayU" bpmnElement="MF_SystemDoPayU">
         <di:waypoint x="960" y="613" />
-        <di:waypoint x="960" y="1251" />
+        <di:waypoint x="960" y="891" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="969" y="687" width="81" height="27" />
+          <dc:Bounds x="931" y="843" width="77" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="E_MF_PayUDoSystem" bpmnElement="MF_PayUDoSystem">
-        <di:waypoint x="1360" y="1251" />
-        <di:waypoint x="1360" y="1160" />
-        <di:waypoint x="1190" y="1160" />
+        <di:waypoint x="1360" y="891" />
+        <di:waypoint x="1360" y="730" />
+        <di:waypoint x="1190" y="730" />
         <di:waypoint x="1190" y="591" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1209" y="1133" width="81" height="14" />
+          <dc:Bounds x="1209" y="703" width="82" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="E_MF_SystemDoPacjentAnulowanie" bpmnElement="MF_SystemDoPacjentAnulowanie">
-        <di:waypoint x="1410" y="780" />
-        <di:waypoint x="1410" y="945" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1417" y="823" width="87" height="27" />
-        </bpmndi:BPMNLabel>
+      <bpmndi:BPMNEdge id="Flow_070vfgx_di" bpmnElement="Flow_070vfgx">
+        <di:waypoint x="880" y="652" />
+        <di:waypoint x="880" y="370" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="E_MF_SystemDoPacjentZwrot" bpmnElement="MF_SystemDoPacjentZwrot">
-        <di:waypoint x="1340" y="613" />
-        <di:waypoint x="1340" y="830" />
-        <di:waypoint x="210" y="830" />
-        <di:waypoint x="210" y="945" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1346" y="686" width="87" height="27" />
-        </bpmndi:BPMNLabel>
+      <bpmndi:BPMNEdge id="Flow_1ubjfqu_di" bpmnElement="Flow_1ubjfqu">
+        <di:waypoint x="1550" y="555" />
+        <di:waypoint x="1550" y="370" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

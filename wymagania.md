@@ -34,10 +34,10 @@
 
 ### Realizacja wizyty i historia medyczna
 
-19. Lekarz musi móc zakończyć wizytę poprzez uzupełnienie formularza po wizycie (notatki, dane medyczne).
-20. System musi aktualizować historię wizyt i metryki operacyjne po zakończeniu lub anulowaniu wizyty.
+19. Lekarz może zakończyć wizytę poprzez uzupełnienie formularza po wizycie (notatki, dane medyczne).
+20. System powinien aktualizować historię wizyt i metryki operacyjne po zakończeniu lub anulowaniu wizyty.
 
 ### Portal pacjenta i obsługa wyjątków
 
-21. Portal pacjenta musi umożliwiać podstawowe akcje sesyjne: logowanie, wybór akcji, umówienie wizyty, anulowanie wizyty, wylogowanie.
-22. System musi obsługiwać ścieżki wyjątków procesowych: błędy walidacji, błędy grafiku, błędy systemowe, eskalacja do administratora.
+21. Portal pacjenta powinien umożliwiać podstawowe akcje sesyjne: logowanie, wybór akcji, umówienie wizyty, anulowanie wizyty, wylogowanie.
+22. System powinien obsługiwać ścieżki wyjątków procesowych: błędy walidacji, błędy grafiku, błędy systemowe, eskalacja do administratora.

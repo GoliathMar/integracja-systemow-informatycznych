@@ -21,7 +21,7 @@ workspace "C4 L2 - System Medyczny" "Container diagram (C4-compliant, event-driv
       paymentService = container "Payment Service (PayU Adapter)" "Inicjacja platnosci, odbior webhookow/statusow, timeouty, zwroty." "Service"
       notificationService = container "Notification Service" "Potwierdzenia i przypomnienia, sciezki manualne." "Service"
       facilityStaffService = container "Facility & Staff Service" "Rejestracja placowek, zakladanie kont recepcjonistow i lekarzy." "Service"
-      medicalRecordService = container "Medical Record / Visit Finalization Service" "Zakonczenie wizyty, historia wizyt, metryki operacyjne." "Service"
+      medicalRecordService = container "Medical Record / Visit Finalization Service" "Zakonczenie wizyty, historia wizyt, SLA." "Service"
       auditLoggingService = container "Audit/Logging Service" "Slad zmian statusow wizyt i platnosci, logi operacyjne." "Service"
 
       rabbitmq = container "Message Broker (RabbitMQ)" "Asynchroniczne eventy domenowe (appointment.created, appointment.canceled, payment.success, payment.failed)." "RabbitMQ" {
@@ -46,7 +46,7 @@ workspace "C4 L2 - System Medyczny" "Container diagram (C4-compliant, event-driv
       dbFacilityStaff = container "Facility & Staff DB" "Placowki i konta personelu." "PostgreSQL" {
         tags "Database"
       }
-      dbMedicalRecords = container "Medical Records DB" "Historia wizyt, notatki lekarskie, metryki." "PostgreSQL" {
+      dbMedicalRecords = container "Medical Records DB" "Historia wizyt, notatki lekarskie, SLA." "PostgreSQL" {
         tags "Database"
       }
       dbAudit = container "Audit DB" "Niezmienialny slad audytowy i logi operacyjne." "PostgreSQL" {
@@ -88,29 +88,29 @@ workspace "C4 L2 - System Medyczny" "Container diagram (C4-compliant, event-driv
 
     systemMedyczny.notificationService -> communicationApis "Wysylka email i synchronizacja kalendarza" "HTTP"
 
-    systemMedyczny.authIdentityService -> systemMedyczny.dbIdentity "odczyt" "JDBC"
-    systemMedyczny.dbIdentity -> systemMedyczny.authIdentityService "zapis" "JDBC"
+    systemMedyczny.authIdentityService -> systemMedyczny.dbIdentity "odczyt" "TCP/Postgres"
+    systemMedyczny.dbIdentity -> systemMedyczny.authIdentityService "zapis" "TCP/Postgres"
 
-    systemMedyczny.appointmentService -> systemMedyczny.dbAppointments "odczyt" "JDBC"
-    systemMedyczny.dbAppointments -> systemMedyczny.appointmentService "zapis" "JDBC"
+    systemMedyczny.appointmentService -> systemMedyczny.dbAppointments "odczyt" "TCP/Postgres"
+    systemMedyczny.dbAppointments -> systemMedyczny.appointmentService "zapis" "TCP/Postgres"
 
-    systemMedyczny.scheduleService -> systemMedyczny.dbSchedule "odczyt" "JDBC"
-    systemMedyczny.dbSchedule -> systemMedyczny.scheduleService "zapis" "JDBC"
+    systemMedyczny.scheduleService -> systemMedyczny.dbSchedule "odczyt" "TCP/Postgres"
+    systemMedyczny.dbSchedule -> systemMedyczny.scheduleService "zapis" "TCP/Postgres"
 
-    systemMedyczny.paymentService -> systemMedyczny.dbPayments "odczyt" "JDBC"
-    systemMedyczny.dbPayments -> systemMedyczny.paymentService "zapis" "JDBC"
+    systemMedyczny.paymentService -> systemMedyczny.dbPayments "odczyt" "TCP/Postgres"
+    systemMedyczny.dbPayments -> systemMedyczny.paymentService "zapis" "TCP/Postgres"
 
-    systemMedyczny.notificationService -> systemMedyczny.dbNotifications "odczyt" "JDBC"
-    systemMedyczny.dbNotifications -> systemMedyczny.notificationService "zapis" "JDBC"
+    systemMedyczny.notificationService -> systemMedyczny.dbNotifications "odczyt" "TCP/Postgres"
+    systemMedyczny.dbNotifications -> systemMedyczny.notificationService "zapis" "TCP/Postgres"
 
-    systemMedyczny.facilityStaffService -> systemMedyczny.dbFacilityStaff "odczyt" "JDBC"
-    systemMedyczny.dbFacilityStaff -> systemMedyczny.facilityStaffService "zapis" "JDBC"
+    systemMedyczny.facilityStaffService -> systemMedyczny.dbFacilityStaff "odczyt" "TCP/Postgres"
+    systemMedyczny.dbFacilityStaff -> systemMedyczny.facilityStaffService "zapis" "TCP/Postgres"
 
-    systemMedyczny.medicalRecordService -> systemMedyczny.dbMedicalRecords "odczyt" "JDBC"
-    systemMedyczny.dbMedicalRecords -> systemMedyczny.medicalRecordService "zapis" "JDBC"
+    systemMedyczny.medicalRecordService -> systemMedyczny.dbMedicalRecords "odczyt" "TCP/Postgres"
+    systemMedyczny.dbMedicalRecords -> systemMedyczny.medicalRecordService "zapis" "TCP/Postgres"
 
-    systemMedyczny.auditLoggingService -> systemMedyczny.dbAudit "odczyt" "JDBC"
-    systemMedyczny.dbAudit -> systemMedyczny.auditLoggingService "zapis" "JDBC"
+    systemMedyczny.auditLoggingService -> systemMedyczny.dbAudit "odczyt" "TCP/Postgres"
+    systemMedyczny.dbAudit -> systemMedyczny.auditLoggingService "zapis" "TCP/Postgres"
   }
 
   views {
